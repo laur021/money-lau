@@ -1,33 +1,33 @@
 # MoneyLau Implementation Status
 
-## Completed: Phase 1 - Project Foundation
+## Completed: Phase 2 - Authentication and Database Security
 
-- Initialized a strict TypeScript Next.js App Router application with Tailwind CSS, ESLint, and shadcn/ui primitives.
-- Added a dark-default theme with light/system support via `next-themes`.
-- Built a responsive foundation shell: desktop sidebar, mobile bottom navigation, dashboard placeholders, and a staged login page.
-- Added Supabase browser/server client scaffolding and public environment validation.
-- Added `.env.example` without secrets and a focused Vitest suite for environment configuration.
+- Implemented Google OAuth initiation, PKCE callback exchange, sign-out, and clear user-facing authentication errors.
+- Added cookie-based Supabase session refresh in `proxy.ts` and protected the application route group with verified JWT claims.
+- Added the initial Supabase migration for profiles and default income/expense categories, including first-login provisioning triggers, RLS, grants, indexes, and updated-at triggers.
+- Added authentication setup instructions and redirect-path tests.
 
 ## Architectural Decisions
 
-- The app is source-less at the repository root, using the requested `app/`, `components/`, `lib/`, `supabase/`, `tests/`, and `docs/` structure.
-- Authentication and data access are intentionally deferred. Supabase client creation fails clearly until the public URL and anon key are configured.
-- The root route is a presentational dashboard shell only; it does not claim to enforce protected routes.
+- Protected pages use `getClaims()` rather than trusting a cookie-backed session object.
+- Google secrets remain only in Google Cloud and Supabase dashboard configuration; the app uses only public Supabase connection values.
+- Accounts and transaction tables are deferred to Phases 3 and 4. The initial migration includes categories solely because the new-user trigger provisions defaults.
 
 ## Changed Files
 
-- Next.js, Tailwind, shadcn/ui, dependency, TypeScript, and test configuration files.
-- `app/`, `components/`, `lib/`, `tests/`, `.env.example`, and this status document.
+- Auth actions, callback route, session proxy, protected layout, login UI, and sign-out control.
+- `supabase/migrations/20260728074331_phase_2_auth_profiles_categories.sql`.
+- `docs/AUTHENTICATION_SETUP.md`, auth redirect tests, and this status document.
 
 ## Database Migrations
 
-None. Database schema and RLS are reserved for later phases.
+- `20260728074331_phase_2_auth_profiles_categories.sql`: profiles and categories, user provisioning/default categories, RLS policies, grants, indexes, and timestamp triggers.
 
 ## Remaining Issues
 
-- No Supabase project credentials are configured.
-- Google OAuth, callback handling, protected routes, finance records, and reporting are not implemented by design.
+- A Supabase project and Google OAuth client must be configured using the setup guide before live authentication can be exercised.
+- Account/category management, transactions, reports, onboarding, and settings remain intentionally out of scope.
 
 ## Recommended Next Phase
 
-Phase 2: configure Supabase authentication, implement Google OAuth, the callback route, session handling, and protected-route enforcement.
+Phase 3: implement account and category management, subcategories, archiving, ownership validation, and account/category tests.
