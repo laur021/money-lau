@@ -15,3 +15,5 @@
 4. Enable Google in Supabase and store the Google client secret only in the Supabase dashboard.
 
 The app uses PKCE and exchanges the authorization code in `/auth/callback`. Sessions are refreshed by `proxy.ts`, and protected routes verify claims with `getClaims()`.
+
+For the production Vercel URL, redirect allow-list, and Google OAuth checklist, see [DEPLOYMENT.md](DEPLOYMENT.md).

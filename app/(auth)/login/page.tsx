@@ -13,6 +13,7 @@ import { signInWithGoogle } from "@/features/auth/actions";
 import { createClient } from "@/lib/supabase/server";
 import { hasSupabaseConfig, readPublicEnv } from "@/lib/validation/env";
 import { AlertCircle, Globe2 } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 const messages: Record<string, string> = {
@@ -70,8 +71,9 @@ export default async function LoginPage({
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="text-sm text-muted-foreground">
-          Your Google password is never shared with MoneyLau.
+        <CardFooter className="flex flex-col items-start gap-2 text-sm text-muted-foreground">
+          <span>Your Google password is never shared with MoneyLau.</span>
+          <span><Link className="underline underline-offset-4 hover:text-foreground" href="/privacy">Privacy</Link> and <Link className="underline underline-offset-4 hover:text-foreground" href="/terms">Terms</Link></span>
         </CardFooter>
       </Card>
     </main>
