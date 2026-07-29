@@ -1,20 +1,21 @@
 # MoneyLau Implementation Status
 
-## Completed: Phase 3 - Accounts and Categories
+## Completed: Phase 4 - Transactions and Ledger
 
-- Added protected account and category pages with server-validated creation plus archive/restore controls.
-- Applied the accounts table, RLS policies, timestamp trigger, and category parent ownership/type validation to Supabase.
-- Account identifiers are constrained to four characters; full bank details are never stored.
+- Added income, expense, and transfer transactions with completed, pending, and cancelled states.
+- Added transaction validation for ownership, active accounts/categories, matching currency, and distinct transfer accounts.
+- Added an RLS-protected current account-balance view that only applies completed entries.
+- Replaced sidebar navigation labels with working routes.
 
 ## Database Migrations
 
-- `20260729020702_phase_3_accounts_category_security`: accounts schema and RLS, plus category parent ownership validation.
+- `20260729021232_phase_4_transaction_ledger`: transactions, RLS, ownership/currency validation, indexes, and account balance view.
 
 ## Remaining Issues
 
 - Google OAuth provider setup is pending completion in the Google Cloud and Supabase dashboards.
-- Transactions, ledger balances, reports, onboarding, and settings remain out of scope.
+- Reports, onboarding, settings, and CSV export remain out of scope.
 
 ## Recommended Next Phase
 
-Phase 4: implement income, expenses, transfers, the transaction ledger, balance calculations, validation, and ledger tests.
+Phase 5: implement dashboard summaries, charts, date filters, reporting, multiple-currency display, and CSV export.
