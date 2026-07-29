@@ -1,3 +1,61 @@
-import { createTransaction } from "@/features/transactions/actions";
+import { format } from "date-fns";
+import { ReceiptText } from "lucide-react";
+import { TransactionForm } from "@/components/transactions/transaction-form";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { createClient } from "@/lib/supabase/server";
-export default async function TransactionsPage(){const supabase=await createClient(); const [{data:accounts},{data:categories},{data:transactions}]=await Promise.all([supabase.from('accounts').select('*').eq('is_archived',false),supabase.from('categories').select('*').eq('is_archived',false),supabase.from('transactions').select('*').order('transaction_date',{ascending:false})]); return <main className="p-6"><h1 className="text-2xl font-semibold">Transactions</h1><form action={createTransaction} className="mt-6 flex flex-wrap gap-2"><select name="transactionType" className="border p-2"><option value="expense">Expense</option><option value="income">Income</option><option value="transfer">Transfer</option></select><select name="accountId" className="border p-2">{accounts?.map(a=><option key={a.id} value={a.id}>{a.name}</option>)}</select><select name="destinationAccountId" className="border p-2"><option value="">No destination</option>{accounts?.map(a=><option key={a.id} value={a.id}>{a.name}</option>)}</select><select name="categoryId" className="border p-2"><option value="">No category</option>{categories?.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select><input name="amount" required min="0.01" step="0.01" type="number" className="border p-2"/><input name="currency" defaultValue="PHP" maxLength={3} className="border p-2"/><select name="status" className="border p-2"><option value="completed">Completed</option><option value="pending">Pending</option><option value="cancelled">Cancelled</option></select><button className="border p-2">Add transaction</button></form><div className="mt-6 flex flex-col gap-2">{transactions?.map(t=><div key={t.id} className="border p-3">{t.transaction_type} {t.amount} {t.currency} - {t.status}</div>)}</div></main>}
+
+function statusVariant(status: string) {
+  if (status === "cancelled") return "destructive" as const;
+  if (status === "pending") return "outline" as const;
+  return "secondary" as const;
+}
+
+export default async function TransactionsPage() {
+  const supabase = await createClient();
+  const [{ data: accounts }, { data: categories }, { data: transactions }] = await Promise.all([
+    supabase.from("accounts").select("id,name,currency").eq("is_archived", false).order("name"),
+    supabase.from("categories").select("id,name,transaction_type").eq("is_archived", false).order("display_order"),
+    supabase.from("transactions").select("id,transaction_type,amount,currency,status,transaction_date,description,merchant").order("transaction_date", { ascending: false }),
+  ]);
+
+  return (
+    <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-4 sm:p-6">
+      <div className="flex flex-col gap-1">
+        <p className="text-sm text-muted-foreground">A complete history of financial activity</p>
+        <h1 className="text-2xl font-semibold">Transactions</h1>
+      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Add a transaction</CardTitle>
+          <CardDescription>Transfers stay within a shared currency. Income and expenses require a matching category.</CardDescription>
+        </CardHeader>
+        <CardContent><TransactionForm accounts={accounts ?? []} categories={(categories ?? []) as { id: string; name: string; transaction_type: "income" | "expense" }[]} /></CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2"><ReceiptText className="size-4" />Recent activity</CardTitle>
+          <CardDescription>Pending and cancelled entries do not change balances or cash-flow reports.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {transactions?.length ? (
+            <div className="flex flex-col divide-y rounded-lg border">
+              {transactions.map((transaction) => (
+                <div className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between" key={transaction.id}>
+                  <div className="flex min-w-0 flex-col gap-1">
+                    <div className="flex flex-wrap items-center gap-2"><Badge variant="outline">{transaction.transaction_type}</Badge><Badge variant={statusVariant(transaction.status)}>{transaction.status}</Badge></div>
+                    <span className="text-sm text-muted-foreground">{transaction.merchant || transaction.description || "No description"} | {format(new Date(transaction.transaction_date), "MMM d, yyyy")}</span>
+                  </div>
+                  <span className="font-medium">{Number(transaction.amount).toFixed(2)} {transaction.currency}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Empty><EmptyHeader><EmptyMedia variant="icon"><ReceiptText /></EmptyMedia><EmptyTitle>No transactions yet</EmptyTitle><EmptyDescription>Add an income, expense, or transfer to start your ledger.</EmptyDescription></EmptyHeader></Empty>
+          )}
+        </CardContent>
+      </Card>
+    </main>
+  );
+}

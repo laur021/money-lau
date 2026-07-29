@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = getSafeNextPath(searchParams.get("next"));
+  const next = getSafeNextPath(searchParams.get("next"), "/onboarding");
   if (!code) return NextResponse.redirect(new URL("/login?error=missing_code", origin));
   try {
     const supabase = await createClient();
