@@ -1,0 +1,3 @@
+import { describe, expect, it } from "vitest";
+import { toCsv, totalsByCurrency } from "../lib/calculations/ledger";
+describe('ledger summaries',()=>{it('excludes transfers and unfinished entries',()=>expect(totalsByCurrency([{transaction_type:'income',amount:10,currency:'PHP',status:'completed',transaction_date:'',category_id:null},{transaction_type:'transfer',amount:2,currency:'PHP',status:'completed',transaction_date:'',category_id:null},{transaction_type:'expense',amount:3,currency:'PHP',status:'pending',transaction_date:'',category_id:null}])).toEqual({PHP:{income:10,expense:0}}));it('quotes CSV values',()=>expect(toCsv([{transaction_type:'income',amount:1,currency:'PHP',status:'completed',transaction_date:'today',category_id:null}])).toContain('"income"'));});

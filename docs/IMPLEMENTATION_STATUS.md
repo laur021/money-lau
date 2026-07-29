@@ -1,21 +1,16 @@
 # MoneyLau Implementation Status
 
-## Completed: Phase 4 - Transactions and Ledger
+## Completed: Phase 5 - Dashboard and Reports
 
-- Added income, expense, and transfer transactions with completed, pending, and cancelled states.
-- Added transaction validation for ownership, active accounts/categories, matching currency, and distinct transfer accounts.
-- Added an RLS-protected current account-balance view that only applies completed entries.
-- Replaced sidebar navigation labels with working routes.
-
-## Database Migrations
-
-- `20260729021232_phase_4_transaction_ledger`: transactions, RLS, ownership/currency validation, indexes, and account balance view.
+- Added dashboard income, expense, cash-flow, and account-balance summaries grouped by currency.
+- Added a Recharts cash-flow visual, report summaries, and authenticated CSV export.
+- Added ledger calculation tests and shadcn card/button surfaces for the new dashboard and reports views.
 
 ## Remaining Issues
 
-- Google OAuth provider setup is pending completion in the Google Cloud and Supabase dashboards.
-- Reports, onboarding, settings, and CSV export remain out of scope.
+- Google OAuth provider setup is pending dashboard configuration.
+- Onboarding, settings, and account-deletion workflow remain out of scope.
 
 ## Recommended Next Phase
 
-Phase 5: implement dashboard summaries, charts, date filters, reporting, multiple-currency display, and CSV export.
+Phase 6: implement settings, profile management, onboarding, data export preferences, account deletion, responsive refinement, and accessibility review.
