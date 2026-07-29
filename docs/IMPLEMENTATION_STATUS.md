@@ -1,5 +1,13 @@
 # MoneyLau Implementation Status
 
+## Completed: Phase 7 - Production Readiness
+
+- Added a GitHub Actions verification workflow for feature branches, pull requests, and `main`.
+- Added Vercel Next.js project configuration and a complete deployment guide covering environment values, Supabase configuration, Google OAuth, preview deployments, and production checks.
+- Added public Privacy and Terms pages linked from the sign-in screen for the Google OAuth consent configuration.
+- Expanded ledger test coverage for multiple currencies, date ranges, pending/cancelled activity, and category spending totals.
+- Completed the README with local setup, validation, deployment, and security guidance.
+
 ## Completed: Phase 6 - Settings, Onboarding, and UI Polish
 
 - Added a protected onboarding route for new Google-authenticated users and redirected new OAuth callbacks there.
@@ -20,6 +28,7 @@
 
 ## Migrations
 
+- Phase 7: none.
 - `20260729080000_phase_6_preferences_deletion.sql`
 - `20260729080500_phase_6_revoke_anon_access.sql`
 
@@ -31,4 +40,4 @@
 
 ## Recommended Next Phase
 
-Phase 7: deployment preparation, final documentation, CI, and launch checklist.
+Post-launch: connect Vercel to GitHub, enter the public Supabase configuration in Vercel, enable Google in the Supabase dashboard with its Google client credentials, and complete the production checklist in `docs/DEPLOYMENT.md`.
