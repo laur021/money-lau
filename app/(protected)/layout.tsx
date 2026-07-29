@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { AppShell } from "@/components/layout/app-shell";
 import { createClient } from "@/lib/supabase/server";
 import { hasSupabaseConfig, readPublicEnv } from "@/lib/validation/env";
 
@@ -8,6 +9,6 @@ export default async function ProtectedLayout({ children }: Readonly<{ children:
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   if (!data?.claims?.sub) redirect("/login");
-  return children;
+  return <AppShell>{children}</AppShell>;
 }
 
