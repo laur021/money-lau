@@ -8,8 +8,11 @@ describe("public environment validation", () => {
     expect(hasSupabaseConfig(env)).toBe(false);
   });
   it("accepts a complete public Supabase configuration", () => {
-    const env = readPublicEnv({ NEXT_PUBLIC_APP_URL: "https://moneylau.example", NEXT_PUBLIC_SUPABASE_URL: "https://project.supabase.co", NEXT_PUBLIC_SUPABASE_ANON_KEY: "public-anon-key" });
+    const env = readPublicEnv({
+      NEXT_PUBLIC_APP_URL: "https://moneylau.example",
+      NEXT_PUBLIC_SUPABASE_URL: "https://project.supabase.co",
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "public-anon-key",
+    });
     expect(hasSupabaseConfig(env)).toBe(true);
   });
 });
-
