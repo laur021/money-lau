@@ -2,12 +2,35 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, CreditCard, FolderTree, LayoutDashboard, LogOut, ReceiptText, Settings } from "lucide-react";
-import { signOut } from "@/features/auth/actions";
+import {
+  BarChart3,
+  CreditCard,
+  FolderTree,
+  LayoutDashboard,
+  LogOut,
+  ReceiptText,
+  Settings,
+} from "lucide-react";
 import { AppLogo } from "@/components/layout/app-logo";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { signOut } from "@/features/auth/actions";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
 const navigation = [
@@ -23,54 +46,96 @@ export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) 
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-background">
-      <aside className="fixed inset-y-0 left-0 hidden w-64 border-r bg-sidebar lg:flex lg:flex-col">
-        <div className="px-5 py-5"><AppLogo /></div>
-        <Separator />
-        <nav className="flex flex-1 flex-col gap-1 p-3" aria-label="Primary navigation">
-          {navigation.map(({ icon: Icon, label, href }) => {
-            const active = pathname === href;
-            return (
-              <Link
-                aria-current={active ? "page" : undefined}
-                className={cn("flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors", active ? "bg-sidebar-accent font-medium text-sidebar-accent-foreground" : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground")}
-                href={href}
-                key={label}
-              >
-                <Icon className="size-4" aria-hidden="true" />{label}
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="flex items-center gap-1 p-3">
-          <ThemeToggle />
-          <form action={signOut}><Button aria-label="Sign out" size="icon" type="submit" variant="ghost"><LogOut /></Button></form>
-        </div>
-      </aside>
+    <SidebarProvider>
+      <Sidebar collapsible="icon">
+        <SidebarHeader className="p-3">
+          <AppLogo />
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {navigation.map(({ icon: Icon, label, href }) => {
+                  const active = pathname === href;
 
-      <div className="min-h-screen pb-20 lg:pb-0 lg:pl-64">
-        <header className="flex items-center justify-between border-b px-4 py-4 sm:px-6">
-          <div className="lg:hidden"><AppLogo /></div>
-          <p className="hidden text-sm text-muted-foreground lg:block">Personal finances</p>
+                  return (
+                    <SidebarMenuItem key={label}>
+                      <SidebarMenuButton asChild isActive={active} tooltip={label}>
+                        <Link aria-current={active ? "page" : undefined} href={href}>
+                          <Icon aria-hidden="true" />
+                          <span>{label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarFooter>
+          <div className="px-2 pb-1">
+            <ThemeToggle />
+          </div>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <form action={signOut}>
+                <SidebarMenuButton tooltip="Sign out" type="submit">
+                  <LogOut aria-hidden="true" />
+                  <span>Sign out</span>
+                </SidebarMenuButton>
+              </form>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+        <SidebarRail />
+      </Sidebar>
+
+      <SidebarInset className="pb-20 md:pb-0">
+        <header className="flex items-center justify-between border-b px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-2">
+            <SidebarTrigger />
+            <div className="md:hidden">
+              <AppLogo />
+            </div>
+            <p className="hidden text-sm text-muted-foreground md:block">Personal finances</p>
+          </div>
           <div className="flex items-center gap-1">
             <ThemeToggle />
-            <form action={signOut}><Button aria-label="Sign out" size="icon" type="submit" variant="ghost"><LogOut /></Button></form>
+            <form action={signOut}>
+              <Button aria-label="Sign out" size="icon" type="submit" variant="ghost">
+                <LogOut aria-hidden="true" />
+              </Button>
+            </form>
           </div>
         </header>
         {children}
-      </div>
+      </SidebarInset>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t bg-background px-1 py-2 lg:hidden" aria-label="Mobile navigation">
+      <nav
+        aria-label="Mobile navigation"
+        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t bg-background px-1 py-2 md:hidden"
+      >
         {navigation.map(({ icon: Icon, label, href }) => {
           const active = pathname === href;
+
           return (
-            <Link aria-current={active ? "page" : undefined} className={cn("flex min-w-0 flex-col items-center gap-1 rounded-md px-1 py-1 text-[10px]", active ? "font-medium text-foreground" : "text-muted-foreground")} href={href} key={label}>
-              <Icon className="size-4" aria-hidden="true" />
+            <Link
+              aria-current={active ? "page" : undefined}
+              className={cn(
+                "flex min-w-0 flex-col items-center gap-1 rounded-md px-1 py-1 text-[10px]",
+                active ? "font-medium text-foreground" : "text-muted-foreground",
+              )}
+              href={href}
+              key={label}
+            >
+              <Icon aria-hidden="true" className="size-4" />
               <span className="w-full truncate text-center">{label}</span>
             </Link>
           );
         })}
       </nav>
-    </div>
+    </SidebarProvider>
   );
 }

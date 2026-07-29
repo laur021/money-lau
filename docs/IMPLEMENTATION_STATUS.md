@@ -2,6 +2,7 @@
 
 ## Completed: Phase 7 - Production Readiness
 
+- Adopted the shadcn Sidebar component for collapsible desktop navigation and its responsive mobile sheet, while retaining the compact mobile navigation bar.
 - Added a GitHub Actions verification workflow for feature branches, pull requests, and `main`.
 - Added Vercel Next.js project configuration and a complete deployment guide covering environment values, Supabase configuration, Google OAuth, preview deployments, and production checks.
 - Added public Privacy and Terms pages linked from the sign-in screen for the Google OAuth consent configuration.
