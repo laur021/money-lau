@@ -11,6 +11,7 @@ import {
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SalaryRunForm } from "@/components/salary/salary-run-form";
+import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -150,7 +151,10 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
                     <AlertDialogTitle>Post this salary to the ledger?</AlertDialogTitle>
                     <AlertDialogDescription>
                       MoneyLau will create one completed income transaction for{" "}
-                      {formatMoney(run.netPay, run.currency)} in {account?.name ?? "the selected account"}.
+                      <PrivateFinancialValue>
+                        {formatMoney(run.netPay, run.currency)}
+                      </PrivateFinancialValue>{" "}
+                      in {account?.name ?? "the selected account"}.
                       Gross pay and deductions remain only in this salary record.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
@@ -176,7 +180,7 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
                 <CardDescription>Gross pay</CardDescription>
               </CardHeader>
               <CardContent className="text-xl font-semibold tabular-nums">
-                {formatMoney(run.grossPay, run.currency)}
+                <PrivateFinancialValue>{formatMoney(run.grossPay, run.currency)}</PrivateFinancialValue>
               </CardContent>
             </Card>
             <Card>
@@ -184,7 +188,9 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
                 <CardDescription>Deductions</CardDescription>
               </CardHeader>
               <CardContent className="text-xl font-semibold tabular-nums">
-                {formatMoney(run.totalDeductions, run.currency)}
+                <PrivateFinancialValue>
+                  {formatMoney(run.totalDeductions, run.currency)}
+                </PrivateFinancialValue>
               </CardContent>
             </Card>
             <Card>
@@ -192,7 +198,7 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
                 <CardDescription>Net received</CardDescription>
               </CardHeader>
               <CardContent className="text-xl font-semibold tabular-nums">
-                {formatMoney(run.netPay, run.currency)}
+                <PrivateFinancialValue>{formatMoney(run.netPay, run.currency)}</PrivateFinancialValue>
               </CardContent>
             </Card>
           </div>
@@ -235,13 +241,17 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
                     <div>
                       <dt className="text-muted-foreground">Monthly basic salary</dt>
                       <dd className="font-medium tabular-nums">
-                        {formatMoney(run.monthlyBasicSalary, "PHP")}
+                        <PrivateFinancialValue>
+                          {formatMoney(run.monthlyBasicSalary, "PHP")}
+                        </PrivateFinancialValue>
                       </dd>
                     </div>
                     <div>
                       <dt className="text-muted-foreground">Monthly compensation</dt>
                       <dd className="font-medium tabular-nums">
-                        {formatMoney(run.monthlyCompensation, "PHP")}
+                        <PrivateFinancialValue>
+                          {formatMoney(run.monthlyCompensation, "PHP")}
+                        </PrivateFinancialValue>
                       </dd>
                     </div>
                   </>
@@ -299,10 +309,12 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
                               <ExternalLink className="size-3" />
                             </a>
                             <span className="text-xs text-muted-foreground">
-                              {formatMoney(
-                                component.governmentMonthlyAmount ?? 0,
-                                "PHP",
-                              )}{" "}
+                              <PrivateFinancialValue>
+                                {formatMoney(
+                                  component.governmentMonthlyAmount ?? 0,
+                                  "PHP",
+                                )}
+                              </PrivateFinancialValue>{" "}
                               monthly at{" "}
                               {SALARY_ALLOCATION_FRACTIONS[
                                 component.governmentAllocation ??
@@ -319,7 +331,9 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
                         )}
                       </TableCell>
                       <TableCell className="text-right tabular-nums">
-                        {formatMoney(component.calculatedAmount, run.currency)}
+                        <PrivateFinancialValue>
+                          {formatMoney(component.calculatedAmount, run.currency)}
+                        </PrivateFinancialValue>
                       </TableCell>
                     </TableRow>
                   ))}

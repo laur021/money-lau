@@ -1,5 +1,9 @@
 import { ExpenseDonutChart } from "@/components/charts/expense-donut-chart";
 import { MonthlyCashFlowChart } from "@/components/charts/monthly-cash-flow-chart";
+import {
+  PrivateFinancialChart,
+  PrivateFinancialValue,
+} from "@/components/privacy/screen-privacy";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -186,19 +190,19 @@ export default async function ReportsPage({ searchParams }: { searchParams: Sear
           className="text-emerald-600 dark:text-emerald-400"
           icon={<ArrowUpRight className="size-4 text-emerald-500" />}
           label="Income"
-          value={formatMoney(totals.income, currency)}
+          value={<PrivateFinancialValue>{formatMoney(totals.income, currency)}</PrivateFinancialValue>}
         />
         <ReportTotal
           className="text-destructive"
           icon={<ArrowDownRight className="size-4 text-destructive" />}
           label="Expenses"
-          value={formatMoney(totals.expense, currency)}
+          value={<PrivateFinancialValue>{formatMoney(totals.expense, currency)}</PrivateFinancialValue>}
         />
         <ReportTotal
           className={net < 0 ? "text-destructive" : undefined}
           icon={<Scale className="size-4 text-muted-foreground" />}
           label="Net cash flow"
-          value={formatMoney(net, currency)}
+          value={<PrivateFinancialValue>{formatMoney(net, currency)}</PrivateFinancialValue>}
         />
       </section>
 
@@ -209,7 +213,9 @@ export default async function ReportsPage({ searchParams }: { searchParams: Sear
             <CardDescription>{PERIOD_LABELS[period]} category portions</CardDescription>
           </CardHeader>
           <CardContent>
-            <ExpenseDonutChart currency={currency} data={expenses} />
+            <PrivateFinancialChart>
+              <ExpenseDonutChart currency={currency} data={expenses} />
+            </PrivateFinancialChart>
           </CardContent>
         </Card>
         <Card>
@@ -235,7 +241,9 @@ export default async function ReportsPage({ searchParams }: { searchParams: Sear
                       {item.percentage.toFixed(1)}%
                     </span>
                   </span>
-                  <span className="text-sm tabular-nums">{formatMoney(item.value, currency)}</span>
+                  <PrivateFinancialValue className="text-sm">
+                    {formatMoney(item.value, currency)}
+                  </PrivateFinancialValue>
                 </div>
               ))
             )}
@@ -249,7 +257,9 @@ export default async function ReportsPage({ searchParams }: { searchParams: Sear
           <CardDescription>Income and expenses grouped by month</CardDescription>
         </CardHeader>
         <CardContent>
-          <MonthlyCashFlowChart currency={currency} data={monthly} />
+          <PrivateFinancialChart>
+            <MonthlyCashFlowChart currency={currency} data={monthly} />
+          </PrivateFinancialChart>
         </CardContent>
       </Card>
 
@@ -289,7 +299,7 @@ function ReportTotal({
   className,
 }: {
   label: string;
-  value: string;
+  value: React.ReactNode;
   icon: React.ReactNode;
   className?: string;
 }) {
@@ -350,7 +360,7 @@ function ActivityTable({
                   </TableCell>
                   <TableCell>{format(new Date(row.transaction_date), "MMM d, yyyy")}</TableCell>
                   <TableCell className="text-right font-medium tabular-nums">
-                    {formatMoney(row.amount, currency)}
+                    <PrivateFinancialValue>{formatMoney(row.amount, currency)}</PrivateFinancialValue>
                   </TableCell>
                 </TableRow>
               ))

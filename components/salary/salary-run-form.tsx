@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { CalendarDays, Save } from "lucide-react";
 import { SalaryComponentEditor } from "@/components/salary/salary-component-editor";
+import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -389,7 +390,9 @@ export function SalaryRunForm({
             <CardTitle className="text-sm">Gross pay</CardTitle>
           </CardHeader>
           <CardContent className="text-xl font-semibold tabular-nums">
-            {formatMoney(calculation?.grossPay ?? 0, selectedProfile?.currency ?? "PHP")}
+            <PrivateFinancialValue>
+              {formatMoney(calculation?.grossPay ?? 0, selectedProfile?.currency ?? "PHP")}
+            </PrivateFinancialValue>
           </CardContent>
         </Card>
         <Card>
@@ -397,10 +400,12 @@ export function SalaryRunForm({
             <CardTitle className="text-sm">Deductions</CardTitle>
           </CardHeader>
           <CardContent className="text-xl font-semibold tabular-nums">
-            {formatMoney(
-              calculation?.totalDeductions ?? 0,
-              selectedProfile?.currency ?? "PHP",
-            )}
+            <PrivateFinancialValue>
+              {formatMoney(
+                calculation?.totalDeductions ?? 0,
+                selectedProfile?.currency ?? "PHP",
+              )}
+            </PrivateFinancialValue>
           </CardContent>
         </Card>
         <Card>
@@ -408,7 +413,9 @@ export function SalaryRunForm({
             <CardTitle className="text-sm">Net pay</CardTitle>
           </CardHeader>
           <CardContent className="text-xl font-semibold tabular-nums">
-            {formatMoney(calculation?.netPay ?? 0, selectedProfile?.currency ?? "PHP")}
+            <PrivateFinancialValue>
+              {formatMoney(calculation?.netPay ?? 0, selectedProfile?.currency ?? "PHP")}
+            </PrivateFinancialValue>
           </CardContent>
         </Card>
       </div>

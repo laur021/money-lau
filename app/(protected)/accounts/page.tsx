@@ -5,6 +5,7 @@ import {
 } from "@/components/accounts/account-form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
@@ -120,10 +121,12 @@ export default async function AccountsPage() {
                       {account.account_type.replace("_", " ")}
                     </TableCell>
                     <TableCell>
-                      {formatMoney(
-                        balanceById.get(account.id) ?? account.opening_balance,
-                        account.currency
-                      )}
+                      <PrivateFinancialValue>
+                        {formatMoney(
+                          balanceById.get(account.id) ?? account.opening_balance,
+                          account.currency
+                        )}
+                      </PrivateFinancialValue>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-2">

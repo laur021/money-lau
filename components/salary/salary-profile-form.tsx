@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { BriefcaseBusiness, Save } from "lucide-react";
 import { SalaryComponentEditor } from "@/components/salary/salary-component-editor";
+import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -387,7 +388,9 @@ export function SalaryProfileForm({
         <BriefcaseBusiness />
         <AlertTitle>Estimated net per pay period</AlertTitle>
         <AlertDescription className="font-medium tabular-nums">
-          {formatMoney(calculation?.netPay ?? 0, currency)}
+          <PrivateFinancialValue>
+            {formatMoney(calculation?.netPay ?? 0, currency)}
+          </PrivateFinancialValue>
         </AlertDescription>
       </Alert>
 

@@ -1,6 +1,10 @@
 "use client";
 
 import { AppLogo } from "@/components/layout/app-logo";
+import {
+  ScreenPrivacyControl,
+  ScreenPrivacyProvider,
+} from "@/components/privacy/screen-privacy";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Sidebar,
@@ -71,6 +75,7 @@ export function AppShell({
   const initials = userInitials(user.displayName, user.email);
 
   return (
+    <ScreenPrivacyProvider>
     <SidebarProvider>
       <Sidebar collapsible="icon">
         <SidebarHeader className="border-b p-2">
@@ -146,7 +151,7 @@ export function AppShell({
       </Sidebar>
 
       <SidebarInset className="pb-20 md:pb-0">
-        <header className="flex items-center border-b px-4 py-3 sm:px-6">
+        <header className="flex items-center justify-between border-b px-4 py-3 sm:px-6">
           <div className="flex items-center gap-2">
             <SidebarTrigger />
             <div className="md:hidden">
@@ -154,6 +159,7 @@ export function AppShell({
             </div>
             <p className="hidden text-sm text-muted-foreground md:block">Personal finances</p>
           </div>
+          <ScreenPrivacyControl />
         </header>
         {children}
       </SidebarInset>
@@ -182,5 +188,6 @@ export function AppShell({
         })}
       </nav>
     </SidebarProvider>
+    </ScreenPrivacyProvider>
   );
 }

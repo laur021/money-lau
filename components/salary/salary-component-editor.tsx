@@ -10,6 +10,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
 import {
   Card,
   CardAction,
@@ -198,10 +199,12 @@ export function SalaryComponentEditor({
                   <div>
                     <dt className="text-muted-foreground">Prescribed monthly</dt>
                     <dd className="font-medium tabular-nums">
-                      {formatMoney(
-                        calculatedComponent?.governmentMonthlyAmount ?? 0,
-                        "PHP",
-                      )}
+                      <PrivateFinancialValue>
+                        {formatMoney(
+                          calculatedComponent?.governmentMonthlyAmount ?? 0,
+                          "PHP",
+                        )}
+                      </PrivateFinancialValue>
                     </dd>
                   </div>
                   <div>
@@ -214,7 +217,9 @@ export function SalaryComponentEditor({
                   <div>
                     <dt className="text-muted-foreground">Allocated deduction</dt>
                     <dd className="font-medium tabular-nums">
-                      {formatMoney(calculatedComponent?.calculatedAmount ?? 0, "PHP")}
+                      <PrivateFinancialValue>
+                        {formatMoney(calculatedComponent?.calculatedAmount ?? 0, "PHP")}
+                      </PrivateFinancialValue>
                     </dd>
                   </div>
                 </dl>
@@ -370,7 +375,9 @@ export function SalaryComponentEditor({
                   <div className="pb-1">
                     <p className="text-xs text-muted-foreground">Calculated</p>
                     <p className="text-sm font-medium tabular-nums">
-                      {formatMoney(calculatedComponent?.calculatedAmount ?? 0, currency)}
+                      <PrivateFinancialValue>
+                        {formatMoney(calculatedComponent?.calculatedAmount ?? 0, currency)}
+                      </PrivateFinancialValue>
                     </p>
                   </div>
                   {!disabled ? (

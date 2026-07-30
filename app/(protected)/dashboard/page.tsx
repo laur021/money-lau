@@ -1,5 +1,9 @@
 import { ExpenseDonutChart } from "@/components/charts/expense-donut-chart";
 import { MonthlyCashFlowChart } from "@/components/charts/monthly-cash-flow-chart";
+import {
+  PrivateFinancialChart,
+  PrivateFinancialValue,
+} from "@/components/privacy/screen-privacy";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -156,28 +160,28 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
           description="Included accounts"
           icon={<WalletCards className="size-4 text-muted-foreground" />}
           title="Total balance"
-          value={formatMoney(totalBalance, currency)}
+          value={<PrivateFinancialValue>{formatMoney(totalBalance, currency)}</PrivateFinancialValue>}
         />
         <SummaryCard
           className="text-emerald-600 dark:text-emerald-400"
           description="Completed entries"
           icon={<ArrowUpRight className="size-4 text-emerald-500" />}
           title="Income"
-          value={formatMoney(totals.income, currency)}
+          value={<PrivateFinancialValue>{formatMoney(totals.income, currency)}</PrivateFinancialValue>}
         />
         <SummaryCard
           className="text-destructive"
           description={`${totals.count} completed entries`}
           icon={<ArrowDownRight className="size-4 text-destructive" />}
           title="Expenses"
-          value={formatMoney(totals.expense, currency)}
+          value={<PrivateFinancialValue>{formatMoney(totals.expense, currency)}</PrivateFinancialValue>}
         />
         <SummaryCard
           className={net < 0 ? "text-destructive" : undefined}
           description="Income minus expenses"
           icon={<Scale className="size-4 text-muted-foreground" />}
           title="Net cash flow"
-          value={formatMoney(net, currency)}
+          value={<PrivateFinancialValue>{formatMoney(net, currency)}</PrivateFinancialValue>}
         />
       </section>
 
@@ -190,7 +194,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ExpenseDonutChart currency={currency} data={expenseData} />
+            <PrivateFinancialChart>
+              <ExpenseDonutChart currency={currency} data={expenseData} />
+            </PrivateFinancialChart>
           </CardContent>
         </Card>
 
@@ -230,7 +236,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
                     </span>
                   </span>
                   <span className="text-sm font-medium tabular-nums">
-                    {formatMoney(balanceById.get(account.id) ?? 0, currency)}
+                    <PrivateFinancialValue>
+                      {formatMoney(balanceById.get(account.id) ?? 0, currency)}
+                    </PrivateFinancialValue>
                   </span>
                 </div>
               ))
@@ -246,7 +254,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
             <CardDescription>Completed income and expense activity</CardDescription>
           </CardHeader>
           <CardContent>
-            <MonthlyCashFlowChart currency={currency} data={monthlyData} />
+            <PrivateFinancialChart>
+              <MonthlyCashFlowChart currency={currency} data={monthlyData} />
+            </PrivateFinancialChart>
           </CardContent>
         </Card>
 
@@ -297,7 +307,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
                       : row.transaction_type === "income"
                         ? "+"
                         : ""}
-                    {formatMoney(row.amount, row.currency)}
+                    <PrivateFinancialValue>{formatMoney(row.amount, row.currency)}</PrivateFinancialValue>
                   </span>
                 </div>
               ))
@@ -318,7 +328,7 @@ function SummaryCard({
 }: {
   title: string;
   description: string;
-  value: string;
+  value: React.ReactNode;
   icon: React.ReactNode;
   className?: string;
 }) {

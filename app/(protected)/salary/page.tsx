@@ -8,6 +8,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import Link from "next/link";
+import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
 import { SalaryProfileForm } from "@/components/salary/salary-profile-form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -62,12 +63,12 @@ function CurrencyTotals({
     <div className="flex flex-col gap-1">
       {entries.map(([currency, amount]) => (
         <span className="tabular-nums" key={currency}>
-          {formatMoney(amount[value], currency)}
+          <PrivateFinancialValue>{formatMoney(amount[value], currency)}</PrivateFinancialValue>
         </span>
       ))}
     </div>
   ) : (
-    <span className="tabular-nums">{formatMoney(0, "PHP")}</span>
+    <PrivateFinancialValue>{formatMoney(0, "PHP")}</PrivateFinancialValue>
   );
 }
 
@@ -200,13 +201,19 @@ export default async function SalaryPage() {
                           {format(new Date(`${run.payPeriodEnd}T12:00:00`), "MMM d")}
                         </TableCell>
                         <TableCell className="tabular-nums">
-                          {formatMoney(run.grossPay, run.currency)}
+                          <PrivateFinancialValue>
+                            {formatMoney(run.grossPay, run.currency)}
+                          </PrivateFinancialValue>
                         </TableCell>
                         <TableCell className="tabular-nums">
-                          {formatMoney(run.totalDeductions, run.currency)}
+                          <PrivateFinancialValue>
+                            {formatMoney(run.totalDeductions, run.currency)}
+                          </PrivateFinancialValue>
                         </TableCell>
                         <TableCell className="font-medium tabular-nums">
-                          {formatMoney(run.netPay, run.currency)}
+                          <PrivateFinancialValue>
+                            {formatMoney(run.netPay, run.currency)}
+                          </PrivateFinancialValue>
                         </TableCell>
                         <TableCell className="text-right">
                           <Button asChild size="sm" variant="outline">
@@ -269,13 +276,19 @@ export default async function SalaryPage() {
                           </div>
                         </TableCell>
                         <TableCell className="tabular-nums">
-                          {formatMoney(run.grossPay, run.currency)}
+                          <PrivateFinancialValue>
+                            {formatMoney(run.grossPay, run.currency)}
+                          </PrivateFinancialValue>
                         </TableCell>
                         <TableCell className="tabular-nums">
-                          {formatMoney(run.totalDeductions, run.currency)}
+                          <PrivateFinancialValue>
+                            {formatMoney(run.totalDeductions, run.currency)}
+                          </PrivateFinancialValue>
                         </TableCell>
                         <TableCell className="font-medium tabular-nums">
-                          {formatMoney(run.netPay, run.currency)}
+                          <PrivateFinancialValue>
+                            {formatMoney(run.netPay, run.currency)}
+                          </PrivateFinancialValue>
                         </TableCell>
                         <TableCell>
                           <Badge>Posted</Badge>
@@ -341,7 +354,9 @@ export default async function SalaryPage() {
                         </TableCell>
                         <TableCell>{formatFrequency(profile.payFrequency)}</TableCell>
                         <TableCell className="tabular-nums">
-                          {formatMoney(profile.basePay, profile.currency)}
+                          <PrivateFinancialValue>
+                            {formatMoney(profile.basePay, profile.currency)}
+                          </PrivateFinancialValue>
                         </TableCell>
                         <TableCell>{profile.components.length}</TableCell>
                         <TableCell>
