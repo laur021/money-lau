@@ -1,5 +1,18 @@
 # MoneyLau Implementation Status
 
+## Application Status: Complete
+
+MoneyLau now includes the planned personal-finance workflows, authenticated data model, reporting experience, production configuration, and final runtime states. PWA packaging is intentionally not included.
+
+## Completed: Phase 10 - Production Hardening
+
+- Added protected-route loading skeletons with stable responsive dimensions for dashboard and data-heavy navigation.
+- Added a protected error boundary with a retry path that preserves financial data and a branded not-found route.
+- Verified the public sign-in experience in real Chrome at desktop and mobile sizes, including HTTP response, metadata, content, and horizontal-overflow checks.
+- Re-ran linting, strict TypeScript checks, all unit tests, and the optimized Next.js production build.
+- Confirmed all database migrations are registered in the connected Supabase project and reviewed post-migration security and performance advisors.
+- Completed final project and deployment documentation without adding PWA dependencies or service-role credentials.
+
 ## Completed: Phase 9 - Dashboard and Financial Reporting
 
 - Rebuilt the overview as an original Monefy-inspired finance dashboard with a large expense-distribution donut, labeled category portions, period and currency controls, account balances, recent activity, and monthly cash flow.
@@ -44,23 +57,24 @@
 - Phase 5: dashboard income, expense, cash-flow, account-balance summaries, Recharts visualization, reports, and authenticated CSV export.
 - Phase 4: validated income, expense, and transfer transaction ledger with RLS-protected account balances.
 - Phase 3: accounts, categories, archiving, default categories, and category ownership validation.
-- Phase 2: Supabase SSR session handling, Google OAuth flow scaffolding, profiles, and row-level security.
+- Phase 2: Supabase SSR session handling, Google OAuth, profiles, and row-level security.
 - Phase 1: Next.js foundation, dark-first shadcn theme setup, environment validation, and Supabase client scaffolding.
 
 ## Migrations
 
+- Phase 10: none.
 - `20260730020000_phase_9_dashboard_reporting.sql`
 - `20260730004903_phase_8_complete_finance_workflows.sql`
 - Phase 7: none.
 - `20260729080000_phase_6_preferences_deletion.sql`
 - `20260729080500_phase_6_revoke_anon_access.sql`
 
-## Remaining Issues
+## Operational Notes
 
-- Account deletion is intentionally a recorded deletion request. Completing permanent Auth-user removal requires a secure administrative process outside the browser app; no service-role secret is shipped to the client.
+- Account deletion is intentionally a recorded deletion request. Permanent Auth-user removal requires a secure administrative process outside the browser app; no service-role secret is shipped to the client.
 - Supabase reports informational authenticated GraphQL discoverability notices because authenticated client queries are intentionally enabled and protected by row-level security.
-- New indexes are reported as unused until the production dataset and query history grow; they support foreign keys and expected ledger filtering.
+- New indexes may be reported as unused until the production dataset and query history grow; they support foreign keys and expected ledger filtering.
 
-## Recommended Next Phase
+## Next Work
 
-Phase 10: finish loading and error states, responsiveness and accessibility checks, query and navigation performance, production verification, and final documentation. PWA support is explicitly excluded.
+No product-development phase remains in the current plan. Future work is normal maintenance: production monitoring, user feedback, dependency updates, and optional features selected after real usage.
