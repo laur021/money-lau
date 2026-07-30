@@ -96,20 +96,30 @@ async function getAuthenticatedClient() {
   return { supabase, userId };
 }
 
-async function assertNotSalaryTransaction(
+async function assertNotGeneratedTransaction(
   supabase: SupabaseClient,
   userId: string,
   transactionId: string,
 ) {
-  const { data, error } = await supabase
-    .from("salary_runs")
-    .select("id")
-    .eq("user_id", userId)
-    .eq("transaction_id", transactionId)
-    .maybeSingle();
-  if (error) throw new Error(error.message);
-  if (data) {
-    throw new Error("Salary transactions must be changed from the salary record.");
+  const [{ data: salaryRun, error: salaryError }, { data: billItem, error: billError }] =
+    await Promise.all([
+      supabase
+        .from("salary_runs")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("transaction_id", transactionId)
+        .maybeSingle(),
+      supabase
+        .from("bill_items")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("transaction_id", transactionId)
+        .maybeSingle(),
+    ]);
+  if (salaryError) throw new Error(salaryError.message);
+  if (billError) throw new Error(billError.message);
+  if (salaryRun || billItem) {
+    throw new Error("Generated transactions must be changed from their source record.");
   }
 }
 
@@ -130,7 +140,7 @@ export async function updateTransaction(formData: FormData) {
   const id = z.string().uuid().parse(formData.get("id"));
   const value = transactionSchema.parse(Object.fromEntries(formData));
   const { supabase, userId } = await getAuthenticatedClient();
-  await assertNotSalaryTransaction(supabase, userId, id);
+  await assertNotGeneratedTransaction(supabase, userId, id);
   const { error } = await supabase.from("transactions").update(transactionPayload(value)).eq("id", id);
   if (error) throw new Error(error.message);
   await syncTransactionTags(supabase, userId, id, parseTagNames(value.tags));
@@ -140,7 +150,7 @@ export async function updateTransaction(formData: FormData) {
 export async function deleteTransaction(formData: FormData) {
   const id = z.string().uuid().parse(formData.get("id"));
   const { supabase, userId } = await getAuthenticatedClient();
-  await assertNotSalaryTransaction(supabase, userId, id);
+  await assertNotGeneratedTransaction(supabase, userId, id);
   const { error } = await supabase.from("transactions").delete().eq("id", id);
   if (error) throw new Error(error.message);
   refreshTransactionViews();
