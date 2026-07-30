@@ -11,6 +11,9 @@ describe("profile preferences validation", () => {
         timezone: "Asia/Manila",
         weekStartsOn: "1",
         defaultDashboardPeriod: "this_month",
+        numberFormat: "1,234.56",
+        showArchivedAccounts: "false",
+        showArchivedCategories: "false",
       })
     ).toMatchObject({ defaultCurrency: "PHP", weekStartsOn: 1 });
   });

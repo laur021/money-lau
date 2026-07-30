@@ -1,92 +1,129 @@
-import { ArchiveRestore, Landmark, Plus, WalletCards } from "lucide-react";
+import { ArchiveRestore, ArrowDown, ArrowUp, Plus, WalletCards } from "lucide-react";
+import { AccountEditDialog, AccountForm, type AccountRecord } from "@/components/accounts/account-form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
-import { createAccount, setAccountArchived } from "@/features/accounts/actions";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { moveAccount, setAccountArchived } from "@/features/accounts/actions";
+import { formatMoney } from "@/lib/formatting/money";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AccountsPage() {
   const supabase = await createClient();
-  const { data: accounts } = await supabase.from("accounts").select("id,name,account_type,currency,opening_balance,is_archived").order("created_at");
+  const [{ data: accounts }, { data: balances }, { data: profile }] = await Promise.all([
+    supabase
+      .from("accounts")
+      .select("id,name,institution_name,account_type,opening_balance,currency,account_identifier,icon,color,include_in_total,is_archived,display_order")
+      .order("display_order")
+      .order("created_at"),
+    supabase.from("account_balances").select("id,current_balance"),
+    supabase.from("profiles").select("show_archived_accounts").single(),
+  ]);
+  const balanceById = new Map((balances ?? []).map((balance) => [balance.id, balance.current_balance]));
+  const visibleAccounts = (accounts ?? []).filter(
+    (account) => profile?.show_archived_accounts || !account.is_archived,
+  ) as AccountRecord[];
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-4 sm:p-6">
-      <div className="flex flex-col gap-1">
-        <p className="text-sm text-muted-foreground">Cash, bank, and wallet balances</p>
-        <h1 className="text-2xl font-semibold">Accounts</h1>
+      <div className="flex items-end justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <p className="text-sm text-muted-foreground">Cash, banks, cards, and wallets</p>
+          <h1 className="text-2xl font-semibold">Accounts</h1>
+        </div>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button><Plus data-icon="inline-start" />Add account</Button>
+          </DialogTrigger>
+          <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Add an account</DialogTitle>
+              <DialogDescription>MoneyLau tracks balances manually and never asks for banking credentials.</DialogDescription>
+            </DialogHeader>
+            <AccountForm />
+          </DialogContent>
+        </Dialog>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Plus className="size-4" />Add an account</CardTitle>
-          <CardDescription>Opening balances anchor the account totals used throughout MoneyLau.</CardDescription>
+          <CardTitle className="flex items-center gap-2"><WalletCards />Your accounts</CardTitle>
+          <CardDescription>Current balance equals the opening balance plus completed ledger activity.</CardDescription>
         </CardHeader>
         <CardContent>
-          <form action={createAccount}>
-            <FieldGroup className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <Field>
-                <FieldLabel htmlFor="account-name">Account name</FieldLabel>
-                <Input id="account-name" name="name" placeholder="Main checking" required />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="account-type">Account type</FieldLabel>
-                <NativeSelect className="w-full" id="account-type" name="accountType" defaultValue="bank">
-                  <NativeSelectOption value="bank">Bank</NativeSelectOption>
-                  <NativeSelectOption value="cash">Cash</NativeSelectOption>
-                  <NativeSelectOption value="e_wallet">E-wallet</NativeSelectOption>
-                  <NativeSelectOption value="credit_card">Credit card</NativeSelectOption>
-                  <NativeSelectOption value="investment">Investment</NativeSelectOption>
-                  <NativeSelectOption value="other">Other</NativeSelectOption>
-                </NativeSelect>
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="opening-balance">Opening balance</FieldLabel>
-                <Input id="opening-balance" name="openingBalance" type="number" step="0.01" defaultValue="0" />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="account-currency">Currency</FieldLabel>
-                <NativeSelect className="w-full" id="account-currency" name="currency" defaultValue="PHP">
-                  <NativeSelectOption value="PHP">PHP</NativeSelectOption>
-                  <NativeSelectOption value="USD">USD</NativeSelectOption>
-                  <NativeSelectOption value="EUR">EUR</NativeSelectOption>
-                  <NativeSelectOption value="SGD">SGD</NativeSelectOption>
-                </NativeSelect>
-              </Field>
-              <Button className="w-fit" type="submit"><Plus data-icon="inline-start" />Add account</Button>
-            </FieldGroup>
-          </form>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2"><WalletCards className="size-4" />Your accounts</CardTitle>
-          <CardDescription>Archived accounts are retained so historical transactions stay intact.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {accounts?.length ? (
-            <div className="flex flex-col divide-y rounded-lg border">
-              {accounts.map((account) => (
-                <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between" key={account.id}>
-                  <div className="flex min-w-0 flex-col gap-1">
-                    <div className="flex flex-wrap items-center gap-2"><span className="font-medium">{account.name}</span><Badge variant={account.is_archived ? "outline" : "secondary"}>{account.is_archived ? "Archived" : "Active"}</Badge></div>
-                    <span className="text-sm text-muted-foreground">{account.account_type.replace("_", " ")} | {Number(account.opening_balance).toFixed(2)} {account.currency}</span>
-                  </div>
-                  <form action={setAccountArchived}>
-                    <input type="hidden" name="id" value={account.id} />
-                    <input type="hidden" name="archived" value={String(!account.is_archived)} />
-                    <Button size="sm" type="submit" variant="outline"><ArchiveRestore data-icon="inline-start" />{account.is_archived ? "Restore" : "Archive"}</Button>
-                  </form>
-                </div>
-              ))}
-            </div>
+          {visibleAccounts.length ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Account</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Current balance</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {visibleAccounts.map((account) => (
+                  <TableRow key={account.id}>
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        <span className="font-medium">{account.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {account.institution_name || "No institution"}
+                          {account.account_identifier ? ` | ending ${account.account_identifier}` : ""}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="capitalize">{account.account_type.replace("_", " ")}</TableCell>
+                    <TableCell>{formatMoney(balanceById.get(account.id) ?? account.opening_balance, account.currency)}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant={account.is_archived ? "outline" : "secondary"}>{account.is_archived ? "Archived" : "Active"}</Badge>
+                        {!account.include_in_total ? <Badge variant="outline">Excluded from totals</Badge> : null}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex justify-end gap-1">
+                        <form action={moveAccount}>
+                          <input name="id" type="hidden" value={account.id} />
+                          <input name="displayOrder" type="hidden" value={account.display_order} />
+                          <input name="direction" type="hidden" value="up" />
+                          <Button aria-label={`Move ${account.name} up`} size="icon-sm" type="submit" variant="ghost"><ArrowUp /></Button>
+                        </form>
+                        <form action={moveAccount}>
+                          <input name="id" type="hidden" value={account.id} />
+                          <input name="displayOrder" type="hidden" value={account.display_order} />
+                          <input name="direction" type="hidden" value="down" />
+                          <Button aria-label={`Move ${account.name} down`} size="icon-sm" type="submit" variant="ghost"><ArrowDown /></Button>
+                        </form>
+                        <AccountEditDialog account={account} />
+                        <form action={setAccountArchived}>
+                          <input name="id" type="hidden" value={account.id} />
+                          <input name="archived" type="hidden" value={String(!account.is_archived)} />
+                          <Button size="sm" type="submit" variant="outline"><ArchiveRestore data-icon="inline-start" />{account.is_archived ? "Restore" : "Archive"}</Button>
+                        </form>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           ) : (
             <Empty>
-              <EmptyHeader><EmptyMedia variant="icon"><Landmark /></EmptyMedia><EmptyTitle>No accounts yet</EmptyTitle><EmptyDescription>Add your first account to begin tracking balances.</EmptyDescription></EmptyHeader>
+              <EmptyHeader>
+                <EmptyMedia variant="icon"><WalletCards /></EmptyMedia>
+                <EmptyTitle>No accounts to show</EmptyTitle>
+                <EmptyDescription>Add an account or enable archived accounts in Settings.</EmptyDescription>
+              </EmptyHeader>
             </Empty>
           )}
         </CardContent>
