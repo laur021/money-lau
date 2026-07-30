@@ -2,8 +2,14 @@ import { endOfMonth, format, parseISO, startOfMonth, subDays } from "date-fns";
 import type {
   SalaryCalculation,
   SalaryComponentInput,
+  SalaryGovernmentContext,
   SalaryPayFrequency,
 } from "@/features/salary/types";
+import {
+  allocatePhilippineContribution,
+  calculatePhilippineContribution,
+  UnsupportedContributionDateError,
+} from "./ph-government-contributions";
 
 function toCents(value: number) {
   if (!Number.isFinite(value)) {
@@ -21,6 +27,7 @@ function componentAmountInCents(
   component: SalaryComponentInput,
   basePayCents: number,
   grossPayCents: number,
+  governmentContext?: SalaryGovernmentContext,
 ) {
   switch (component.calculationType) {
     case "fixed":
@@ -35,6 +42,32 @@ function componentAmountInCents(
           (component.hourlyRate ?? 0) *
           (component.multiplier ?? 1),
       );
+    case "government_preset": {
+      if (!component.governmentPresetCode) {
+        throw new Error("Government presets require a preset code.");
+      }
+      if (!governmentContext) {
+        throw new Error("Government presets require salary and payment context.");
+      }
+      if (governmentContext.currency !== "PHP") {
+        throw new Error("Philippine government presets require PHP currency.");
+      }
+
+      if (component.governmentOverrideAmount !== undefined) {
+        return toCents(component.governmentOverrideAmount);
+      }
+
+      const prescribed = calculatePhilippineContribution(
+        component.governmentPresetCode,
+        governmentContext,
+      );
+      return toCents(
+        allocatePhilippineContribution(
+          prescribed.monthlyAmount,
+          governmentContext.allocation,
+        ),
+      );
+    }
   }
 }
 
@@ -49,6 +82,8 @@ function validateComponent(component: SalaryComponentInput) {
     component.hours,
     component.hourlyRate,
     component.multiplier,
+    component.governmentMonthlyAmount,
+    component.governmentOverrideAmount,
   ].filter((value): value is number => value !== undefined);
 
   if (values.some((value) => !Number.isFinite(value) || value < 0)) {
@@ -65,11 +100,19 @@ function validateComponent(component: SalaryComponentInput) {
   ) {
     throw new Error("Gross-pay percentages can only be deductions.");
   }
+
+  if (
+    component.calculationType === "government_preset" &&
+    (component.kind !== "deduction" || !component.governmentPresetCode)
+  ) {
+    throw new Error("Government presets must be valid deduction components.");
+  }
 }
 
 export function calculateSalary(
   basePay: number,
   components: SalaryComponentInput[],
+  governmentContext?: SalaryGovernmentContext,
 ): SalaryCalculation {
   const basePayCents = toCents(basePay);
   if (basePayCents < 0) {
@@ -78,12 +121,24 @@ export function calculateSalary(
 
   components.forEach(validateComponent);
 
+  const presetCodes = components
+    .filter((component) => component.calculationType === "government_preset")
+    .map((component) => component.governmentPresetCode);
+  if (new Set(presetCodes).size !== presetCodes.length) {
+    throw new Error("Government contribution presets cannot be duplicated.");
+  }
+
   const earningAmounts = new Map<number, number>();
   let additionalEarningsCents = 0;
 
   components.forEach((component, index) => {
     if (component.kind !== "earning") return;
-    const amount = componentAmountInCents(component, basePayCents, basePayCents);
+    const amount = componentAmountInCents(
+      component,
+      basePayCents,
+      basePayCents,
+      governmentContext,
+    );
     earningAmounts.set(index, amount);
     additionalEarningsCents += amount;
   });
@@ -94,7 +149,12 @@ export function calculateSalary(
 
   components.forEach((component, index) => {
     if (component.kind !== "deduction") return;
-    const amount = componentAmountInCents(component, basePayCents, grossPayCents);
+    const amount = componentAmountInCents(
+      component,
+      basePayCents,
+      grossPayCents,
+      governmentContext,
+    );
     deductionAmounts.set(index, amount);
     totalDeductionsCents += amount;
   });
@@ -110,12 +170,46 @@ export function calculateSalary(
     grossPay: fromCents(grossPayCents),
     totalDeductions: fromCents(totalDeductionsCents),
     netPay: fromCents(netPayCents),
-    components: components.map((component, index) => ({
-      ...component,
-      calculatedAmount: fromCents(
-        earningAmounts.get(index) ?? deductionAmounts.get(index) ?? 0,
-      ),
-    })),
+    components: components.map((component, index) => {
+      let governmentMetadata: Partial<SalaryComponentInput> = {};
+      if (
+        component.calculationType === "government_preset" &&
+        component.governmentPresetCode &&
+        governmentContext
+      ) {
+        try {
+          const prescribed = calculatePhilippineContribution(
+            component.governmentPresetCode,
+            governmentContext,
+          );
+          governmentMetadata = {
+            governmentRuleVersion: prescribed.ruleVersion,
+            governmentMonthlyAmount: prescribed.monthlyAmount,
+            governmentAllocation: governmentContext.allocation,
+          };
+        } catch (error) {
+          if (
+            !(error instanceof UnsupportedContributionDateError) ||
+            component.governmentOverrideAmount === undefined
+          ) {
+            throw error;
+          }
+          governmentMetadata = {
+            governmentRuleVersion: "manual_override_unsupported_date",
+            governmentMonthlyAmount: 0,
+            governmentAllocation: governmentContext.allocation,
+          };
+        }
+      }
+
+      return {
+        ...component,
+        ...governmentMetadata,
+        calculatedAmount: fromCents(
+          earningAmounts.get(index) ?? deductionAmounts.get(index) ?? 0,
+        ),
+      };
+    }),
   };
 }
 

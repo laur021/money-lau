@@ -1,5 +1,13 @@
 import { format } from "date-fns";
-import { ArrowLeft, BadgeDollarSign, RotateCcw, Send, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  BadgeDollarSign,
+  ExternalLink,
+  Landmark,
+  RotateCcw,
+  Send,
+  Trash2,
+} from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SalaryRunForm } from "@/components/salary/salary-run-form";
@@ -14,6 +22,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,6 +38,10 @@ import {
   getSalaryProfiles,
   getSalaryRun,
 } from "@/features/salary/data";
+import {
+  PHILIPPINE_CONTRIBUTION_SOURCES,
+  SALARY_ALLOCATION_FRACTIONS,
+} from "@/lib/calculations/ph-government-contributions";
 import { formatMoney } from "@/lib/formatting/money";
 
 type PageParams = Promise<{ id: string }>;
@@ -45,6 +58,9 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
   const posted = Boolean(run.transactionId);
   const account = options.accounts.find((item) => item.id === run.accountId);
   const category = options.categories.find((item) => item.id === run.incomeCategoryId);
+  const hasGovernmentPresets = run.components.some(
+    (component) => component.calculationType === "government_preset",
+  );
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 sm:p-6">
@@ -214,8 +230,34 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
                   <dt className="text-muted-foreground">Income category</dt>
                   <dd className="font-medium">{category?.name ?? "Salary"}</dd>
                 </div>
+                {hasGovernmentPresets ? (
+                  <>
+                    <div>
+                      <dt className="text-muted-foreground">Monthly basic salary</dt>
+                      <dd className="font-medium tabular-nums">
+                        {formatMoney(run.monthlyBasicSalary, "PHP")}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Monthly compensation</dt>
+                      <dd className="font-medium tabular-nums">
+                        {formatMoney(run.monthlyCompensation, "PHP")}
+                      </dd>
+                    </div>
+                  </>
+                ) : null}
               </dl>
               <Separator />
+              {hasGovernmentPresets ? (
+                <Alert>
+                  <Landmark />
+                  <AlertTitle>Estimated government contributions</AlertTitle>
+                  <AlertDescription>
+                    These saved amounts are planning estimates. Compare them with
+                    the employer&apos;s payslip.
+                  </AlertDescription>
+                </Alert>
+              ) : null}
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -228,11 +270,54 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
                 <TableBody>
                   {run.components.map((component) => (
                     <TableRow key={component.id}>
-                      <TableCell className="font-medium">{component.name}</TableCell>
+                      <TableCell className="font-medium">
+                        <div className="flex flex-wrap items-center gap-2">
+                          {component.name}
+                          {component.calculationType === "government_preset" ? (
+                            <Badge variant="secondary">PH preset</Badge>
+                          ) : null}
+                        </div>
+                      </TableCell>
                       <TableCell>
                         <Badge variant="outline">{component.kind}</Badge>
                       </TableCell>
-                      <TableCell>{component.calculationType.replaceAll("_", " ")}</TableCell>
+                      <TableCell>
+                        {component.calculationType === "government_preset" &&
+                        component.governmentPresetCode ? (
+                          <div className="flex flex-col gap-1">
+                            <a
+                              className="inline-flex items-center gap-1 underline-offset-4 hover:underline"
+                              href={
+                                PHILIPPINE_CONTRIBUTION_SOURCES[
+                                  component.governmentPresetCode
+                                ].sourceUrl
+                              }
+                              rel="noreferrer"
+                              target="_blank"
+                            >
+                              {component.governmentRuleVersion}
+                              <ExternalLink className="size-3" />
+                            </a>
+                            <span className="text-xs text-muted-foreground">
+                              {formatMoney(
+                                component.governmentMonthlyAmount ?? 0,
+                                "PHP",
+                              )}{" "}
+                              monthly at{" "}
+                              {SALARY_ALLOCATION_FRACTIONS[
+                                component.governmentAllocation ??
+                                  run.governmentContributionAllocation
+                              ] * 100}
+                              %
+                              {component.governmentOverrideAmount !== undefined
+                                ? " - custom amount"
+                                : ""}
+                            </span>
+                          </div>
+                        ) : (
+                          component.calculationType.replaceAll("_", " ")
+                        )}
+                      </TableCell>
                       <TableCell className="text-right tabular-nums">
                         {formatMoney(component.calculatedAmount, run.currency)}
                       </TableCell>
