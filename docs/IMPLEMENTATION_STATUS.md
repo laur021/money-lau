@@ -4,6 +4,16 @@
 
 MoneyLau now includes the planned personal-finance workflows, authenticated data model, salary calculator with optional Philippine contribution estimates, reporting experience, production configuration, and final runtime states. PWA packaging is intentionally not included.
 
+## Completed: Phase 13 - Bills Planner
+
+- Added a privacy-aware monthly Bills workspace with month navigation, planned, paid, and remaining totals, due and overdue indicators, category grouping, notes, and advance-payment coverage labels.
+- Added recurring bill templates and one-off bills with currency-aware account and expense-category defaults. Starting a month creates only its missing unpaid snapshots.
+- Added duplicate-to-next-month with a rename prompt, preserved coverage-month offset, immutable snapshot values, source provenance, and prevention of duplicate template snapshots in the same month.
+- Added explicit bill-payment and unpayment flows. Posting creates exactly one completed expense transaction on the chosen account and category; unposting removes only that linked transaction.
+- Added database validation, RLS, ownership rules, lifecycle protection, authenticated grants, anonymous revocation, indexes, and atomic `SECURITY INVOKER` database functions for recurring generation, duplication, payment posting, and unposting.
+- Protected bill-generated ledger transactions from direct edit and delete actions, with a Bills badge and a route back to the originating Bills workspace.
+- Added focused tests for calendar boundaries, totals, due states, and advance-payment labels. Ran Supabase security and performance advisors after applying the migrations.
+
 ## Completed: Phase 12 - Philippine Government Contributions
 
 - Added optional SSS, PhilHealth, and Pag-IBIG private-sector employee presets to salary profiles and pay runs.
@@ -84,6 +94,8 @@ MoneyLau now includes the planned personal-finance workflows, authenticated data
 
 ## Migrations
 
+- `20260730162000_bill_foreign_key_indexes.sql`
+- `20260730155000_bills_planner.sql`
 - `20260730054904_ph_government_contributions.sql`
 - `20260730051236_salary_foreign_key_indexes.sql`
 - `20260730045614_salary_calculator.sql`
@@ -101,6 +113,8 @@ MoneyLau now includes the planned personal-finance workflows, authenticated data
 - New indexes may be reported as unused until the production dataset and query history grow; they support foreign keys and expected ledger filtering.
 - Gross salary and deductions stay in salary records; only net received pay is included in standard dashboard, account, report, activity, and CSV totals.
 - Philippine contribution presets are estimates for personal planning and should be compared with the employer's payslip. They are not payroll, tax, or legal advice.
+- Bills are plans until explicitly marked paid. A bank auto-debit should be recorded as a recurring Bill with its default bank account and then posted when the real debit occurs; this avoids recording missed or delayed debits as real spending.
+- Bill coverage months are planning metadata. Balances, dashboard totals, reports, activity, and CSV exports use the real payment date and actual paid amount.
 
 ## Next Work
 

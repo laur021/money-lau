@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import {
   BarChart3,
   BadgeDollarSign,
+  CalendarCheck2,
   CreditCard,
   FolderTree,
   LayoutDashboard,
@@ -40,6 +41,7 @@ import { usePathname } from "next/navigation";
 const sidebarNavigation = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { label: "Transactions", href: "/transactions", icon: ReceiptText },
+  { label: "Bills", href: "/bills", icon: CalendarCheck2 },
   { label: "Salary", href: "/salary", icon: BadgeDollarSign },
   { label: "Accounts", href: "/accounts", icon: CreditCard },
   { label: "Categories", href: "/categories", icon: FolderTree },
@@ -48,7 +50,7 @@ const sidebarNavigation = [
 ];
 
 const mobileNavigation = sidebarNavigation
-  .filter(({ label }) => label !== "Categories")
+  .filter(({ label }) => label !== "Categories" && label !== "Settings")
   .map((item) => (item.label === "Transactions" ? { ...item, label: "Activity" } : item));
 
 type AppShellUser = {

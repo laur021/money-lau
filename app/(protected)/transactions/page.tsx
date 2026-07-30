@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { BadgeDollarSign, Pencil, Plus, ReceiptText, Search, Tags, Trash2 } from "lucide-react";
+import { BadgeDollarSign, CalendarCheck2, Pencil, Plus, ReceiptText, Search, Tags, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { TransactionForm, type TransactionFormValue } from "@/components/transactions/transaction-form";
 import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
@@ -99,14 +99,23 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
   ]);
   const rows = (transactions ?? []) as unknown as TransactionRow[];
   const transactionIds = rows.map((transaction) => transaction.id);
-  const { data: salaryLinks } = transactionIds.length
-    ? await supabase
-        .from("salary_runs")
-        .select("id,transaction_id")
-        .in("transaction_id", transactionIds)
-    : { data: [] };
+  const [{ data: salaryLinks }, { data: billLinks }] = transactionIds.length
+    ? await Promise.all([
+        supabase
+          .from("salary_runs")
+          .select("id,transaction_id")
+          .in("transaction_id", transactionIds),
+        supabase
+          .from("bill_items")
+          .select("id,transaction_id")
+          .in("transaction_id", transactionIds),
+      ])
+    : [{ data: [] }, { data: [] }];
   const salaryRunByTransaction = new Map(
     (salaryLinks ?? []).map((salaryRun) => [salaryRun.transaction_id, salaryRun.id]),
+  );
+  const billItemByTransaction = new Map(
+    (billLinks ?? []).map((billItem) => [billItem.transaction_id, billItem.id]),
   );
   const pageCount = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE));
   const pageHref = (targetPage: number) => {
@@ -187,10 +196,11 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
                   const transactionTags = transaction.transaction_tags.map((item) => item.tags).filter((tag): tag is { id: string; name: string } => Boolean(tag));
                   const initialValue: TransactionFormValue = { ...transaction, tags: transactionTags.map((tag) => tag.name) };
                   const salaryRunId = salaryRunByTransaction.get(transaction.id);
+                  const billItemId = billItemByTransaction.get(transaction.id);
                   return (
                     <TableRow key={transaction.id}>
                       <TableCell>{format(new Date(transaction.transaction_date), "MMM d, yyyy")}</TableCell>
-                      <TableCell><div className="flex max-w-64 flex-col gap-1"><span className="font-medium">{transaction.merchant || transaction.description || "No description"}</span><div className="flex flex-wrap gap-1">{salaryRunId ? <Badge><BadgeDollarSign />Salary</Badge> : null}{transactionTags.map((tag) => <Badge key={tag.id} variant="outline">{tag.name}</Badge>)}</div></div></TableCell>
+                      <TableCell><div className="flex max-w-64 flex-col gap-1"><span className="font-medium">{transaction.merchant || transaction.description || "No description"}</span><div className="flex flex-wrap gap-1">{salaryRunId ? <Badge><BadgeDollarSign />Salary</Badge> : null}{billItemId ? <Badge><CalendarCheck2 />Bill</Badge> : null}{transactionTags.map((tag) => <Badge key={tag.id} variant="outline">{tag.name}</Badge>)}</div></div></TableCell>
                       <TableCell>{transaction.source_account?.name ?? "Account"}{transaction.destination_account ? ` to ${transaction.destination_account.name}` : ""}</TableCell>
                       <TableCell>{transaction.category?.name ?? (transaction.transaction_type === "transfer" ? "Transfer" : "Uncategorized")}</TableCell>
                       <TableCell>
@@ -199,7 +209,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
                         </PrivateFinancialValue>
                       </TableCell>
                       <TableCell><div className="flex flex-wrap gap-1"><Badge variant="outline">{transaction.transaction_type}</Badge><Badge variant={statusVariant(transaction.status)}>{transaction.status}</Badge></div></TableCell>
-                      <TableCell>{salaryRunId ? <div className="flex justify-end"><Button asChild size="sm" variant="ghost"><Link href={`/salary/${salaryRunId}`}><BadgeDollarSign data-icon="inline-start" />Open salary</Link></Button></div> : <div className="flex justify-end gap-1"><Dialog><DialogTrigger asChild><Button aria-label="Edit transaction" size="icon-sm" variant="ghost"><Pencil /></Button></DialogTrigger><DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-4xl"><DialogHeader><DialogTitle>Edit transaction</DialogTitle><DialogDescription>Archived references remain available only for this historical record.</DialogDescription></DialogHeader><TransactionForm accounts={accounts ?? []} categories={(categories ?? []) as { id: string; name: string; transaction_type: "income" | "expense"; is_archived: boolean }[]} initialValue={initialValue} /></DialogContent></Dialog><AlertDialog><AlertDialogTrigger asChild><Button aria-label="Delete transaction" size="icon-sm" variant="ghost"><Trash2 /></Button></AlertDialogTrigger><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Delete this transaction?</AlertDialogTitle><AlertDialogDescription>This permanently removes the entry and recalculates affected balances. This action cannot be undone.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><form action={deleteTransaction}><input name="id" type="hidden" value={transaction.id} /><AlertDialogAction type="submit" variant="destructive">Delete</AlertDialogAction></form></AlertDialogFooter></AlertDialogContent></AlertDialog></div>}</TableCell>
+                      <TableCell>{salaryRunId ? <div className="flex justify-end"><Button asChild size="sm" variant="ghost"><Link href={`/salary/${salaryRunId}`}><BadgeDollarSign data-icon="inline-start" />Open salary</Link></Button></div> : billItemId ? <div className="flex justify-end"><Button asChild size="sm" variant="ghost"><Link href="/bills"><CalendarCheck2 data-icon="inline-start" />Open bill</Link></Button></div> : <div className="flex justify-end gap-1"><Dialog><DialogTrigger asChild><Button aria-label="Edit transaction" size="icon-sm" variant="ghost"><Pencil /></Button></DialogTrigger><DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-4xl"><DialogHeader><DialogTitle>Edit transaction</DialogTitle><DialogDescription>Archived references remain available only for this historical record.</DialogDescription></DialogHeader><TransactionForm accounts={accounts ?? []} categories={(categories ?? []) as { id: string; name: string; transaction_type: "income" | "expense"; is_archived: boolean }[]} initialValue={initialValue} /></DialogContent></Dialog><AlertDialog><AlertDialogTrigger asChild><Button aria-label="Delete transaction" size="icon-sm" variant="ghost"><Trash2 /></Button></AlertDialogTrigger><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Delete this transaction?</AlertDialogTitle><AlertDialogDescription>This permanently removes the entry and recalculates affected balances. This action cannot be undone.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><form action={deleteTransaction}><input name="id" type="hidden" value={transaction.id} /><AlertDialogAction type="submit" variant="destructive">Delete</AlertDialogAction></form></AlertDialogFooter></AlertDialogContent></AlertDialog></div>}</TableCell>
                     </TableRow>
                   );
                 })}
