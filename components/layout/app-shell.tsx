@@ -3,7 +3,6 @@
 import { AppLogo } from "@/components/layout/app-logo";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -145,21 +144,13 @@ export function AppShell({
       </Sidebar>
 
       <SidebarInset className="pb-20 md:pb-0">
-        <header className="flex items-center justify-between border-b px-4 py-3 sm:px-6">
+        <header className="flex items-center border-b px-4 py-3 sm:px-6">
           <div className="flex items-center gap-2">
             <SidebarTrigger />
             <div className="md:hidden">
               <AppLogo />
             </div>
             <p className="hidden text-sm text-muted-foreground md:block">Personal finances</p>
-          </div>
-          <div className="flex items-center gap-1">
-            <ThemeToggle />
-            <form action={signOut}>
-              <Button aria-label="Sign out" size="icon" type="submit" variant="ghost">
-                <LogOut aria-hidden="true" />
-              </Button>
-            </form>
           </div>
         </header>
         {children}
