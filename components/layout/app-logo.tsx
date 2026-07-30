@@ -1,6 +1,21 @@
-import { Landmark } from "lucide-react";
+import { MoneyLauMark } from "@/components/icons/moneylau-mark";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 export function AppLogo({ className }: { className?: string }) {
-  return <div className={cn("flex items-center gap-2 font-semibold", className)}><span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"><Landmark aria-hidden="true" className="size-4" /></span><span>MoneyLau</span></div>;
+  return (
+    <Link
+      aria-label="MoneyLau overview"
+      className={cn(
+        "flex min-w-0 items-center gap-2.5 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        className
+      )}
+      href="/dashboard"
+    >
+      <MoneyLauMark aria-hidden="true" className="size-8 shrink-0 text-primary" />
+      <span className="truncate text-sm font-semibold group-data-[collapsible=icon]:hidden">
+        MoneyLau
+      </span>
+    </Link>
+  );
 }
