@@ -96,6 +96,23 @@ async function getAuthenticatedClient() {
   return { supabase, userId };
 }
 
+async function assertNotSalaryTransaction(
+  supabase: SupabaseClient,
+  userId: string,
+  transactionId: string,
+) {
+  const { data, error } = await supabase
+    .from("salary_runs")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("transaction_id", transactionId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (data) {
+    throw new Error("Salary transactions must be changed from the salary record.");
+  }
+}
+
 export async function createTransaction(formData: FormData) {
   const value = transactionSchema.parse(Object.fromEntries(formData));
   const { supabase, userId } = await getAuthenticatedClient();
@@ -113,6 +130,7 @@ export async function updateTransaction(formData: FormData) {
   const id = z.string().uuid().parse(formData.get("id"));
   const value = transactionSchema.parse(Object.fromEntries(formData));
   const { supabase, userId } = await getAuthenticatedClient();
+  await assertNotSalaryTransaction(supabase, userId, id);
   const { error } = await supabase.from("transactions").update(transactionPayload(value)).eq("id", id);
   if (error) throw new Error(error.message);
   await syncTransactionTags(supabase, userId, id, parseTagNames(value.tags));
@@ -121,7 +139,8 @@ export async function updateTransaction(formData: FormData) {
 
 export async function deleteTransaction(formData: FormData) {
   const id = z.string().uuid().parse(formData.get("id"));
-  const { supabase } = await getAuthenticatedClient();
+  const { supabase, userId } = await getAuthenticatedClient();
+  await assertNotSalaryTransaction(supabase, userId, id);
   const { error } = await supabase.from("transactions").delete().eq("id", id);
   if (error) throw new Error(error.message);
   refreshTransactionViews();

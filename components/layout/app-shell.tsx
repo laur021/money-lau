@@ -1,7 +1,6 @@
 "use client";
 
 import { AppLogo } from "@/components/layout/app-logo";
-import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Sidebar,
@@ -23,6 +22,7 @@ import { signOut } from "@/features/auth/actions";
 import { cn } from "@/lib/utils";
 import {
   BarChart3,
+  BadgeDollarSign,
   CreditCard,
   FolderTree,
   LayoutDashboard,
@@ -33,14 +33,19 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const navigation = [
+const sidebarNavigation = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { label: "Transactions", href: "/transactions", icon: ReceiptText },
+  { label: "Salary", href: "/salary", icon: BadgeDollarSign },
   { label: "Accounts", href: "/accounts", icon: CreditCard },
   { label: "Categories", href: "/categories", icon: FolderTree },
   { label: "Reports", href: "/reports", icon: BarChart3 },
   { label: "Settings", href: "/settings", icon: Settings },
 ];
+
+const mobileNavigation = sidebarNavigation
+  .filter(({ label }) => label !== "Categories")
+  .map((item) => (item.label === "Transactions" ? { ...item, label: "Activity" } : item));
 
 type AppShellUser = {
   avatarUrl: string | null;
@@ -76,8 +81,8 @@ export function AppShell({
             <SidebarGroupLabel>Workspace</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {navigation.map(({ icon: Icon, label, href }) => {
-                  const active = pathname === href;
+                {sidebarNavigation.map(({ icon: Icon, label, href }) => {
+                  const active = pathname === href || pathname.startsWith(`${href}/`);
 
                   return (
                     <SidebarMenuItem key={label}>
@@ -123,7 +128,7 @@ export function AppShell({
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-            <SidebarMenuItem className="flex items-center gap-1">
+            <SidebarMenuItem>
               <form action={signOut} className="min-w-0 flex-1">
                 <SidebarMenuButton
                   className="w-full text-muted-foreground hover:text-foreground"
@@ -134,9 +139,6 @@ export function AppShell({
                   <span>Sign out</span>
                 </SidebarMenuButton>
               </form>
-              <div className="group-data-[collapsible=icon]:hidden">
-                <ThemeToggle />
-              </div>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarFooter>
@@ -160,8 +162,8 @@ export function AppShell({
         aria-label="Mobile navigation"
         className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t bg-background px-1 py-2 md:hidden"
       >
-        {navigation.map(({ icon: Icon, label, href }) => {
-          const active = pathname === href;
+        {mobileNavigation.map(({ icon: Icon, label, href }) => {
+          const active = pathname === href || pathname.startsWith(`${href}/`);
 
           return (
             <Link

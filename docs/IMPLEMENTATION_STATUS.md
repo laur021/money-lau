@@ -2,7 +2,18 @@
 
 ## Application Status: Complete
 
-MoneyLau now includes the planned personal-finance workflows, authenticated data model, reporting experience, production configuration, and final runtime states. PWA packaging is intentionally not included.
+MoneyLau now includes the planned personal-finance workflows, authenticated data model, salary calculator, reporting experience, production configuration, and final runtime states. PWA packaging is intentionally not included.
+
+## Completed: Phase 11 - Salary Calculator
+
+- Added reusable salary profiles for employers, pay schedules, currencies, base pay, receiving accounts, income categories, and default pay components.
+- Added weekly, biweekly, semi-monthly, and monthly pay-period suggestions without creating future transactions automatically.
+- Added fixed, base-percentage, gross-percentage, and hourly multiplier calculations with per-component two-decimal rounding and focused unit coverage.
+- Added salary drafts with historical component snapshots, editable payslip review, explicit posting, optional unposting, and year-to-date gross, deduction, and net summaries.
+- Added atomic `post_salary_run` and `unpost_salary_run` database functions that create or remove exactly one completed net-income transaction.
+- Protected salary-generated transactions from direct ledger edits and deletion, with Salary badges and links back to the originating record.
+- Added RLS, ownership validation, authenticated grants, anonymous revocation, lifecycle triggers, and foreign-key indexes for all salary tables.
+- Added Salary to desktop and mobile navigation and built the workspace with shadcn field, card, table, badge, alert, dialog, tabs, and empty-state primitives.
 
 ## Completed: Phase 10 - Production Hardening
 
@@ -62,6 +73,8 @@ MoneyLau now includes the planned personal-finance workflows, authenticated data
 
 ## Migrations
 
+- `20260730051236_salary_foreign_key_indexes.sql`
+- `20260730045614_salary_calculator.sql`
 - Phase 10: none.
 - `20260730020000_phase_9_dashboard_reporting.sql`
 - `20260730004903_phase_8_complete_finance_workflows.sql`
@@ -74,6 +87,7 @@ MoneyLau now includes the planned personal-finance workflows, authenticated data
 - Account deletion is intentionally a recorded deletion request. Permanent Auth-user removal requires a secure administrative process outside the browser app; no service-role secret is shipped to the client.
 - Supabase reports informational authenticated GraphQL discoverability notices because authenticated client queries are intentionally enabled and protected by row-level security.
 - New indexes may be reported as unused until the production dataset and query history grow; they support foreign keys and expected ledger filtering.
+- Gross salary and deductions stay in salary records; only net received pay is included in standard dashboard, account, report, activity, and CSV totals.
 
 ## Next Work
 
