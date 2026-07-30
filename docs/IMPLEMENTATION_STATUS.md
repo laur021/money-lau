@@ -1,5 +1,16 @@
 # MoneyLau Implementation Status
 
+## Completed: Phase 8 - Complete Finance Workflows
+
+- Expanded accounts into a complete create, edit, reorder, archive, restore, and balance-tracking workflow with institution, account type, color, icon, last-four, and include-in-total controls.
+- Expanded categories into complete income and expense management with parent categories, custom styling, ordering, archiving, and restoration.
+- Completed the transaction ledger with editing, permanent deletion, server-side filters, date ranges, pagination, references, tags, and archived-record compatibility.
+- Added protected tags and transaction-tag relationships with row-level security and explicit authenticated-role grants.
+- Reworked onboarding to collect profile defaults, create a first account, review default categories, and optionally record a first transaction.
+- Expanded settings with avatar, profile defaults, dashboard period, archived-record visibility, theme, and account-data controls.
+- Added shared comma-separated money formatting and focused unit coverage so monetary values consistently render like `1,234.56 PHP`.
+- Added shadcn table, dialog, select, pagination, tabs, avatar, checkbox, chart, and Sonner primitives for the completed workflows.
+
 ## Completed: Phase 7 - Production Readiness
 
 - Adopted the shadcn Sidebar component for collapsible desktop navigation and its responsive mobile sheet, while retaining the compact mobile navigation bar.
@@ -29,16 +40,17 @@
 
 ## Migrations
 
+- `20260730004903_phase_8_complete_finance_workflows.sql`
 - Phase 7: none.
 - `20260729080000_phase_6_preferences_deletion.sql`
 - `20260729080500_phase_6_revoke_anon_access.sql`
 
 ## Remaining Issues
 
-- Google OAuth still requires the Google client ID and secret to be enabled in Supabase Authentication and local/deployed callback URLs to be configured.
 - Account deletion is intentionally a recorded deletion request. Completing the permanent Auth-user removal requires a secure administrative process outside the browser app; no service-role secret is shipped to the client.
 - Supabase reports informational authenticated GraphQL discoverability notices because authenticated client queries are intentionally enabled and protected by row-level security.
+- New indexes are reported as unused until the production dataset and query history grow; they support foreign keys and expected ledger filtering.
 
 ## Recommended Next Phase
 
-Post-launch: connect Vercel to GitHub, enter the public Supabase configuration in Vercel, enable Google in the Supabase dashboard with its Google client credentials, and complete the production checklist in `docs/DEPLOYMENT.md`.
+Phase 9: build the Monefy-inspired expense-distribution dashboard and complete the reporting experience with period filters, category portions, cash-flow trends, and comma-separated numeric presentation.
