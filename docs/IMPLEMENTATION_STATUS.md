@@ -1,5 +1,14 @@
 # MoneyLau Implementation Status
 
+## Completed: Phase 9 - Dashboard and Financial Reporting
+
+- Rebuilt the overview as an original Monefy-inspired finance dashboard with a large expense-distribution donut, labeled category portions, period and currency controls, account balances, recent activity, and monthly cash flow.
+- Added reusable reporting period, category-distribution, monthly cash-flow, total, and largest-activity calculations with focused unit coverage.
+- Completed Reports with period, currency, account, category, and status filters; income sources; expense portions; cash-flow trends; largest activity; and authenticated filtered CSV export.
+- Applied reporting indexes for the currency, status, category, and date combinations used by dashboard and report queries.
+- Standardized dashboard, chart tooltip, report, table, balance, and export-facing numeric presentation around comma-separated monetary values.
+- Used shadcn chart, card, field, select, table, badge, and button primitives throughout the finished reporting experience.
+
 ## Completed: Phase 8 - Complete Finance Workflows
 
 - Expanded accounts into a complete create, edit, reorder, archive, restore, and balance-tracking workflow with institution, account type, color, icon, last-four, and include-in-total controls.
@@ -40,6 +49,7 @@
 
 ## Migrations
 
+- `20260730020000_phase_9_dashboard_reporting.sql`
 - `20260730004903_phase_8_complete_finance_workflows.sql`
 - Phase 7: none.
 - `20260729080000_phase_6_preferences_deletion.sql`
@@ -47,10 +57,10 @@
 
 ## Remaining Issues
 
-- Account deletion is intentionally a recorded deletion request. Completing the permanent Auth-user removal requires a secure administrative process outside the browser app; no service-role secret is shipped to the client.
+- Account deletion is intentionally a recorded deletion request. Completing permanent Auth-user removal requires a secure administrative process outside the browser app; no service-role secret is shipped to the client.
 - Supabase reports informational authenticated GraphQL discoverability notices because authenticated client queries are intentionally enabled and protected by row-level security.
 - New indexes are reported as unused until the production dataset and query history grow; they support foreign keys and expected ledger filtering.
 
 ## Recommended Next Phase
 
-Phase 9: build the Monefy-inspired expense-distribution dashboard and complete the reporting experience with period filters, category portions, cash-flow trends, and comma-separated numeric presentation.
+Phase 10: finish loading and error states, responsiveness and accessibility checks, query and navigation performance, production verification, and final documentation. PWA support is explicitly excluded.
