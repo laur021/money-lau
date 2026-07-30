@@ -1,6 +1,5 @@
 "use client";
 
-import { Label, Pie, PieChart } from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
@@ -9,6 +8,7 @@ import {
 } from "@/components/ui/chart";
 import type { CategoryPortion } from "@/lib/calculations/reporting";
 import { formatAmount, formatMoney } from "@/lib/formatting/money";
+import { Label, Pie, PieChart } from "recharts";
 
 const chartConfig = {
   value: {
@@ -71,12 +71,7 @@ export function ExpenseDonutChart({
               content={({ viewBox }) => {
                 if (!viewBox || !("cx" in viewBox) || !("cy" in viewBox)) return null;
                 return (
-                  <text
-                    dominantBaseline="middle"
-                    textAnchor="middle"
-                    x={viewBox.cx}
-                    y={viewBox.cy}
-                  >
+                  <text dominantBaseline="middle" textAnchor="middle" x={viewBox.cx} y={viewBox.cy}>
                     <tspan
                       className="fill-muted-foreground text-xs"
                       x={viewBox.cx}
@@ -123,9 +118,7 @@ export function ExpenseDonutChart({
                 {item.percentage.toFixed(1)}% of expenses
               </p>
             </div>
-            <span className="text-right text-sm tabular-nums">
-              {formatAmount(item.value)}
-            </span>
+            <span className="text-right text-sm tabular-nums">{formatAmount(item.value)}</span>
           </div>
         ))}
       </div>

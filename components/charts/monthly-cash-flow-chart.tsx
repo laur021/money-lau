@@ -1,6 +1,5 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
   ChartContainer,
   ChartLegend,
@@ -10,6 +9,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { formatCompactAmount, formatMoney } from "@/lib/formatting/money";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 const chartConfig = {
   income: {
@@ -54,9 +54,7 @@ export function MonthlyCashFlowChart({
         />
         <ChartTooltip
           content={
-            <ChartTooltipContent
-              formatter={(value) => formatMoney(Number(value), currency)}
-            />
+            <ChartTooltipContent formatter={(value) => formatMoney(Number(value), currency)} />
           }
         />
         <ChartLegend content={<ChartLegendContent />} />

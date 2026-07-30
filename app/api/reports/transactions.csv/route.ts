@@ -1,7 +1,4 @@
-import {
-  isReportingPeriod,
-  reportingDateRange,
-} from "@/lib/calculations/periods";
+import { isReportingPeriod, reportingDateRange } from "@/lib/calculations/periods";
 import { createClient } from "@/lib/supabase/server";
 
 type ExportRow = {
@@ -31,23 +28,18 @@ export async function GET(request: Request) {
 
   const parameters = new URL(request.url).searchParams;
   const requestedPeriod = parameters.get("period") ?? "";
-  const period = isReportingPeriod(requestedPeriod)
-    ? requestedPeriod
-    : "this_year";
+  const period = isReportingPeriod(requestedPeriod) ? requestedPeriod : "this_year";
   const currency = (parameters.get("currency") ?? "PHP").toUpperCase();
   const account = parameters.get("account") ?? "";
   const category = parameters.get("category") ?? "";
   const status = parameters.get("status") ?? "";
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("week_starts_on")
-    .maybeSingle();
+  const { data: profile } = await supabase.from("profiles").select("week_starts_on").maybeSingle();
   const range = reportingDateRange(period, new Date(), profile?.week_starts_on ?? 1);
 
   let query = supabase
     .from("transactions")
     .select(
-      "transaction_date,transaction_type,amount,currency,status,merchant,description,reference_number,source_account:accounts!transactions_account_id_fkey(name),destination_account:accounts!transactions_destination_account_id_fkey(name),category:categories!transactions_category_id_fkey(name)",
+      "transaction_date,transaction_type,amount,currency,status,merchant,description,reference_number,source_account:accounts!transactions_account_id_fkey(name),destination_account:accounts!transactions_destination_account_id_fkey(name),category:categories!transactions_category_id_fkey(name)"
     )
     .eq("currency", currency)
     .order("transaction_date", { ascending: false })
@@ -55,9 +47,7 @@ export async function GET(request: Request) {
   if (range.from) query = query.gte("transaction_date", range.from.toISOString());
   if (range.to) query = query.lte("transaction_date", range.to.toISOString());
   if (account) {
-    query = query.or(
-      `account_id.eq.${account},destination_account_id.eq.${account}`,
-    );
+    query = query.or(`account_id.eq.${account},destination_account_id.eq.${account}`);
   }
   if (category) query = query.eq("category_id", category);
   if (["completed", "pending", "cancelled"].includes(status)) {
@@ -101,7 +91,7 @@ export async function GET(request: Request) {
         row.status,
       ]
         .map(csvCell)
-        .join(","),
+        .join(",")
     ),
   ].join("\n");
 

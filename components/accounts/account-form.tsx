@@ -1,5 +1,3 @@
-import { Pencil, Plus } from "lucide-react";
-import { createAccount, updateAccount } from "@/features/accounts/actions";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -19,6 +17,8 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { createAccount, updateAccount } from "@/features/accounts/actions";
+import { Pencil, Plus } from "lucide-react";
 
 export type AccountRecord = {
   id: string;
@@ -84,7 +84,9 @@ export function AccountForm({ account }: { account?: AccountRecord }) {
             name="accountType"
           >
             {accountTypes.map(([value, label]) => (
-              <NativeSelectOption key={value} value={value}>{label}</NativeSelectOption>
+              <NativeSelectOption key={value} value={value}>
+                {label}
+              </NativeSelectOption>
             ))}
           </NativeSelect>
         </Field>
@@ -143,7 +145,9 @@ export function AccountForm({ account }: { account?: AccountRecord }) {
             name="color"
           >
             {accountColors.map((color) => (
-              <NativeSelectOption key={color} value={color}>{color}</NativeSelectOption>
+              <NativeSelectOption key={color} value={color}>
+                {color}
+              </NativeSelectOption>
             ))}
           </NativeSelect>
         </Field>
@@ -172,11 +176,18 @@ export function AccountForm({ account }: { account?: AccountRecord }) {
 export function AccountEditDialog({ account }: { account: AccountRecord }) {
   return (
     <Dialog>
-      <DialogTrigger asChild><Button size="sm" variant="outline"><Pencil data-icon="inline-start" />Edit</Button></DialogTrigger>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline">
+          <Pencil data-icon="inline-start" />
+          Edit
+        </Button>
+      </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Edit account</DialogTitle>
-          <DialogDescription>Update display details without changing historical transactions.</DialogDescription>
+          <DialogDescription>
+            Update display details without changing historical transactions.
+          </DialogDescription>
         </DialogHeader>
         <AccountForm account={account} />
       </DialogContent>

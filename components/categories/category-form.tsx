@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { Pencil, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,6 +13,8 @@ import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { createCategory, updateCategory } from "@/features/accounts/actions";
+import { Pencil, Plus } from "lucide-react";
+import { useState } from "react";
 
 export type CategoryRecord = {
   id: string;
@@ -38,10 +38,10 @@ export function CategoryForm({
   parents: ParentCategory[];
 }) {
   const [transactionType, setTransactionType] = useState<"income" | "expense">(
-    category?.transaction_type ?? "expense",
+    category?.transaction_type ?? "expense"
   );
   const matchingParents = parents.filter(
-    (parent) => parent.transaction_type === transactionType && parent.id !== category?.id,
+    (parent) => parent.transaction_type === transactionType && parent.id !== category?.id
   );
   const prefix = category ? `category-${category.id}` : "new-category";
 
@@ -76,10 +76,14 @@ export function CategoryForm({
           >
             <NativeSelectOption value="">None</NativeSelectOption>
             {matchingParents.map((parent) => (
-              <NativeSelectOption key={parent.id} value={parent.id}>{parent.name}</NativeSelectOption>
+              <NativeSelectOption key={parent.id} value={parent.id}>
+                {parent.name}
+              </NativeSelectOption>
             ))}
           </NativeSelect>
-          <FieldDescription>Only parent categories with the same transaction type are available.</FieldDescription>
+          <FieldDescription>
+            Only parent categories with the same transaction type are available.
+          </FieldDescription>
         </Field>
         <Field>
           <FieldLabel htmlFor={`${prefix}-icon`}>Icon</FieldLabel>
@@ -105,8 +109,10 @@ export function CategoryForm({
             id={`${prefix}-color`}
             name="color"
           >
-            {['blue', 'cyan', 'green', 'amber', 'rose', 'violet'].map((color) => (
-              <NativeSelectOption key={color} value={color}>{color}</NativeSelectOption>
+            {["blue", "cyan", "green", "amber", "rose", "violet"].map((color) => (
+              <NativeSelectOption key={color} value={color}>
+                {color}
+              </NativeSelectOption>
             ))}
           </NativeSelect>
         </Field>
@@ -129,11 +135,18 @@ export function CategoryEditDialog({
 }) {
   return (
     <Dialog>
-      <DialogTrigger asChild><Button size="sm" variant="outline"><Pencil data-icon="inline-start" />Edit</Button></DialogTrigger>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline">
+          <Pencil data-icon="inline-start" />
+          Edit
+        </Button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit category</DialogTitle>
-          <DialogDescription>Historical transactions keep their category when it is archived.</DialogDescription>
+          <DialogDescription>
+            Historical transactions keep their category when it is archived.
+          </DialogDescription>
         </DialogHeader>
         <CategoryForm category={category} parents={parents} />
       </DialogContent>

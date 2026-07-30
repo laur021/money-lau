@@ -1,14 +1,3 @@
-import { format } from "date-fns";
-import {
-  ArrowDownRight,
-  ArrowUpRight,
-  Landmark,
-  Plus,
-  ReceiptText,
-  Scale,
-  WalletCards,
-} from "lucide-react";
-import Link from "next/link";
 import { ExpenseDonutChart } from "@/components/charts/expense-donut-chart";
 import { MonthlyCashFlowChart } from "@/components/charts/monthly-cash-flow-chart";
 import { Badge } from "@/components/ui/badge";
@@ -36,38 +25,44 @@ import {
 } from "@/lib/calculations/reporting";
 import { formatMoney } from "@/lib/formatting/money";
 import { createClient } from "@/lib/supabase/server";
+import { format } from "date-fns";
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  Landmark,
+  Plus,
+  ReceiptText,
+  Scale,
+  WalletCards,
+} from "lucide-react";
+import Link from "next/link";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 function parameterValue(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] ?? "" : value ?? "";
+  return Array.isArray(value) ? (value[0] ?? "") : (value ?? "");
 }
 
 function transactionTitle(row: ReportingRow) {
   return row.merchant || row.description || row.category?.name || "Transaction";
 }
 
-export default async function DashboardPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+export default async function DashboardPage({ searchParams }: { searchParams: SearchParams }) {
   const parameters = await searchParams;
   const supabase = await createClient();
-  const [{ data: profile }, { data: accounts }, { data: balances }] =
-    await Promise.all([
-      supabase
-        .from("profiles")
-        .select("default_currency,default_dashboard_period,week_starts_on")
-        .maybeSingle(),
-      supabase
-        .from("accounts")
-        .select("id,name,currency,account_type,include_in_total,is_archived,color")
-        .eq("is_archived", false)
-        .order("display_order")
-        .order("name"),
-      supabase.from("account_balances").select("id,currency,current_balance"),
-    ]);
+  const [{ data: profile }, { data: accounts }, { data: balances }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("default_currency,default_dashboard_period,week_starts_on")
+      .maybeSingle(),
+    supabase
+      .from("accounts")
+      .select("id,name,currency,account_type,include_in_total,is_archived,color")
+      .eq("is_archived", false)
+      .order("display_order")
+      .order("name"),
+    supabase.from("account_balances").select("id,currency,current_balance"),
+  ]);
 
   const requestedPeriod = parameterValue(parameters.period);
   const configuredPeriod = profile?.default_dashboard_period ?? "this_month";
@@ -80,7 +75,7 @@ export default async function DashboardPage({
     new Set([
       profile?.default_currency ?? "PHP",
       ...(accounts ?? []).map((account) => account.currency),
-    ]),
+    ])
   ).sort();
   const requestedCurrency = parameterValue(parameters.currency).toUpperCase();
   const currency = currencyOptions.includes(requestedCurrency)
@@ -91,22 +86,16 @@ export default async function DashboardPage({
   let transactionQuery = supabase
     .from("transactions")
     .select(
-      "id,transaction_type,account_id,destination_account_id,category_id,amount,currency,status,transaction_date,description,merchant,category:categories!transactions_category_id_fkey(name,color),source_account:accounts!transactions_account_id_fkey(name)",
+      "id,transaction_type,account_id,destination_account_id,category_id,amount,currency,status,transaction_date,description,merchant,category:categories!transactions_category_id_fkey(name,color),source_account:accounts!transactions_account_id_fkey(name)"
     )
     .eq("currency", currency)
     .order("transaction_date", { ascending: false })
     .limit(1000);
   if (range.from) {
-    transactionQuery = transactionQuery.gte(
-      "transaction_date",
-      range.from.toISOString(),
-    );
+    transactionQuery = transactionQuery.gte("transaction_date", range.from.toISOString());
   }
   if (range.to) {
-    transactionQuery = transactionQuery.lte(
-      "transaction_date",
-      range.to.toISOString(),
-    );
+    transactionQuery = transactionQuery.lte("transaction_date", range.to.toISOString());
   }
 
   const { data: transactions } = await transactionQuery;
@@ -115,14 +104,9 @@ export default async function DashboardPage({
   const expenseData = categoryPortions(rows, currency);
   const monthlyData = monthlyCashFlow(rows, currency);
   const balanceById = new Map(
-    (balances ?? []).map((balance) => [
-      balance.id,
-      Number(balance.current_balance),
-    ]),
+    (balances ?? []).map((balance) => [balance.id, Number(balance.current_balance)])
   );
-  const visibleAccounts = (accounts ?? []).filter(
-    (account) => account.currency === currency,
-  );
+  const visibleAccounts = (accounts ?? []).filter((account) => account.currency === currency);
   const totalBalance = visibleAccounts
     .filter((account) => account.include_in_total)
     .reduce((sum, account) => sum + (balanceById.get(account.id) ?? 0), 0);
@@ -140,22 +124,14 @@ export default async function DashboardPage({
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <form className="flex items-center gap-2">
-            <NativeSelect
-              aria-label="Dashboard period"
-              defaultValue={period}
-              name="period"
-            >
+            <NativeSelect aria-label="Dashboard period" defaultValue={period} name="period">
               {REPORTING_PERIODS.map((value) => (
                 <NativeSelectOption key={value} value={value}>
                   {PERIOD_LABELS[value]}
                 </NativeSelectOption>
               ))}
             </NativeSelect>
-            <NativeSelect
-              aria-label="Dashboard currency"
-              defaultValue={currency}
-              name="currency"
-            >
+            <NativeSelect aria-label="Dashboard currency" defaultValue={currency} name="currency">
               {currencyOptions.map((value) => (
                 <NativeSelectOption key={value} value={value}>
                   {value}
@@ -210,8 +186,7 @@ export default async function DashboardPage({
           <CardHeader className="border-b">
             <CardTitle>Where your money went</CardTitle>
             <CardDescription>
-              Expense portions by category for{" "}
-              {PERIOD_LABELS[period].toLowerCase()}.
+              Expense portions by category for {PERIOD_LABELS[period].toLowerCase()}.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -248,9 +223,7 @@ export default async function DashboardPage({
                       <Landmark className="size-4" />
                     </span>
                     <span className="min-w-0">
-                      <span className="block truncate text-sm font-medium">
-                        {account.name}
-                      </span>
+                      <span className="block truncate text-sm font-medium">{account.name}</span>
                       <span className="block text-xs capitalize text-muted-foreground">
                         {account.account_type.replaceAll("_", " ")}
                       </span>
@@ -270,9 +243,7 @@ export default async function DashboardPage({
         <Card>
           <CardHeader className="border-b">
             <CardTitle>Monthly cash flow</CardTitle>
-            <CardDescription>
-              Completed income and expense activity
-            </CardDescription>
+            <CardDescription>Completed income and expense activity</CardDescription>
           </CardHeader>
           <CardContent>
             <MonthlyCashFlowChart currency={currency} data={monthlyData} />
@@ -293,9 +264,7 @@ export default async function DashboardPage({
             {recent.length === 0 ? (
               <div className="flex flex-col items-center gap-2 py-8 text-center">
                 <ReceiptText className="size-5 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">
-                  No activity in this period.
-                </p>
+                <p className="text-sm text-muted-foreground">No activity in this period.</p>
               </div>
             ) : (
               recent.map((row) => (
@@ -304,9 +273,7 @@ export default async function DashboardPage({
                   key={row.id}
                 >
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">
-                      {transactionTitle(row)}
-                    </p>
+                    <p className="truncate text-sm font-medium">{transactionTitle(row)}</p>
                     <p className="text-xs text-muted-foreground">
                       {format(new Date(row.transaction_date), "MMM d")}
                       {row.status !== "completed" ? (
@@ -362,9 +329,7 @@ function SummaryCard({
         <CardAction>{icon}</CardAction>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
-      <CardContent
-        className={`text-xl font-semibold tabular-nums ${className ?? ""}`}
-      >
+      <CardContent className={`text-xl font-semibold tabular-nums ${className ?? ""}`}>
         {value}
       </CardContent>
     </Card>

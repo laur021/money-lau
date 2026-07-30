@@ -1,6 +1,3 @@
-import { format } from "date-fns";
-import { ArrowDownRight, ArrowUpRight, Download, Scale } from "lucide-react";
-import Link from "next/link";
 import { ExpenseDonutChart } from "@/components/charts/expense-donut-chart";
 import { MonthlyCashFlowChart } from "@/components/charts/monthly-cash-flow-chart";
 import { Button } from "@/components/ui/button";
@@ -37,48 +34,37 @@ import {
 } from "@/lib/calculations/reporting";
 import { formatMoney } from "@/lib/formatting/money";
 import { createClient } from "@/lib/supabase/server";
+import { format } from "date-fns";
+import { ArrowDownRight, ArrowUpRight, Download, Scale } from "lucide-react";
+import Link from "next/link";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 function parameterValue(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] ?? "" : value ?? "";
+  return Array.isArray(value) ? (value[0] ?? "") : (value ?? "");
 }
 
-export default async function ReportsPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+export default async function ReportsPage({ searchParams }: { searchParams: SearchParams }) {
   const parameters = await searchParams;
   const supabase = await createClient();
-  const [{ data: profile }, { data: accounts }, { data: categories }] =
-    await Promise.all([
-      supabase
-        .from("profiles")
-        .select("default_currency,week_starts_on")
-        .maybeSingle(),
-      supabase
-        .from("accounts")
-        .select("id,name,currency")
-        .order("display_order")
-        .order("name"),
-      supabase
-        .from("categories")
-        .select("id,name,transaction_type")
-        .order("transaction_type")
-        .order("display_order")
-        .order("name"),
-    ]);
+  const [{ data: profile }, { data: accounts }, { data: categories }] = await Promise.all([
+    supabase.from("profiles").select("default_currency,week_starts_on").maybeSingle(),
+    supabase.from("accounts").select("id,name,currency").order("display_order").order("name"),
+    supabase
+      .from("categories")
+      .select("id,name,transaction_type")
+      .order("transaction_type")
+      .order("display_order")
+      .order("name"),
+  ]);
 
   const requestedPeriod = parameterValue(parameters.period);
-  const period = isReportingPeriod(requestedPeriod)
-    ? requestedPeriod
-    : "this_year";
+  const period = isReportingPeriod(requestedPeriod) ? requestedPeriod : "this_year";
   const currencyOptions = Array.from(
     new Set([
       profile?.default_currency ?? "PHP",
       ...(accounts ?? []).map((account) => account.currency),
-    ]),
+    ])
   ).sort();
   const requestedCurrency = parameterValue(parameters.currency).toUpperCase();
   const currency = currencyOptions.includes(requestedCurrency)
@@ -92,7 +78,7 @@ export default async function ReportsPage({
   let query = supabase
     .from("transactions")
     .select(
-      "id,transaction_type,account_id,destination_account_id,category_id,amount,currency,status,transaction_date,description,merchant,category:categories!transactions_category_id_fkey(name,color),source_account:accounts!transactions_account_id_fkey(name)",
+      "id,transaction_type,account_id,destination_account_id,category_id,amount,currency,status,transaction_date,description,merchant,category:categories!transactions_category_id_fkey(name,color),source_account:accounts!transactions_account_id_fkey(name)"
     )
     .eq("currency", currency)
     .order("transaction_date", { ascending: false })
@@ -100,9 +86,7 @@ export default async function ReportsPage({
   if (range.from) query = query.gte("transaction_date", range.from.toISOString());
   if (range.to) query = query.lte("transaction_date", range.to.toISOString());
   if (account) {
-    query = query.or(
-      `account_id.eq.${account},destination_account_id.eq.${account}`,
-    );
+    query = query.or(`account_id.eq.${account},destination_account_id.eq.${account}`);
   }
   if (category) query = query.eq("category_id", category);
   if (["completed", "pending", "cancelled"].includes(status)) {
@@ -119,11 +103,9 @@ export default async function ReportsPage({
   const largestIncome = largestActivity(rows, currency, "income");
   const net = totals.income - totals.expense;
   const exportParameters = new URLSearchParams();
-  Object.entries({ period, currency, account, category, status }).forEach(
-    ([key, value]) => {
-      if (value) exportParameters.set(key, value);
-    },
-  );
+  Object.entries({ period, currency, account, category, status }).forEach(([key, value]) => {
+    if (value) exportParameters.set(key, value);
+  });
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 sm:p-6">
@@ -146,8 +128,7 @@ export default async function ReportsPage({
         <CardHeader className="border-b">
           <CardTitle>Report filters</CardTitle>
           <CardDescription>
-            Transfer activity is listed in exports but excluded from income and
-            expense summaries.
+            Transfer activity is listed in exports but excluded from income and expense summaries.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -225,9 +206,7 @@ export default async function ReportsPage({
         <Card>
           <CardHeader className="border-b">
             <CardTitle>Expense distribution</CardTitle>
-            <CardDescription>
-              {PERIOD_LABELS[period]} category portions
-            </CardDescription>
+            <CardDescription>{PERIOD_LABELS[period]} category portions</CardDescription>
           </CardHeader>
           <CardContent>
             <ExpenseDonutChart currency={currency} data={expenses} />
@@ -249,21 +228,14 @@ export default async function ReportsPage({
                   className="grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-md px-2 py-2"
                   key={item.id}
                 >
-                  <span
-                    className="size-2.5 rounded-sm"
-                    style={{ backgroundColor: item.color }}
-                  />
+                  <span className="size-2.5 rounded-sm" style={{ backgroundColor: item.color }} />
                   <span className="min-w-0">
-                    <span className="block truncate text-sm font-medium">
-                      {item.name}
-                    </span>
+                    <span className="block truncate text-sm font-medium">{item.name}</span>
                     <span className="text-xs text-muted-foreground">
                       {item.percentage.toFixed(1)}%
                     </span>
                   </span>
-                  <span className="text-sm tabular-nums">
-                    {formatMoney(item.value, currency)}
-                  </span>
+                  <span className="text-sm tabular-nums">{formatMoney(item.value, currency)}</span>
                 </div>
               ))
             )}
@@ -282,16 +254,8 @@ export default async function ReportsPage({
       </Card>
 
       <section className="grid gap-4 lg:grid-cols-2">
-        <ActivityTable
-          currency={currency}
-          rows={largestExpenses}
-          title="Largest expenses"
-        />
-        <ActivityTable
-          currency={currency}
-          rows={largestIncome}
-          title="Largest income"
-        />
+        <ActivityTable currency={currency} rows={largestExpenses} title="Largest expenses" />
+        <ActivityTable currency={currency} rows={largestIncome} title="Largest income" />
       </section>
     </main>
   );
@@ -311,12 +275,7 @@ function FilterSelect({
   return (
     <Field>
       <FieldLabel htmlFor={`report-${name}`}>{label}</FieldLabel>
-      <NativeSelect
-        className="w-full"
-        defaultValue={value}
-        id={`report-${name}`}
-        name={name}
-      >
+      <NativeSelect className="w-full" defaultValue={value} id={`report-${name}`} name={name}>
         {children}
       </NativeSelect>
     </Field>
@@ -340,9 +299,7 @@ function ReportTotal({
         <CardTitle>{label}</CardTitle>
         <CardAction>{icon}</CardAction>
       </CardHeader>
-      <CardContent
-        className={`text-xl font-semibold tabular-nums ${className ?? ""}`}
-      >
+      <CardContent className={`text-xl font-semibold tabular-nums ${className ?? ""}`}>
         {value}
       </CardContent>
     </Card>
@@ -385,18 +342,13 @@ function ActivityTable({
                 <TableRow key={row.id}>
                   <TableCell>
                     <span className="block max-w-56 truncate font-medium">
-                      {row.merchant ||
-                        row.description ||
-                        row.category?.name ||
-                        "Transaction"}
+                      {row.merchant || row.description || row.category?.name || "Transaction"}
                     </span>
                     <span className="text-xs text-muted-foreground">
                       {row.category?.name ?? row.source_account?.name ?? "Uncategorized"}
                     </span>
                   </TableCell>
-                  <TableCell>
-                    {format(new Date(row.transaction_date), "MMM d, yyyy")}
-                  </TableCell>
+                  <TableCell>{format(new Date(row.transaction_date), "MMM d, yyyy")}</TableCell>
                   <TableCell className="text-right font-medium tabular-nums">
                     {formatMoney(row.amount, currency)}
                   </TableCell>
