@@ -21,16 +21,33 @@ type ScreenPrivacyContextValue = {
 
 const ScreenPrivacyContext = React.createContext<ScreenPrivacyContextValue | null>(null);
 const storageKey = "moneylau-screen-private";
+const screenPrivacyChangeEvent = "moneylau-screen-privacy-change";
+
+function subscribeToScreenPrivacy(onStoreChange: () => void) {
+  window.addEventListener(screenPrivacyChangeEvent, onStoreChange);
+  return () => window.removeEventListener(screenPrivacyChangeEvent, onStoreChange);
+}
+
+function getScreenPrivacySnapshot() {
+  return window.sessionStorage.getItem(storageKey) !== "false";
+}
+
+function getScreenPrivacyServerSnapshot() {
+  return true;
+}
 
 export function ScreenPrivacyProvider({ children }: { children: React.ReactNode }) {
-  const [isScreenPrivate, setScreenPrivateState] = React.useState(() => {
-    if (typeof window === "undefined") return true;
-    return window.sessionStorage.getItem(storageKey) !== "false";
-  });
+  // The server snapshot is also used for the first client render, avoiding a
+  // hydration mismatch when this tab has a saved preference.
+  const isScreenPrivate = React.useSyncExternalStore(
+    subscribeToScreenPrivacy,
+    getScreenPrivacySnapshot,
+    getScreenPrivacyServerSnapshot
+  );
 
   const setScreenPrivate = React.useCallback((value: boolean) => {
-    setScreenPrivateState(value);
     window.sessionStorage.setItem(storageKey, String(value));
+    window.dispatchEvent(new Event(screenPrivacyChangeEvent));
   }, []);
 
   return (
