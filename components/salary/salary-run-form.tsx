@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { saveSalaryRun } from "@/features/salary/actions";
 import type {
   SalaryComponentInput,
+  SalaryContributionAllocation,
   SalaryProfile,
   SalaryRun,
 } from "@/features/salary/types";
@@ -34,6 +35,16 @@ type CategoryOption = {
 
 function today() {
   return new Date().toISOString().slice(0, 10);
+}
+
+function copyProfileComponents(profile?: SalaryProfile): SalaryComponentInput[] {
+  return (
+    profile?.components.map(({ id, ...component }) => ({
+      ...component,
+      id: undefined,
+      sourceProfileComponentId: id,
+    })) ?? []
+  );
 }
 
 export function SalaryRunForm({
@@ -64,8 +75,20 @@ export function SalaryRunForm({
     run?.incomeCategoryId ?? firstProfile?.defaultIncomeCategoryId ?? "",
   );
   const [basePay, setBasePay] = useState(run?.basePay ?? firstProfile?.basePay ?? 0);
+  const [monthlyBasicSalary, setMonthlyBasicSalary] = useState(
+    run?.monthlyBasicSalary ?? firstProfile?.monthlyBasicSalary ?? 0,
+  );
+  const [monthlyCompensation, setMonthlyCompensation] = useState(
+    run?.monthlyCompensation ?? firstProfile?.monthlyCompensation ?? 0,
+  );
+  const [governmentAllocation, setGovernmentAllocation] =
+    useState<SalaryContributionAllocation>(
+      run?.governmentContributionAllocation ??
+        firstProfile?.governmentContributionAllocation ??
+        "full",
+    );
   const [components, setComponents] = useState<SalaryComponentInput[]>(
-    run?.components ?? firstProfile?.components ?? [],
+    run?.components ?? copyProfileComponents(firstProfile),
   );
   const [paymentDate, setPaymentDate] = useState(run?.paymentDate ?? initialDates.paymentDate);
   const [payPeriodStart, setPayPeriodStart] = useState(
@@ -80,13 +103,36 @@ export function SalaryRunForm({
       account.currency === selectedProfile?.currency &&
       (!account.is_archived || account.id === run?.accountId),
   );
+  const hasGovernmentPresets = components.some(
+    (component) => component.calculationType === "government_preset",
+  );
+  const governmentContext = useMemo(
+    () => ({
+      currency: selectedProfile?.currency ?? "PHP",
+      paymentDate,
+      monthlyBasicSalary,
+      monthlyCompensation,
+      allocation: governmentAllocation,
+    }),
+    [
+      governmentAllocation,
+      monthlyBasicSalary,
+      monthlyCompensation,
+      paymentDate,
+      selectedProfile?.currency,
+    ],
+  );
   const calculation = useMemo(() => {
     try {
-      return calculateSalary(basePay, components);
+      return calculateSalary(basePay, components, governmentContext);
     } catch {
       return null;
     }
-  }, [basePay, components]);
+  }, [
+    basePay,
+    components,
+    governmentContext,
+  ]);
 
   const changeProfile = (nextProfileId: string) => {
     const profile = profiles.find((item) => item.id === nextProfileId);
@@ -95,7 +141,10 @@ export function SalaryRunForm({
     setAccountId(profile.defaultAccountId);
     setCategoryId(profile.defaultIncomeCategoryId);
     setBasePay(profile.basePay);
-    setComponents(profile.components.map((component) => ({ ...component })));
+    setMonthlyBasicSalary(profile.monthlyBasicSalary);
+    setMonthlyCompensation(profile.monthlyCompensation);
+    setGovernmentAllocation(profile.governmentContributionAllocation);
+    setComponents(copyProfileComponents(profile));
     const dates = getSalaryPeriodDefaults(profile.payFrequency, paymentDate);
     setPayPeriodStart(dates.payPeriodStart);
     setPayPeriodEnd(dates.payPeriodEnd);
@@ -113,6 +162,25 @@ export function SalaryRunForm({
     <form action={saveSalaryRun} className="flex flex-col gap-6">
       {run ? <input name="id" type="hidden" value={run.id} /> : null}
       <input name="components" type="hidden" value={JSON.stringify(components)} />
+      {!hasGovernmentPresets ? (
+        <>
+          <input
+            name="monthlyBasicSalary"
+            type="hidden"
+            value={monthlyBasicSalary}
+          />
+          <input
+            name="monthlyCompensation"
+            type="hidden"
+            value={monthlyCompensation}
+          />
+          <input
+            name="governmentContributionAllocation"
+            type="hidden"
+            value={governmentAllocation}
+          />
+        </>
+      ) : null}
 
       <FieldGroup className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <Field>
@@ -228,6 +296,77 @@ export function SalaryRunForm({
         </Field>
       </FieldGroup>
 
+      {hasGovernmentPresets ? (
+        <div className="flex flex-col gap-3">
+          <div>
+            <h2 className="text-sm font-medium">Contribution settings</h2>
+            <p className="text-xs text-muted-foreground">
+              Override the profile bases or allocation for this pay run only.
+            </p>
+          </div>
+          <FieldGroup className="grid gap-4 md:grid-cols-3">
+            <Field>
+              <FieldLabel htmlFor="salary-run-monthly-basic">
+                Monthly basic salary
+              </FieldLabel>
+              <Input
+                id="salary-run-monthly-basic"
+                min="0"
+                name="monthlyBasicSalary"
+                onChange={(event) =>
+                  setMonthlyBasicSalary(Number(event.target.value) || 0)
+                }
+                required
+                step="0.01"
+                type="number"
+                value={monthlyBasicSalary}
+              />
+              <FieldDescription>Used for PhilHealth.</FieldDescription>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="salary-run-monthly-compensation">
+                Monthly compensation
+              </FieldLabel>
+              <Input
+                id="salary-run-monthly-compensation"
+                min="0"
+                name="monthlyCompensation"
+                onChange={(event) =>
+                  setMonthlyCompensation(Number(event.target.value) || 0)
+                }
+                required
+                step="0.01"
+                type="number"
+                value={monthlyCompensation}
+              />
+              <FieldDescription>Used for SSS and Pag-IBIG.</FieldDescription>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="salary-run-government-allocation">
+                Allocation
+              </FieldLabel>
+              <NativeSelect
+                className="w-full"
+                id="salary-run-government-allocation"
+                name="governmentContributionAllocation"
+                onChange={(event) =>
+                  setGovernmentAllocation(
+                    event.target.value as SalaryContributionAllocation,
+                  )
+                }
+                value={governmentAllocation}
+              >
+                <NativeSelectOption value="full">Full monthly amount</NativeSelectOption>
+                <NativeSelectOption value="half">Half monthly amount</NativeSelectOption>
+                <NativeSelectOption value="quarter">
+                  Quarter monthly amount
+                </NativeSelectOption>
+              </NativeSelect>
+            </Field>
+          </FieldGroup>
+        </div>
+      ) : null}
+
       <div className="flex flex-col gap-2">
         <div>
           <h2 className="text-sm font-medium">Earnings and deductions</h2>
@@ -239,6 +378,7 @@ export function SalaryRunForm({
           calculatedComponents={calculation?.components}
           components={components}
           currency={selectedProfile?.currency ?? "PHP"}
+          governmentContext={governmentContext}
           onChange={setComponents}
         />
       </div>

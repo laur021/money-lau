@@ -12,11 +12,36 @@ export const salaryCalculationTypes = [
   "percentage_base",
   "percentage_gross",
   "hourly",
+  "government_preset",
+] as const;
+
+export const philippineContributionCodes = [
+  "ph_sss_employee",
+  "ph_philhealth_employee",
+  "ph_pagibig_employee",
+] as const;
+
+export const salaryContributionAllocations = [
+  "full",
+  "half",
+  "quarter",
 ] as const;
 
 export type SalaryPayFrequency = (typeof salaryPayFrequencies)[number];
 export type SalaryComponentKind = (typeof salaryComponentKinds)[number];
 export type SalaryCalculationType = (typeof salaryCalculationTypes)[number];
+export type PhilippineContributionCode =
+  (typeof philippineContributionCodes)[number];
+export type SalaryContributionAllocation =
+  (typeof salaryContributionAllocations)[number];
+
+export type SalaryGovernmentContext = {
+  currency: string;
+  paymentDate: string;
+  monthlyBasicSalary: number;
+  monthlyCompensation: number;
+  allocation: SalaryContributionAllocation;
+};
 
 export type SalaryComponentInput = {
   id?: string;
@@ -29,6 +54,11 @@ export type SalaryComponentInput = {
   hours?: number;
   hourlyRate?: number;
   multiplier?: number;
+  governmentPresetCode?: PhilippineContributionCode;
+  governmentRuleVersion?: string;
+  governmentMonthlyAmount?: number;
+  governmentAllocation?: SalaryContributionAllocation;
+  governmentOverrideAmount?: number;
   displayOrder?: number;
 };
 
@@ -53,6 +83,9 @@ export type SalaryProfile = {
   currency: string;
   payFrequency: SalaryPayFrequency;
   basePay: number;
+  monthlyBasicSalary: number;
+  monthlyCompensation: number;
+  governmentContributionAllocation: SalaryContributionAllocation;
   defaultAccountId: string;
   defaultIncomeCategoryId: string;
   isArchived: boolean;
@@ -73,6 +106,9 @@ export type SalaryRun = {
   payPeriodEnd: string;
   paymentDate: string;
   basePay: number;
+  monthlyBasicSalary: number;
+  monthlyCompensation: number;
+  governmentContributionAllocation: SalaryContributionAllocation;
   grossPay: number;
   totalDeductions: number;
   netPay: number;

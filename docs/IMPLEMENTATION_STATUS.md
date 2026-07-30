@@ -2,7 +2,18 @@
 
 ## Application Status: Complete
 
-MoneyLau now includes the planned personal-finance workflows, authenticated data model, salary calculator, reporting experience, production configuration, and final runtime states. PWA packaging is intentionally not included.
+MoneyLau now includes the planned personal-finance workflows, authenticated data model, salary calculator with optional Philippine contribution estimates, reporting experience, production configuration, and final runtime states. PWA packaging is intentionally not included.
+
+## Completed: Phase 12 - Philippine Government Contributions
+
+- Added optional SSS, PhilHealth, and Pag-IBIG private-sector employee presets to salary profiles and pay runs.
+- Added effective-dated local rule definitions using the January 2025 SSS and PhilHealth schedules and the February 2024 Pag-IBIG schedule, with official source links.
+- Added editable monthly basic salary and monthly compensation bases with frequency-aware prefills and full, half, or quarter allocation defaults.
+- Added per-run custom deductions, including zero for extra paydays, plus reset-to-computed behavior.
+- Preserved rule version, prescribed monthly amount, allocation fraction, salary bases, override, and final deduction in each salary-run snapshot.
+- Enforced PHP-only presets, duplicate prevention, non-negative values, supported-date rules, and authoritative server recalculation.
+- Applied the additive contribution migration while retaining existing salary records, RLS ownership policies, lifecycle protections, authenticated grants, and anonymous revocation.
+- Added focused tests for government boundaries, caps, allocation rounding, overrides, historical dates, PHP enforcement, and duplicate rejection.
 
 ## Completed: Phase 11 - Salary Calculator
 
@@ -73,6 +84,7 @@ MoneyLau now includes the planned personal-finance workflows, authenticated data
 
 ## Migrations
 
+- `20260730054904_ph_government_contributions.sql`
 - `20260730051236_salary_foreign_key_indexes.sql`
 - `20260730045614_salary_calculator.sql`
 - Phase 10: none.
@@ -88,6 +100,7 @@ MoneyLau now includes the planned personal-finance workflows, authenticated data
 - Supabase reports informational authenticated GraphQL discoverability notices because authenticated client queries are intentionally enabled and protected by row-level security.
 - New indexes may be reported as unused until the production dataset and query history grow; they support foreign keys and expected ledger filtering.
 - Gross salary and deductions stay in salary records; only net received pay is included in standard dashboard, account, report, activity, and CSV totals.
+- Philippine contribution presets are estimates for personal planning and should be compared with the employer's payslip. They are not payroll, tax, or legal advice.
 
 ## Next Work
 

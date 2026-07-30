@@ -9,7 +9,16 @@ import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { saveSalaryProfile } from "@/features/salary/actions";
-import type { SalaryComponentInput, SalaryProfile } from "@/features/salary/types";
+import type {
+  SalaryComponentInput,
+  SalaryContributionAllocation,
+  SalaryPayFrequency,
+  SalaryProfile,
+} from "@/features/salary/types";
+import {
+  getDefaultGovernmentAllocation,
+  getMonthlySalaryBasis,
+} from "@/lib/calculations/ph-government-contributions";
 import { calculateSalary } from "@/lib/calculations/salary";
 import { formatMoney } from "@/lib/formatting/money";
 
@@ -46,6 +55,23 @@ export function SalaryProfileForm({
     profile?.defaultAccountId ?? initialAccount?.id ?? "",
   );
   const [basePay, setBasePay] = useState(profile?.basePay ?? 0);
+  const [payFrequency, setPayFrequency] = useState<SalaryPayFrequency>(
+    profile?.payFrequency ?? "monthly",
+  );
+  const initialMonthlyBasis =
+    profile?.monthlyBasicSalary ??
+    getMonthlySalaryBasis(profile?.basePay ?? 0, profile?.payFrequency ?? "monthly");
+  const [monthlyBasicSalary, setMonthlyBasicSalary] = useState(initialMonthlyBasis);
+  const [monthlyCompensation, setMonthlyCompensation] = useState(
+    profile?.monthlyCompensation ?? initialMonthlyBasis,
+  );
+  const [governmentAllocation, setGovernmentAllocation] =
+    useState<SalaryContributionAllocation>(
+      profile?.governmentContributionAllocation ??
+        getDefaultGovernmentAllocation(profile?.payFrequency ?? "monthly"),
+    );
+  const [basicSalaryEdited, setBasicSalaryEdited] = useState(Boolean(profile));
+  const [compensationEdited, setCompensationEdited] = useState(Boolean(profile));
   const [components, setComponents] = useState<SalaryComponentInput[]>(
     profile?.components ?? [],
   );
@@ -54,26 +80,91 @@ export function SalaryProfileForm({
       account.currency === currency &&
       (!account.is_archived || account.id === profile?.defaultAccountId),
   );
+  const hasGovernmentPresets = components.some(
+    (component) => component.calculationType === "government_preset",
+  );
+  const previewDate = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const governmentContext = useMemo(
+    () => ({
+      currency,
+      paymentDate: previewDate,
+      monthlyBasicSalary,
+      monthlyCompensation,
+      allocation: governmentAllocation,
+    }),
+    [
+      currency,
+      governmentAllocation,
+      monthlyBasicSalary,
+      monthlyCompensation,
+      previewDate,
+    ],
+  );
   const calculation = useMemo(() => {
     try {
-      return calculateSalary(basePay, components);
+      return calculateSalary(basePay, components, governmentContext);
     } catch {
       return null;
     }
-  }, [basePay, components]);
+  }, [
+    basePay,
+    components,
+    governmentContext,
+  ]);
 
   const changeCurrency = (nextCurrency: string) => {
     setCurrency(nextCurrency);
+    if (nextCurrency !== "PHP") {
+      setComponents((current) =>
+        current.filter(
+          (component) => component.calculationType !== "government_preset",
+        ),
+      );
+    }
     setAccountId(
       accounts.find((account) => account.currency === nextCurrency && !account.is_archived)
         ?.id ?? "",
     );
   };
 
+  const changeBasePay = (nextBasePay: number) => {
+    setBasePay(nextBasePay);
+    const nextMonthlyBasis = getMonthlySalaryBasis(nextBasePay, payFrequency);
+    if (!basicSalaryEdited) setMonthlyBasicSalary(nextMonthlyBasis);
+    if (!compensationEdited) setMonthlyCompensation(nextMonthlyBasis);
+  };
+
+  const changePayFrequency = (nextFrequency: SalaryPayFrequency) => {
+    setPayFrequency(nextFrequency);
+    const nextMonthlyBasis = getMonthlySalaryBasis(basePay, nextFrequency);
+    if (!basicSalaryEdited) setMonthlyBasicSalary(nextMonthlyBasis);
+    if (!compensationEdited) setMonthlyCompensation(nextMonthlyBasis);
+    setGovernmentAllocation(getDefaultGovernmentAllocation(nextFrequency));
+  };
+
   return (
     <form action={saveSalaryProfile} className="flex flex-col gap-5">
       {profile ? <input name="id" type="hidden" value={profile.id} /> : null}
       <input name="components" type="hidden" value={JSON.stringify(components)} />
+      {!hasGovernmentPresets ? (
+        <>
+          <input
+            name="monthlyBasicSalary"
+            type="hidden"
+            value={monthlyBasicSalary}
+          />
+          <input
+            name="monthlyCompensation"
+            type="hidden"
+            value={monthlyCompensation}
+          />
+          <input
+            name="governmentContributionAllocation"
+            type="hidden"
+            value={governmentAllocation}
+          />
+        </>
+      ) : null}
 
       <FieldGroup className="grid gap-4 md:grid-cols-2">
         <Field>
@@ -111,9 +202,12 @@ export function SalaryProfileForm({
           </FieldLabel>
           <NativeSelect
             className="w-full"
-            defaultValue={profile?.payFrequency ?? "monthly"}
             id={`profile-frequency-${profile?.id ?? "new"}`}
             name="payFrequency"
+            onChange={(event) =>
+              changePayFrequency(event.target.value as SalaryPayFrequency)
+            }
+            value={payFrequency}
           >
             <NativeSelectOption value="weekly">Weekly</NativeSelectOption>
             <NativeSelectOption value="biweekly">Every two weeks</NativeSelectOption>
@@ -143,7 +237,9 @@ export function SalaryProfileForm({
             id={`profile-base-${profile?.id ?? "new"}`}
             min="0"
             name="basePay"
-            onChange={(event) => setBasePay(Number(event.target.value) || 0)}
+            onChange={(event) =>
+              changeBasePay(Number(event.target.value) || 0)
+            }
             required
             step="0.01"
             type="number"
@@ -198,6 +294,79 @@ export function SalaryProfileForm({
         </Field>
       </FieldGroup>
 
+      {hasGovernmentPresets ? (
+        <div className="flex flex-col gap-3">
+          <div>
+            <h3 className="text-sm font-medium">Contribution settings</h3>
+            <p className="text-xs text-muted-foreground">
+              These monthly bases and allocation are used by the PH presets.
+            </p>
+          </div>
+          <FieldGroup className="grid gap-4 md:grid-cols-3">
+            <Field>
+              <FieldLabel htmlFor={`profile-monthly-basic-${profile?.id ?? "new"}`}>
+                Monthly basic salary
+              </FieldLabel>
+              <Input
+                id={`profile-monthly-basic-${profile?.id ?? "new"}`}
+                min="0"
+                name="monthlyBasicSalary"
+                onChange={(event) => {
+                  setBasicSalaryEdited(true);
+                  setMonthlyBasicSalary(Number(event.target.value) || 0);
+                }}
+                required
+                step="0.01"
+                type="number"
+                value={monthlyBasicSalary}
+              />
+              <FieldDescription>Used for PhilHealth.</FieldDescription>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor={`profile-monthly-comp-${profile?.id ?? "new"}`}>
+                Monthly compensation
+              </FieldLabel>
+              <Input
+                id={`profile-monthly-comp-${profile?.id ?? "new"}`}
+                min="0"
+                name="monthlyCompensation"
+                onChange={(event) => {
+                  setCompensationEdited(true);
+                  setMonthlyCompensation(Number(event.target.value) || 0);
+                }}
+                required
+                step="0.01"
+                type="number"
+                value={monthlyCompensation}
+              />
+              <FieldDescription>Used for SSS and Pag-IBIG.</FieldDescription>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor={`profile-allocation-${profile?.id ?? "new"}`}>
+                Default allocation
+              </FieldLabel>
+              <NativeSelect
+                className="w-full"
+                id={`profile-allocation-${profile?.id ?? "new"}`}
+                name="governmentContributionAllocation"
+                onChange={(event) =>
+                  setGovernmentAllocation(
+                    event.target.value as SalaryContributionAllocation,
+                  )
+                }
+                value={governmentAllocation}
+              >
+                <NativeSelectOption value="full">Full monthly amount</NativeSelectOption>
+                <NativeSelectOption value="half">Half monthly amount</NativeSelectOption>
+                <NativeSelectOption value="quarter">
+                  Quarter monthly amount
+                </NativeSelectOption>
+              </NativeSelect>
+            </Field>
+          </FieldGroup>
+        </div>
+      ) : null}
+
       <div className="flex flex-col gap-2">
         <div>
           <h3 className="text-sm font-medium">Default pay components</h3>
@@ -209,6 +378,7 @@ export function SalaryProfileForm({
           calculatedComponents={calculation?.components}
           components={components}
           currency={currency}
+          governmentContext={governmentContext}
           onChange={setComponents}
         />
       </div>
