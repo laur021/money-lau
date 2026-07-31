@@ -1,6 +1,6 @@
 # MoneyLau
 
-MoneyLau is a privacy-conscious, manual personal finance manager built with Next.js, TypeScript, Tailwind CSS, shadcn/ui, and Supabase. It supports Google sign-in, multiple accounts and currencies, income, expenses, transfers, salary calculations, categories, reports, CSV export, onboarding, and personal preferences.
+MoneyLau is a privacy-conscious, manual personal finance manager built with Next.js, TypeScript, Tailwind CSS, shadcn/ui, and Supabase. It supports Google sign-in, multiple accounts and currencies, income, expenses, transfers, salary calculations, Bills planning, reports, CSV export, onboarding, and personal preferences.
 
 ## Features
 
@@ -9,6 +9,7 @@ MoneyLau is a privacy-conscious, manual personal finance manager built with Next
 - Complete account and category creation, editing, ordering, archiving, and restoration
 - Income, expense, and transfer ledger with search, filters, pagination, editing, deletion, references, and reusable tags
 - Reusable salary profiles, flexible earnings and deductions, optional SSS/PhilHealth/Pag-IBIG employee estimates, payslip drafts, posted history, and atomic net-income ledger posting
+- Read-only Ask MoneyLau budgeting insights using a server-only DeepSeek key, explicit consent, privacy masking, capped usage, and aggregate-only financial context
 - Period, currency, account, category, and status reporting with authenticated filtered CSV export
 - Google authentication, guided onboarding, profile preferences, dark/light/system themes, and responsive desktop/mobile navigation
 - Supabase PostgreSQL storage with per-user Row Level Security and explicit anonymous-access revocation
@@ -27,7 +28,8 @@ MoneyLau is a privacy-conscious, manual personal finance manager built with Next
 3. Set `NEXT_PUBLIC_APP_URL=http://localhost:3000`.
 4. Apply the SQL files in `supabase/migrations` to the same Supabase project in filename order.
 5. Configure Google in Supabase as described in [docs/AUTHENTICATION_SETUP.md](docs/AUTHENTICATION_SETUP.md).
-6. Run `npm install` and then `npm run dev`.
+6. To enable Ask MoneyLau, set `DEEPSEEK_API_KEY` in `.env.local`. `DEEPSEEK_MODEL` defaults to `deepseek-chat` and `AI_INSIGHTS_MONTHLY_REQUEST_LIMIT` defaults to `40`.
+7. Run `npm install` and then `npm run dev`.
 
 Open [http://localhost:3000](http://localhost:3000). The protected application requires a working Google provider configuration.
 
@@ -52,7 +54,8 @@ The application is configured for Vercel with `vercel.json`. Follow [docs/DEPLOY
 - Anonymous database access is explicitly revoked for finance tables and views.
 - Salary-generated transactions are read-only in the ledger and can only be removed by unposting their salary record.
 - Philippine contribution presets are editable planning estimates based on versioned official schedules, not payroll, tax, or legal advice.
-- `NEXT_PUBLIC_*` values are public client configuration, not secrets.
+- `NEXT_PUBLIC_*` values are public client configuration, not secrets. `DEEPSEEK_API_KEY` is server-only and must never use a `NEXT_PUBLIC_` name.
+- Ask MoneyLau sends only the selected aggregated summary to DeepSeek after explicit consent. It never sends raw ledger text, account IDs, emails, or saved chat history, and cannot change financial records.
 - The account-deletion button records a review request; permanent Auth-user deletion requires a secure administrative process.
 - PWA packaging is intentionally outside the completed application scope.
 

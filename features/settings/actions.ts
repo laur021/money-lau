@@ -46,6 +46,19 @@ export async function updateThemePreference(formData: FormData) {
   revalidatePath("/settings");
 }
 
+export async function updateInsightsConsent(formData: FormData) {
+  const enabled = z.enum(["true", "false"]).parse(formData.get("enabled")) === "true";
+  const { supabase, userId } = await getUserId();
+  const { error } = await supabase
+    .from("profiles")
+    .update({ ai_insights_consent_at: enabled ? new Date().toISOString() : null })
+    .eq("id", userId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/settings");
+  revalidatePath("/dashboard");
+  revalidatePath("/", "layout");
+}
+
 const onboardingSchema = z.object({
   displayName: z.string().trim().min(1).max(100),
   defaultCurrency: z.string().trim().length(3).transform((value) => value.toUpperCase()),
