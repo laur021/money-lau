@@ -1,4 +1,5 @@
 import { DeleteAccountDialog } from "@/components/settings/delete-account-dialog";
+import { InsightsConsentControl } from "@/components/settings/insights-consent-control";
 import { ThemePreference } from "@/components/settings/theme-preference";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +25,7 @@ export default async function SettingsPage() {
     supabase
       .from("profiles")
       .select(
-        "display_name,avatar_url,default_currency,date_format,timezone,week_starts_on,theme,default_dashboard_period,number_format,show_archived_accounts,show_archived_categories,deletion_requested_at"
+        "display_name,avatar_url,default_currency,date_format,timezone,week_starts_on,theme,default_dashboard_period,number_format,show_archived_accounts,show_archived_categories,deletion_requested_at,ai_insights_consent_at"
       )
       .single(),
     supabase.auth.getUser(),
@@ -42,6 +43,7 @@ export default async function SettingsPage() {
     show_archived_accounts: false,
     show_archived_categories: false,
     deletion_requested_at: null,
+    ai_insights_consent_at: null,
   };
   const initials = String(defaults.display_name || authData.user?.email || "ML")
     .split(/[\s@]+/)
@@ -200,6 +202,21 @@ export default async function SettingsPage() {
               </Button>
             </FieldGroup>
           </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings2 />
+            MoneyLau Insights
+          </CardTitle>
+          <CardDescription>
+            Control whether MoneyLau may send selected financial summaries to DeepSeek for read-only budgeting guidance.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <InsightsConsentControl defaultEnabled={Boolean(defaults.ai_insights_consent_at)} />
         </CardContent>
       </Card>
 

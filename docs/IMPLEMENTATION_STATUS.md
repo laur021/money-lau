@@ -2,7 +2,15 @@
 
 ## Application Status: Complete
 
-MoneyLau now includes the planned personal-finance workflows, authenticated data model, salary calculator with optional Philippine contribution estimates, reporting experience, production configuration, and final runtime states. PWA packaging is intentionally not included.
+MoneyLau now includes the planned personal-finance workflows, authenticated data model, salary calculator with optional Philippine contribution estimates, Bills planning, a private read-only DeepSeek insight assistant, reporting experience, production configuration, and final runtime states. PWA packaging is intentionally not included.
+
+## Completed: Phase 14 - AI Expense Insights
+
+- Added Ask MoneyLau as a protected, privacy-aware shadcn Sheet in the application header with suggested questions, browser-only conversation context, New chat, consent, loading, and error states.
+- Sends DeepSeek only the selected aggregate: completed income, expenses, cash flow, category totals, active balances, nearby unpaid Bills, and posted net salary income. It excludes raw ledger text, IDs, account details, emails, and saved conversations.
+- Added authenticated request validation, a strict read-only budgeting system instruction, provider response limits, user consent, screen-privacy blocking, and a per-user monthly request cap.
+- Added the server-only `DEEPSEEK_API_KEY`, optional model, and request-cap configuration plus deployment instructions. No DeepSeek key is exposed to the browser.
+- Added an RLS-protected usage table that stores only timestamps, model, and token/request metrics for limit enforcement.
 
 ## Completed: Phase 13 - Bills Planner
 
@@ -95,6 +103,7 @@ MoneyLau now includes the planned personal-finance workflows, authenticated data
 ## Migrations
 
 - `20260730162000_bill_foreign_key_indexes.sql`
+- `20260731090000_ai_expense_insights.sql`
 - `20260730155000_bills_planner.sql`
 - `20260730054904_ph_government_contributions.sql`
 - `20260730051236_salary_foreign_key_indexes.sql`
@@ -115,6 +124,7 @@ MoneyLau now includes the planned personal-finance workflows, authenticated data
 - Philippine contribution presets are estimates for personal planning and should be compared with the employer's payslip. They are not payroll, tax, or legal advice.
 - Bills are plans until explicitly marked paid. A bank auto-debit should be recorded as a recurring Bill with its default bank account and then posted when the real debit occurs; this avoids recording missed or delayed debits as real spending.
 - Bill coverage months are planning metadata. Balances, dashboard totals, reports, activity, and CSV exports use the real payment date and actual paid amount.
+- Ask MoneyLau is practical budgeting guidance, not financial, tax, legal, payroll, debt, investment, or medical advice. It is read-only and cannot change MoneyLau records.
 
 ## Next Work
 

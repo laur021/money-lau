@@ -1,6 +1,7 @@
 "use client";
 
 import { AppLogo } from "@/components/layout/app-logo";
+import { InsightsSheet } from "@/components/insights/insights-sheet";
 import {
   ScreenPrivacyControl,
   ScreenPrivacyProvider,
@@ -55,8 +56,11 @@ const mobileNavigation = sidebarNavigation
 
 type AppShellUser = {
   avatarUrl: string | null;
+  defaultCurrency: string;
   displayName: string;
   email: string;
+  hasInsightsConsent: boolean;
+  insightCurrencies: string[];
 };
 
 function userInitials(displayName: string, email: string) {
@@ -161,7 +165,14 @@ export function AppShell({
             </div>
             <p className="hidden text-sm text-muted-foreground md:block">Personal finances</p>
           </div>
-          <ScreenPrivacyControl />
+          <div className="flex items-center gap-1">
+            <InsightsSheet
+              currencies={user.insightCurrencies}
+              defaultCurrency={user.defaultCurrency}
+              hasConsent={user.hasInsightsConsent}
+            />
+            <ScreenPrivacyControl />
+          </div>
         </header>
         {children}
       </SidebarInset>

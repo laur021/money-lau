@@ -9,11 +9,21 @@ export default async function ProtectedLayout({ children }: Readonly<{ children:
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   if (!data?.claims?.sub) redirect("/login");
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("display_name,avatar_url")
-    .eq("id", data.claims.sub)
-    .maybeSingle();
+  const [{ data: profile }, { data: accounts }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("display_name,avatar_url,default_currency,ai_insights_consent_at")
+      .eq("id", data.claims.sub)
+      .maybeSingle(),
+    supabase
+      .from("accounts")
+      .select("currency")
+      .eq("is_archived", false),
+  ]);
+  const defaultCurrency = profile?.default_currency ?? "PHP";
+  const insightCurrencies = Array.from(
+    new Set([defaultCurrency, ...(accounts ?? []).map((account) => account.currency)]),
+  ).sort();
   const metadata =
     typeof data.claims.user_metadata === "object" &&
     data.claims.user_metadata !== null
@@ -34,8 +44,11 @@ export default async function ProtectedLayout({ children }: Readonly<{ children:
     <AppShell
       user={{
         avatarUrl: profile?.avatar_url ?? metadataAvatar,
+        defaultCurrency,
         displayName: profile?.display_name || metadataName || "MoneyLau user",
         email,
+        hasInsightsConsent: Boolean(profile?.ai_insights_consent_at),
+        insightCurrencies,
       }}
     >
       {children}

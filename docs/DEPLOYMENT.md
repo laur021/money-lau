@@ -32,9 +32,12 @@ In Supabase **Authentication > Sign In / Providers > Google**, enable Google and
 NEXT_PUBLIC_APP_URL=https://YOUR-VERCEL-DOMAIN
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR-PROJECT-REF.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY
+DEEPSEEK_API_KEY=YOUR_DEEPSEEK_API_KEY
+DEEPSEEK_MODEL=deepseek-chat
+AI_INSIGHTS_MONTHLY_REQUEST_LIMIT=40
 ```
 
-The Supabase URL and publishable/anon key are designed for browser use. Do not add `SUPABASE_SERVICE_ROLE_KEY`, a database password, or the Google OAuth client secret.
+The Supabase URL and publishable/anon key are designed for browser use. `DEEPSEEK_API_KEY` is server-only: do not give it a `NEXT_PUBLIC_` prefix. Do not add `SUPABASE_SERVICE_ROLE_KEY`, a database password, or the Google OAuth client secret.
 
 4. Deploy. Any change to an environment value needs a new deployment before the value is available to the application.
 
@@ -52,6 +55,7 @@ The Supabase URL and publishable/anon key are designed for browser use. Do not a
 - [ ] Supabase Site URL and redirect allow-list use the final Vercel domain.
 - [ ] Google has the final Vercel domain as an authorized origin and the Supabase `/auth/v1/callback` URL as an authorized redirect URI.
 - [ ] Google is enabled in Supabase with its client ID and secret.
+- [ ] `DEEPSEEK_API_KEY` is set only in Vercel server environments, and Ask MoneyLau consent is tested from Settings.
 - [ ] Sign in, sign out, onboarding, account creation, transaction creation, report CSV export, dark/light/system theme selection, and account-deletion request have been checked in production.
 - [ ] The Privacy and Terms pages are reachable at `/privacy` and `/terms`.
 
