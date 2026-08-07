@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { SidebarMenuButton } from "@/components/ui/sidebar";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useSyncExternalStore } from "react";
@@ -27,7 +28,38 @@ export function ThemeToggle() {
       size="icon"
       variant="ghost"
     >
-      {resolvedTheme === "dark" ? <Sun /> : <Moon />}
+      {resolvedTheme === "dark" ? <Sun data-icon="inline-start" /> : <Moon data-icon="inline-start" />}
     </Button>
+  );
+}
+
+export function ThemeToggleMenuButton() {
+  const { resolvedTheme, setTheme } = useTheme();
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+
+  if (!mounted) {
+    return (
+      <SidebarMenuButton disabled tooltip="Theme">
+        <Moon aria-hidden="true" />
+        <span>Theme</span>
+      </SidebarMenuButton>
+    );
+  }
+
+  const nextTheme = resolvedTheme === "dark" ? "light" : "dark";
+  return (
+    <SidebarMenuButton
+      aria-label={`Switch to ${nextTheme} theme`}
+      onClick={() => setTheme(nextTheme)}
+      tooltip={`Switch to ${nextTheme} theme`}
+      type="button"
+    >
+      {resolvedTheme === "dark" ? <Sun aria-hidden="true" data-icon="inline-start" /> : <Moon aria-hidden="true" data-icon="inline-start" />}
+      <span>{resolvedTheme === "dark" ? "Light theme" : "Dark theme"}</span>
+    </SidebarMenuButton>
   );
 }

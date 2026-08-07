@@ -1,6 +1,7 @@
 "use client";
 
 import { AppLogo } from "@/components/layout/app-logo";
+import { ThemeToggleMenuButton } from "@/components/layout/theme-toggle";
 import { InsightsSheet } from "@/components/insights/insights-sheet";
 import {
   ScreenPrivacyControl,
@@ -138,6 +139,9 @@ export function AppShell({
                   </span>
                 </Link>
               </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <ThemeToggleMenuButton />
             </SidebarMenuItem>
             <SidebarMenuItem>
               <form action={signOut} className="min-w-0 flex-1">
