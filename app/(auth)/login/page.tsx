@@ -1,4 +1,5 @@
 import { AppLogo } from "@/components/layout/app-logo";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -70,8 +71,9 @@ export default async function LoginPage({
   return (
     <main className="min-h-svh bg-background lg:grid lg:grid-cols-[minmax(0,0.82fr)_minmax(36rem,1.18fr)]">
       <section className="flex min-h-svh flex-col px-6 py-6 sm:px-10 lg:px-12 xl:px-16">
-        <header>
+        <header className="flex items-center justify-between gap-4">
           <AppLogo className="w-fit" href="/" />
+          <ThemeToggle />
         </header>
 
         <div className="flex flex-1 items-center py-12">
