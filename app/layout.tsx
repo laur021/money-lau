@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { PwaRegister } from "@/components/pwa-register";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +22,15 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: "/apple-icon.png", sizes: "180x180" }],
   },
+  applicationName: "MoneyLau",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "MoneyLau",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -31,6 +41,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
             {children}
             <Toaster position="top-center" richColors visibleToasts={3} />
+            <PwaRegister />
           </ThemeProvider>
         </TooltipProvider>
       </body>

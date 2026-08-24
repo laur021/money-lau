@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { BotMessageSquare, EyeOff, LoaderCircle, RotateCcw, SendHorizontal, ShieldCheck } from "lucide-react";
+import { EyeOff, LoaderCircle, RotateCcw, SendHorizontal, ShieldCheck, Sparkles } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -131,7 +131,7 @@ export function InsightsSheet({
             <span>
               <SheetTrigger asChild>
                 <Button aria-label="Ask MoneyLau" disabled={isScreenPrivate} size="sm" type="button" variant="outline">
-                  <BotMessageSquare data-icon="inline-start" />
+                  <Sparkles data-icon="inline-start" className="text-primary" />
                   Ask MoneyLau
                 </Button>
               </SheetTrigger>
@@ -142,7 +142,7 @@ export function InsightsSheet({
         <SheetContent className="w-full sm:max-w-md">
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
-              <BotMessageSquare />
+              <Sparkles className="text-primary" />
               Ask MoneyLau
             </SheetTitle>
             <SheetDescription>

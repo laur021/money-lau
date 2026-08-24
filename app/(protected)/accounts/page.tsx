@@ -4,6 +4,7 @@ import {
   type AccountRecord,
 } from "@/components/accounts/account-form";
 import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/layout/page-header";
 import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Button } from "@/components/ui/button";
 import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
@@ -58,11 +59,10 @@ export default async function AccountsPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-4 sm:p-6">
-      <div className="flex items-end justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <p className="text-sm text-muted-foreground">Cash, banks, cards, and wallets</p>
-          <h1 className="text-2xl font-semibold">Accounts</h1>
-        </div>
+      <PageHeader
+        description="Cash, banks, cards, and wallets in one clear view."
+        title="Accounts"
+        actions={
         <Dialog>
           <DialogTrigger asChild>
             <Button>
@@ -80,7 +80,8 @@ export default async function AccountsPage() {
             <AccountForm />
           </DialogContent>
         </Dialog>
-      </div>
+        }
+      />
 
       <Card>
         <CardHeader>
@@ -107,7 +108,7 @@ export default async function AccountsPage() {
               <TableBody>
                 {visibleAccounts.map((account) => (
                   <TableRow key={account.id}>
-                    <TableCell>
+                    <TableCell className="text-right font-semibold tabular-nums">
                       <div className="flex flex-col gap-1">
                         <span className="font-medium">{account.name}</span>
                         <span className="text-xs text-muted-foreground">

@@ -4,6 +4,7 @@ import {
   type CategoryRecord,
 } from "@/components/categories/category-form";
 import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/layout/page-header";
 import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,11 +56,10 @@ export default async function CategoriesPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-4 sm:p-6">
-      <div className="flex items-end justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <p className="text-sm text-muted-foreground">Income, expenses, and subcategories</p>
-          <h1 className="text-2xl font-semibold">Categories</h1>
-        </div>
+      <PageHeader
+        description="Organize income, expenses, and subcategories for clearer reporting."
+        title="Categories"
+        actions={
         <Dialog>
           <DialogTrigger asChild>
             <Button>
@@ -77,7 +77,8 @@ export default async function CategoriesPage() {
             <CategoryForm parents={parents} />
           </DialogContent>
         </Dialog>
-      </div>
+        }
+      />
 
       <Card>
         <CardHeader>
@@ -119,7 +120,7 @@ export default async function CategoriesPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{category.transaction_type}</Badge>
+                        <Badge variant={category.transaction_type === "income" ? "success" : "destructive"}>{category.transaction_type}</Badge>
                       </TableCell>
                       <TableCell>
                         {category.is_system
@@ -129,7 +130,7 @@ export default async function CategoriesPage() {
                             : "Custom"}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={category.is_archived ? "outline" : "secondary"}>
+                        <Badge variant={category.is_archived ? "outline" : "success"}>
                           {category.is_archived ? "Archived" : "Active"}
                         </Badge>
                       </TableCell>

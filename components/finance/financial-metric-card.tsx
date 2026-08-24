@@ -18,7 +18,7 @@ type FinancialMetricCardProps = {
 
 const toneClassNames = {
   default: "text-foreground",
-  positive: "text-primary",
+  positive: "text-success",
   negative: "text-destructive",
 };
 
@@ -39,7 +39,7 @@ export function FinancialMetricCard({
         </CardAction>
         {description ? <CardDescription>{description}</CardDescription> : null}
       </CardHeader>
-      <CardContent className={cn("text-xl font-semibold tabular-nums", toneClassNames[tone])}>
+      <CardContent className={cn("text-2xl font-bold tracking-tight tabular-nums sm:text-[1.65rem]", toneClassNames[tone])}>
         {value}
       </CardContent>
     </Card>

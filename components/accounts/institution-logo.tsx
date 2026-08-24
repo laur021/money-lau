@@ -1,6 +1,6 @@
-import Image from "next/image";
-import { Landmark, WalletCards } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HandCoins, WalletCards } from "lucide-react";
+import Image from "next/image";
 
 export type PhilippineInstitution = {
   name: string;
@@ -30,7 +30,7 @@ const institutionLogos = [
 function logoForInstitution(institutionName: string | null | undefined) {
   const normalizedName = institutionName?.toLowerCase().trim() ?? "";
   return institutionLogos.find(({ matches }) =>
-    matches.some((name) => normalizedName.includes(name)),
+    matches.some((name) => normalizedName.includes(name))
   );
 }
 
@@ -44,18 +44,24 @@ export function InstitutionLogo({
   className?: string;
 }) {
   const logo = logoForInstitution(institutionName);
-  const FallbackIcon = accountType === "e_wallet" ? WalletCards : Landmark;
+  const FallbackIcon = accountType === "e_wallet" ? WalletCards : HandCoins;
 
   return (
     <span
       aria-hidden="true"
       className={cn(
-        "flex size-9 shrink-0 items-center justify-center rounded-md border bg-background p-1.5",
-        className,
+        "flex size-9 shrink-0 items-center justify-center rounded-md border bg-white p-0.5",
+        className
       )}
     >
       {logo ? (
-        <Image alt="" className="max-h-full max-w-full object-contain" height={28} src={logo.src} width={40} />
+        <Image
+          alt=""
+          className="max-h-full max-w-full object-contain"
+          height={30}
+          src={logo.src}
+          width={40}
+        />
       ) : (
         <FallbackIcon />
       )}

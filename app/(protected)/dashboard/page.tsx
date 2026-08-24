@@ -46,9 +46,9 @@ function parameterValue(value: string | string[] | undefined) {
 }
 function dueBadge(state: BillDueState) {
   if (state === "overdue") return <Badge variant="destructive">Overdue</Badge>;
-  if (state === "due_soon") return <Badge variant="outline">Due soon</Badge>;
-  if (state === "paid") return <Badge>Paid</Badge>;
-  return <Badge variant="secondary">Upcoming</Badge>;
+  if (state === "due_soon") return <Badge variant="warning">Due soon</Badge>;
+  if (state === "paid") return <Badge variant="success">Paid</Badge>;
+  return <Badge variant="warning">Upcoming</Badge>;
 }
 
 export default async function DashboardPage({ searchParams }: { searchParams: SearchParams }) {

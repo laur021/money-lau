@@ -1,4 +1,5 @@
 import { DeleteAccountDialog } from "@/components/settings/delete-account-dialog";
+import { PageHeader } from "@/components/layout/page-header";
 import { InsightsConsentControl } from "@/components/settings/insights-consent-control";
 import { ThemePreference } from "@/components/settings/theme-preference";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -54,10 +55,10 @@ export default async function SettingsPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 sm:p-6">
-      <div className="flex flex-col gap-1">
-        <p className="text-sm text-muted-foreground">Profile, defaults, and data controls</p>
-        <h1 className="text-2xl font-semibold">Settings</h1>
-      </div>
+      <PageHeader
+        description="Profile, financial defaults, appearance, and data controls."
+        title="Settings"
+      />
 
       <Card>
         <CardHeader>

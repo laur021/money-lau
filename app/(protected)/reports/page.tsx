@@ -200,7 +200,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Sear
         <FinancialMetricCard
           icon={<Scale className="size-4" />}
           label="Net cash flow"
-          tone={net < 0 ? "negative" : "default"}
+          tone={net < 0 ? "negative" : "positive"}
           value={<PrivateFinancialValue>{formatMoney(net, currency)}</PrivateFinancialValue>}
         />
       </section>

@@ -12,7 +12,18 @@ export function formatMoney(
   value: number | string | null | undefined,
   currency: string,
 ) {
-  return `${formatAmount(value)} ${currency.toUpperCase()}`;
+  const normalizedCurrency = currency.toUpperCase();
+  const amount = formatAmount(value);
+  const symbols: Record<string, string> = {
+    PHP: "₱",
+    USD: "$",
+    EUR: "€",
+    GBP: "£",
+    JPY: "¥",
+  };
+  return symbols[normalizedCurrency]
+    ? `${symbols[normalizedCurrency]}${amount}`
+    : `${amount} ${normalizedCurrency}`;
 }
 
 export function formatCompactAmount(value: number | string | null | undefined) {

@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
+import { PageHeader } from "@/components/layout/page-header";
 import { SalaryProfileForm } from "@/components/salary/salary-profile-form";
 import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Badge } from "@/components/ui/badge";
@@ -88,14 +89,10 @@ export default async function SalaryPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 sm:p-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="flex flex-col gap-1">
-          <p className="text-sm text-muted-foreground">
-            Calculate gross pay, deductions, and the net amount received
-          </p>
-          <h1 className="text-2xl font-semibold">Salary</h1>
-        </div>
-        <div className="flex flex-wrap gap-2">
+      <PageHeader
+        description="Calculate gross pay, deductions, and the net amount received."
+        title="Salary"
+        actions={<>
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="outline">
@@ -126,15 +123,15 @@ export default async function SalaryPage() {
               Calculate salary
             </Link>
           </Button>
-        </div>
-      </div>
+        </>}
+      />
 
       <div className="grid gap-3 sm:grid-cols-3">
         <Card>
           <CardHeader className="pb-1">
             <CardDescription>Year-to-date gross</CardDescription>
           </CardHeader>
-          <CardContent className="text-xl font-semibold">
+          <CardContent className="text-2xl font-bold tabular-nums">
             <CurrencyTotals totals={ytdTotals} value="gross" />
           </CardContent>
         </Card>
@@ -142,7 +139,7 @@ export default async function SalaryPage() {
           <CardHeader className="pb-1">
             <CardDescription>Year-to-date deductions</CardDescription>
           </CardHeader>
-          <CardContent className="text-xl font-semibold">
+          <CardContent className="text-2xl font-bold text-destructive tabular-nums">
             <CurrencyTotals totals={ytdTotals} value="deductions" />
           </CardContent>
         </Card>
@@ -150,7 +147,7 @@ export default async function SalaryPage() {
           <CardHeader className="pb-1">
             <CardDescription>Year-to-date net received</CardDescription>
           </CardHeader>
-          <CardContent className="text-xl font-semibold">
+          <CardContent className="text-2xl font-bold text-success tabular-nums">
             <CurrencyTotals totals={ytdTotals} value="net" />
           </CardContent>
         </Card>

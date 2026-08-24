@@ -216,7 +216,7 @@ export function AppShell({
       </Sidebar>
 
       <SidebarInset className="pb-24 md:pb-0">
-        <header className="flex min-h-14 items-center justify-between border-b px-4 py-3 sm:px-6">
+        <header className="flex min-h-16 items-center justify-between border-b bg-card px-4 py-3 sm:px-6">
           <div className="flex items-center gap-2">
             <SidebarTrigger className="hidden md:inline-flex" />
             <div className="md:hidden">
@@ -248,7 +248,7 @@ export function AppShell({
               aria-current={active ? "page" : undefined}
               className={cn(
                 "flex min-w-0 flex-col items-center gap-1 rounded-md px-1 py-1 text-[11px]",
-                active ? "font-medium text-foreground" : "text-muted-foreground"
+                active ? "bg-primary/10 font-medium text-primary" : "text-muted-foreground"
               )}
               href={href}
               key={label}

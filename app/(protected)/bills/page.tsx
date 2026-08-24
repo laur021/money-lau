@@ -17,6 +17,7 @@ import { BillItemForm } from "@/components/bills/bill-item-form";
 import { BillPaymentDialog } from "@/components/bills/bill-payment-dialog";
 import { BillTemplateForm } from "@/components/bills/bill-template-form";
 import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
+import { PageHeader } from "@/components/layout/page-header";
 import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
 import {
   AlertDialog,
@@ -72,10 +73,10 @@ function validMonth(value: string) {
 }
 
 function dueBadge(state: BillDueState) {
-  if (state === "paid") return <Badge>Paid</Badge>;
+  if (state === "paid") return <Badge variant="success">Paid</Badge>;
   if (state === "overdue") return <Badge variant="destructive">Overdue</Badge>;
-  if (state === "due_soon") return <Badge variant="outline">Due soon</Badge>;
-  return <Badge variant="secondary">Upcoming</Badge>;
+  if (state === "due_soon") return <Badge variant="warning">Due soon</Badge>;
+  return <Badge variant="warning">Upcoming</Badge>;
 }
 
 function CurrencyTotals({ totals, value }: { totals: BillTotals; value: "planned" | "paid" | "remaining" }) {
@@ -255,12 +256,10 @@ export default async function BillsPage({ searchParams }: { searchParams: Search
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 sm:p-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="flex flex-col gap-1">
-          <p className="text-sm text-muted-foreground">Plan what is due, then post each real payment to your ledger.</p>
-          <h1 className="text-2xl font-semibold">Bills</h1>
-        </div>
-        <div className="flex flex-wrap gap-2">
+      <PageHeader
+        description="Plan what is due, then post each real payment to your ledger."
+        title="Bills"
+        actions={<>
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="outline"><FilePlus2 data-icon="inline-start" />New template</Button>
@@ -285,8 +284,8 @@ export default async function BillsPage({ searchParams }: { searchParams: Search
               <BillItemForm accounts={options.accounts} categories={options.categories} defaultCurrency={options.defaultCurrency} plannerMonth={plannerMonth} />
             </DialogContent>
           </Dialog>
-        </div>
-      </div>
+        </>}
+      />
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-1">
@@ -307,9 +306,9 @@ export default async function BillsPage({ searchParams }: { searchParams: Search
       </div>
 
       <section className="grid gap-3 sm:grid-cols-3">
-        <Card size="sm"><CardHeader><CardTitle>Planned</CardTitle><CardDescription>All scheduled bills</CardDescription></CardHeader><CardContent className="text-xl font-semibold"><CurrencyTotals totals={totals} value="planned" /></CardContent></Card>
-        <Card size="sm"><CardHeader><CardTitle>Paid</CardTitle><CardDescription>Posted expense payments</CardDescription></CardHeader><CardContent className="text-xl font-semibold"><CurrencyTotals totals={totals} value="paid" /></CardContent></Card>
-        <Card size="sm"><CardHeader><CardTitle>Remaining</CardTitle><CardDescription>Still unpaid this month</CardDescription></CardHeader><CardContent className="text-xl font-semibold"><CurrencyTotals totals={totals} value="remaining" /></CardContent></Card>
+        <Card size="sm"><CardHeader><CardTitle>Planned</CardTitle><CardDescription>All scheduled bills</CardDescription></CardHeader><CardContent className="text-2xl font-bold tabular-nums"><CurrencyTotals totals={totals} value="planned" /></CardContent></Card>
+        <Card size="sm"><CardHeader><CardTitle>Paid</CardTitle><CardDescription>Posted expense payments</CardDescription></CardHeader><CardContent className="text-2xl font-bold text-success tabular-nums"><CurrencyTotals totals={totals} value="paid" /></CardContent></Card>
+        <Card size="sm"><CardHeader><CardTitle>Remaining</CardTitle><CardDescription>Still unpaid this month</CardDescription></CardHeader><CardContent className="text-2xl font-bold text-warning tabular-nums"><CurrencyTotals totals={totals} value="remaining" /></CardContent></Card>
       </section>
 
       <Tabs defaultValue="bills">

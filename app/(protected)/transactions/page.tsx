@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import { BadgeDollarSign, CalendarCheck2, Pencil, Plus, ReceiptText, Search, Tags, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { TransactionForm, type TransactionFormValue } from "@/components/transactions/transaction-form";
+import { PageHeader } from "@/components/layout/page-header";
 import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
 import {
   AlertDialog,
@@ -52,8 +53,8 @@ function parameterValue(value: string | string[] | undefined) {
 
 function statusVariant(status: string) {
   if (status === "cancelled") return "destructive" as const;
-  if (status === "pending") return "outline" as const;
-  return "secondary" as const;
+  if (status === "pending") return "warning" as const;
+  return "success" as const;
 }
 
 function formatTransactionAmount(transaction: Pick<TransactionRow, "amount" | "currency" | "transaction_type">) {
@@ -146,12 +147,10 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 sm:p-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="flex flex-col gap-1">
-          <p className="text-sm text-muted-foreground">Searchable, editable financial activity</p>
-          <h1 className="text-2xl font-semibold">Transactions</h1>
-        </div>
-        <div className="flex gap-2">
+      <PageHeader
+        description="Search, manage, and review your financial activity."
+        title="Transactions"
+        actions={<>
           <Dialog>
             <DialogTrigger asChild><Button variant="outline"><Tags data-icon="inline-start" />Manage tags</Button></DialogTrigger>
             <DialogContent>
@@ -177,15 +176,15 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
               <TransactionForm accounts={activeAccounts} categories={activeCategories as { id: string; name: string; transaction_type: "income" | "expense"; is_archived: boolean }[]} />
             </DialogContent>
           </Dialog>
-        </div>
-      </div>
+        </>}
+      />
 
       <Card>
         <CardHeader><CardTitle className="flex items-center gap-2"><Search />Find activity</CardTitle><CardDescription>Combine filters to narrow the ledger. Filters are applied on the server.</CardDescription></CardHeader>
         <CardContent>
           <form method="get">
             <FieldGroup className="grid gap-3 md:grid-cols-3 xl:grid-cols-4">
-              <Field><FieldLabel htmlFor="search">Search</FieldLabel><Input defaultValue={search} id="search" name="search" placeholder="Merchant, note, reference" /></Field>
+              <Field className="md:col-span-2"><FieldLabel htmlFor="search">Search</FieldLabel><div className="relative"><Search aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" /><Input className="pl-9" defaultValue={search} id="search" name="search" placeholder="Search merchant, description, note or reference..." /></div></Field>
               <Field><FieldLabel htmlFor="filter-type">Type</FieldLabel><NativeSelect className="w-full" defaultValue={type} id="filter-type" name="type"><NativeSelectOption value="">All types</NativeSelectOption><NativeSelectOption value="income">Income</NativeSelectOption><NativeSelectOption value="expense">Expense</NativeSelectOption><NativeSelectOption value="transfer">Transfer</NativeSelectOption></NativeSelect></Field>
               <Field><FieldLabel htmlFor="filter-status">Status</FieldLabel><NativeSelect className="w-full" defaultValue={status} id="filter-status" name="status"><NativeSelectOption value="">All statuses</NativeSelectOption><NativeSelectOption value="completed">Completed</NativeSelectOption><NativeSelectOption value="pending">Pending</NativeSelectOption><NativeSelectOption value="cancelled">Cancelled</NativeSelectOption></NativeSelect></Field>
               <Field><FieldLabel htmlFor="filter-account">Account</FieldLabel><NativeSelect className="w-full" defaultValue={account} id="filter-account" name="account"><NativeSelectOption value="">All accounts</NativeSelectOption>{(accounts ?? []).map((item) => <NativeSelectOption key={item.id} value={item.id}>{item.name}</NativeSelectOption>)}</NativeSelect></Field>
@@ -217,7 +216,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
                       <TableCell><div className="flex max-w-64 flex-col gap-1"><span className="font-medium">{transaction.merchant || transaction.description || "No description"}</span><div className="flex flex-wrap gap-1">{salaryRunId ? <Badge><BadgeDollarSign />Salary</Badge> : null}{billItemId ? <Badge><CalendarCheck2 />Bill</Badge> : null}{transactionTags.map((tag) => <Badge key={tag.id} variant="outline">{tag.name}</Badge>)}</div></div></TableCell>
                       <TableCell>{transaction.source_account?.name ?? "Account"}{transaction.destination_account ? ` to ${transaction.destination_account.name}` : ""}</TableCell>
                       <TableCell>{transaction.category?.name ?? (transaction.transaction_type === "transfer" ? "Transfer" : "Uncategorized")}</TableCell>
-                      <TableCell>
+                      <TableCell className="text-right font-medium tabular-nums">
                         <PrivateFinancialValue className={transactionAmountClass(transaction.transaction_type)}>
                           {formatTransactionAmount(transaction)}
                         </PrivateFinancialValue>
