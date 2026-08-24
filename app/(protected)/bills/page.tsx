@@ -16,6 +16,7 @@ import { BillDuplicateDialog } from "@/components/bills/bill-duplicate-dialog";
 import { BillItemForm } from "@/components/bills/bill-item-form";
 import { BillPaymentDialog } from "@/components/bills/bill-payment-dialog";
 import { BillTemplateForm } from "@/components/bills/bill-template-form";
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
 import {
   AlertDialog,
@@ -170,10 +171,10 @@ function BillGroup({
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <form action={unpostBillPayment}>
+                              <ActionFeedbackForm action={unpostBillPayment} pendingMessage="Unpaying bill…" successMessage="Bill payment removed">
                                 <input name="id" type="hidden" value={item.id} />
                                 <AlertDialogAction type="submit">Unpay bill</AlertDialogAction>
-                              </form>
+                              </ActionFeedbackForm>
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>
@@ -213,10 +214,10 @@ function BillGroup({
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <form action={deleteBillItem}>
+                                <ActionFeedbackForm action={deleteBillItem} pendingMessage="Deleting bill…" successMessage="Bill deleted">
                                   <input name="id" type="hidden" value={item.id} />
                                   <AlertDialogAction type="submit" variant="destructive">Delete bill</AlertDialogAction>
-                                </form>
+                                </ActionFeedbackForm>
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
@@ -297,12 +298,12 @@ export default async function BillsPage({ searchParams }: { searchParams: Search
             <Link href={`/bills?month=${addMonths(plannerMonth, 1)}`}><ArrowRight /></Link>
           </Button>
         </div>
-        <form action={generateBillMonth}>
+        <ActionFeedbackForm action={generateBillMonth} pendingMessage="Adding recurring bills…" successMessage="Recurring bills added">
           <input name="plannerMonth" type="hidden" value={plannerMonth} />
           <Button disabled={!activeTemplates.length} type="submit" variant="outline">
             <CalendarDays data-icon="inline-start" />Add recurring bills
           </Button>
-        </form>
+        </ActionFeedbackForm>
       </div>
 
       <section className="grid gap-3 sm:grid-cols-3">
@@ -359,7 +360,7 @@ export default async function BillsPage({ searchParams }: { searchParams: Search
                         <TableCell><Badge variant={template.isArchived ? "outline" : "secondary"}>{template.isArchived ? "Archived" : "Active"}</Badge></TableCell>
                         <TableCell><div className="flex justify-end gap-1">
                           {!template.isArchived ? <Dialog><DialogTrigger asChild><Button aria-label={`Edit ${template.name}`} size="icon-sm" variant="ghost"><Pencil /></Button></DialogTrigger><DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl"><DialogHeader><DialogTitle>Edit recurring bill</DialogTitle><DialogDescription>Past monthly bills keep their saved details.</DialogDescription></DialogHeader><BillTemplateForm accounts={options.accounts} categories={options.categories} defaultCurrency={options.defaultCurrency} template={template} /></DialogContent></Dialog> : null}
-                          <form action={setBillTemplateArchived}><input name="id" type="hidden" value={template.id} /><input name="isArchived" type="hidden" value={template.isArchived ? "false" : "true"} /><Button aria-label={template.isArchived ? `Restore ${template.name}` : `Archive ${template.name}`} size="icon-sm" type="submit" variant="ghost">{template.isArchived ? <RotateCcw /> : <Archive />}</Button></form>
+                          <ActionFeedbackForm action={setBillTemplateArchived} successMessage={template.isArchived ? "Recurring bill restored" : "Recurring bill archived"}><input name="id" type="hidden" value={template.id} /><input name="isArchived" type="hidden" value={template.isArchived ? "false" : "true"} /><Button aria-label={template.isArchived ? `Restore ${template.name}` : `Archive ${template.name}`} size="icon-sm" type="submit" variant="ghost">{template.isArchived ? <RotateCcw /> : <Archive />}</Button></ActionFeedbackForm>
                         </div></TableCell>
                       </TableRow>
                     ))}

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
@@ -35,7 +36,11 @@ export function BillTemplateForm({
   const currencies = [...new Set(accounts.map((account) => account.currency))];
 
   return (
-    <form action={saveBillTemplate} className="flex flex-col gap-5">
+    <ActionFeedbackForm
+      action={saveBillTemplate}
+      className="flex flex-col gap-5"
+      successMessage={template ? "Recurring bill updated" : "Recurring bill created"}
+    >
       {template ? <input name="id" type="hidden" value={template.id} /> : null}
       <FieldGroup className="grid gap-4 md:grid-cols-2">
         <Field>
@@ -151,6 +156,6 @@ export function BillTemplateForm({
         <Save data-icon="inline-start" />
         {template ? "Save template" : "Create template"}
       </Button>
-    </form>
+    </ActionFeedbackForm>
   );
 }

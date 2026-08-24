@@ -29,6 +29,7 @@ import type { InsightMessage } from "@/features/insights/types";
 import { PERIOD_LABELS, REPORTING_PERIODS, type ReportingPeriod } from "@/lib/calculations/periods";
 import { useScreenPrivacy } from "@/components/privacy/screen-privacy";
 import { updateInsightsConsent } from "@/features/settings/actions";
+import { toast } from "sonner";
 
 const suggestedQuestions = [
   "What spending category should I review first?",
@@ -107,14 +108,17 @@ export function InsightsSheet({
 
   function grantConsent() {
     startConsentTransition(async () => {
+      const toastId = toast.loading("Saving insights consent…");
       try {
         const formData = new FormData();
         formData.set("enabled", "true");
         await updateInsightsConsent(formData);
         setConsented(true);
         setConsentDialogOpen(false);
+        toast.success("Insights consent saved", { id: toastId });
       } catch {
         setError("MoneyLau could not save your consent. Please try again.");
+        toast.error("Couldn’t save insights consent", { id: toastId });
       }
     });
   }

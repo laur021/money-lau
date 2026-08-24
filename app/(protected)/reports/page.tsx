@@ -1,5 +1,7 @@
 import { ExpenseDonutChart } from "@/components/charts/expense-donut-chart";
 import { MonthlyCashFlowChart } from "@/components/charts/monthly-cash-flow-chart";
+import { FinancialMetricCard } from "@/components/finance/financial-metric-card";
+import { PageHeader } from "@/components/layout/page-header";
 import {
   PrivateFinancialChart,
   PrivateFinancialValue,
@@ -7,7 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -113,20 +114,18 @@ export default async function ReportsPage({ searchParams }: { searchParams: Sear
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 sm:p-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="flex flex-col gap-1">
-          <p className="text-sm text-muted-foreground">
-            Explore completed activity and category distribution
-          </p>
-          <h1 className="text-2xl font-semibold">Reports</h1>
-        </div>
+      <PageHeader
+        actions={
         <Button asChild variant="outline">
           <a href={`/api/reports/transactions.csv?${exportParameters.toString()}`}>
             <Download data-icon="inline-start" />
             Export filtered CSV
           </a>
         </Button>
-      </div>
+        }
+        description="Explore completed activity, cash flow, and category distribution."
+        title="Reports"
+      />
 
       <Card>
         <CardHeader className="border-b">
@@ -186,22 +185,22 @@ export default async function ReportsPage({ searchParams }: { searchParams: Sear
       </Card>
 
       <section className="grid gap-3 sm:grid-cols-3">
-        <ReportTotal
-          className="text-emerald-600 dark:text-emerald-400"
-          icon={<ArrowUpRight className="size-4 text-emerald-500" />}
+        <FinancialMetricCard
+          icon={<ArrowUpRight className="size-4" />}
           label="Income"
+          tone="positive"
           value={<PrivateFinancialValue>{formatMoney(totals.income, currency)}</PrivateFinancialValue>}
         />
-        <ReportTotal
-          className="text-destructive"
-          icon={<ArrowDownRight className="size-4 text-destructive" />}
+        <FinancialMetricCard
+          icon={<ArrowDownRight className="size-4" />}
           label="Expenses"
+          tone="negative"
           value={<PrivateFinancialValue>{formatMoney(totals.expense, currency)}</PrivateFinancialValue>}
         />
-        <ReportTotal
-          className={net < 0 ? "text-destructive" : undefined}
-          icon={<Scale className="size-4 text-muted-foreground" />}
+        <FinancialMetricCard
+          icon={<Scale className="size-4" />}
           label="Net cash flow"
+          tone={net < 0 ? "negative" : "default"}
           value={<PrivateFinancialValue>{formatMoney(net, currency)}</PrivateFinancialValue>}
         />
       </section>
@@ -292,29 +291,6 @@ function FilterSelect({
   );
 }
 
-function ReportTotal({
-  label,
-  value,
-  icon,
-  className,
-}: {
-  label: string;
-  value: React.ReactNode;
-  icon: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <Card size="sm">
-      <CardHeader>
-        <CardTitle>{label}</CardTitle>
-        <CardAction>{icon}</CardAction>
-      </CardHeader>
-      <CardContent className={`text-xl font-semibold tabular-nums ${className ?? ""}`}>
-        {value}
-      </CardContent>
-    </Card>
-  );
-}
 
 function ActivityTable({
   title,

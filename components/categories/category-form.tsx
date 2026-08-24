@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import {
   Dialog,
   DialogContent,
@@ -46,7 +47,10 @@ export function CategoryForm({
   const prefix = category ? `category-${category.id}` : "new-category";
 
   return (
-    <form action={category ? updateCategory : createCategory}>
+    <ActionFeedbackForm
+      action={category ? updateCategory : createCategory}
+      successMessage={category ? "Category updated" : "Category added"}
+    >
       {category ? <input name="id" type="hidden" value={category.id} /> : null}
       <FieldGroup className="grid gap-4 md:grid-cols-2">
         <Field>
@@ -122,7 +126,7 @@ export function CategoryForm({
           {category ? "Save category" : "Add category"}
         </Button>
       </FieldGroup>
-    </form>
+    </ActionFeedbackForm>
   );
 }
 

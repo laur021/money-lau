@@ -27,10 +27,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" suppressHydrationWarning className={cn("font-sans", roboto.variable)}>
       <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <TooltipProvider>{children}</TooltipProvider>
-          <Toaster position="top-right" richColors />
-        </ThemeProvider>
+        <TooltipProvider>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+            {children}
+            <Toaster position="top-center" richColors visibleToasts={3} />
+          </ThemeProvider>
+        </TooltipProvider>
       </body>
     </html>
   );

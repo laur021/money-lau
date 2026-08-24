@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
@@ -64,7 +65,10 @@ export function TransactionForm({
   const prefix = initialValue ? `transaction-${initialValue.id}` : "new-transaction";
 
   return (
-    <form action={initialValue ? updateTransaction : createTransaction}>
+    <ActionFeedbackForm
+      action={initialValue ? updateTransaction : createTransaction}
+      successMessage={initialValue ? "Transaction updated" : "Transaction added"}
+    >
       {initialValue ? <input name="id" type="hidden" value={initialValue.id} /> : null}
       <FieldGroup className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <Field>
@@ -237,6 +241,6 @@ export function TransactionForm({
           {initialValue ? "Save transaction" : "Add transaction"}
         </Button>
       </FieldGroup>
-    </form>
+    </ActionFeedbackForm>
   );
 }

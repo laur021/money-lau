@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Pencil, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
@@ -36,7 +37,11 @@ export function BillItemForm({
   );
 
   return (
-    <form action={saveBillItem} className="flex flex-col gap-5">
+    <ActionFeedbackForm
+      action={saveBillItem}
+      className="flex flex-col gap-5"
+      successMessage={item ? "Bill updated" : "Bill added"}
+    >
       {item ? <input name="id" type="hidden" value={item.id} /> : null}
       <input name="plannerMonth" type="hidden" value={plannerMonth} />
       <FieldGroup className="grid gap-4 md:grid-cols-2">
@@ -153,6 +158,6 @@ export function BillItemForm({
         {item ? <Pencil data-icon="inline-start" /> : <Plus data-icon="inline-start" />}
         {item ? "Save bill" : "Add bill"}
       </Button>
-    </form>
+    </ActionFeedbackForm>
   );
 }

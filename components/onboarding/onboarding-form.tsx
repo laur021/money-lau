@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
@@ -25,7 +26,7 @@ export function OnboardingForm({
   );
 
   return (
-    <form action={completeOnboarding}>
+    <ActionFeedbackForm action={completeOnboarding} successMessage="Your workspace is ready">
       <FieldGroup>
         <div className="flex items-center gap-3">
           <Badge variant="secondary">1</Badge>
@@ -239,6 +240,6 @@ export function OnboardingForm({
           Finish setup and open dashboard
         </Button>
       </FieldGroup>
-    </form>
+    </ActionFeedbackForm>
   );
 }

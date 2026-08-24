@@ -4,6 +4,7 @@ import { ThemePreference } from "@/components/settings/theme-preference";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -78,7 +79,7 @@ export default async function SettingsPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <form action={updatePreferences}>
+          <ActionFeedbackForm action={updatePreferences} successMessage="Preferences saved">
             <FieldGroup className="grid gap-4 md:grid-cols-2">
               <Field>
                 <FieldLabel htmlFor="display-name">Display name</FieldLabel>
@@ -201,7 +202,7 @@ export default async function SettingsPage() {
                 Save preferences
               </Button>
             </FieldGroup>
-          </form>
+          </ActionFeedbackForm>
         </CardContent>
       </Card>
 

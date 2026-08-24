@@ -14,8 +14,8 @@ export default function ProtectedLoading() {
         </div>
         <Skeleton className="h-8 w-28" />
       </div>
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {Array.from({ length: 4 }, (_, index) => (
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        {Array.from({ length: 5 }, (_, index) => (
           <Skeleton className="h-28 rounded-lg" key={index} />
         ))}
       </section>

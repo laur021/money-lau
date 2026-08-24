@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import {
   Dialog,
   DialogContent,
@@ -52,7 +53,11 @@ export function BillPaymentDialog({
             This posts a completed expense and deducts it from the selected account.
           </DialogDescription>
         </DialogHeader>
-        <form action={postBillPayment} className="flex flex-col gap-5">
+        <ActionFeedbackForm
+          action={postBillPayment}
+          className="flex flex-col gap-5"
+          successMessage="Bill payment posted"
+        >
           <input name="id" type="hidden" value={item.id} />
           <FieldGroup>
             <Field>
@@ -119,7 +124,7 @@ export function BillPaymentDialog({
               Post payment
             </Button>
           </DialogFooter>
-        </form>
+        </ActionFeedbackForm>
       </DialogContent>
     </Dialog>
   );

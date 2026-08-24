@@ -4,6 +4,7 @@ import {
   type CategoryRecord,
 } from "@/components/categories/category-form";
 import { Badge } from "@/components/ui/badge";
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -134,7 +135,7 @@ export default async function CategoriesPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex justify-end gap-1">
-                          <form action={moveCategory}>
+                          <ActionFeedbackForm action={moveCategory} pendingMessage="Reordering category…" successMessage="Category order updated">
                             <input name="id" type="hidden" value={category.id} />
                             <input
                               name="displayOrder"
@@ -150,8 +151,8 @@ export default async function CategoriesPage() {
                             >
                               <ArrowUp />
                             </Button>
-                          </form>
-                          <form action={moveCategory}>
+                          </ActionFeedbackForm>
+                          <ActionFeedbackForm action={moveCategory} pendingMessage="Reordering category…" successMessage="Category order updated">
                             <input name="id" type="hidden" value={category.id} />
                             <input
                               name="displayOrder"
@@ -167,9 +168,9 @@ export default async function CategoriesPage() {
                             >
                               <ArrowDown />
                             </Button>
-                          </form>
+                          </ActionFeedbackForm>
                           <CategoryEditDialog category={category} parents={parents} />
-                          <form action={setCategoryArchived}>
+                          <ActionFeedbackForm action={setCategoryArchived} successMessage={category.is_archived ? "Category restored" : "Category archived"}>
                             <input name="id" type="hidden" value={category.id} />
                             <input
                               name="archived"
@@ -180,7 +181,7 @@ export default async function CategoriesPage() {
                               <ArchiveRestore data-icon="inline-start" />
                               {category.is_archived ? "Restore" : "Archive"}
                             </Button>
-                          </form>
+                          </ActionFeedbackForm>
                         </div>
                       </TableCell>
                     </TableRow>

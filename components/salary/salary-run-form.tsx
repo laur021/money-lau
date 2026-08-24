@@ -6,6 +6,7 @@ import { SalaryComponentEditor } from "@/components/salary/salary-component-edit
 import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -160,7 +161,11 @@ export function SalaryRunForm({
   };
 
   return (
-    <form action={saveSalaryRun} className="flex flex-col gap-6">
+    <ActionFeedbackForm
+      action={saveSalaryRun}
+      className="flex flex-col gap-6"
+      successMessage={run ? "Salary draft updated" : "Salary draft saved"}
+    >
       {run ? <input name="id" type="hidden" value={run.id} /> : null}
       <input name="components" type="hidden" value={JSON.stringify(components)} />
       {!hasGovernmentPresets ? (
@@ -438,6 +443,6 @@ export function SalaryRunForm({
         <Save data-icon="inline-start" />
         {run ? "Save draft" : "Save salary draft"}
       </Button>
-    </form>
+    </ActionFeedbackForm>
   );
 }

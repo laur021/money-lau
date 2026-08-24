@@ -8,6 +8,16 @@ import {
   ScreenPrivacyProvider,
 } from "@/components/privacy/screen-privacy";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import {
   Sidebar,
   SidebarContent,
@@ -34,6 +44,7 @@ import {
   FolderTree,
   LayoutDashboard,
   LogOut,
+  MoreHorizontal,
   ReceiptText,
   Settings,
 } from "lucide-react";
@@ -52,8 +63,12 @@ const sidebarNavigation = [
 ];
 
 const mobileNavigation = sidebarNavigation
-  .filter(({ label }) => label !== "Categories" && label !== "Settings")
+  .filter(({ label }) => ["Overview", "Transactions", "Bills", "Salary"].includes(label))
   .map((item) => (item.label === "Transactions" ? { ...item, label: "Activity" } : item));
+
+const mobileMoreNavigation = sidebarNavigation.filter(
+  ({ label }) => !["Overview", "Transactions", "Bills", "Salary"].includes(label),
+);
 
 type AppShellUser = {
   avatarUrl: string | null;
@@ -72,6 +87,46 @@ function userInitials(displayName: string, email: string) {
     .map((part) => part[0])
     .join("")
     .toUpperCase();
+}
+
+function MobileMoreMenu({ pathname }: { pathname: string }) {
+  return (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button className="flex min-w-0 flex-col gap-1 rounded-md px-1 py-1 text-[11px] text-muted-foreground" size="sm" variant="ghost">
+          <MoreHorizontal aria-hidden="true" data-icon="inline-start" />
+          <span className="w-full truncate text-center">More</span>
+        </Button>
+      </SheetTrigger>
+      <SheetContent className="rounded-t-2xl pb-[calc(env(safe-area-inset-bottom)+1rem)]" side="bottom">
+        <SheetHeader className="px-5 pb-3 pt-5 text-left">
+          <SheetTitle>More</SheetTitle>
+          <SheetDescription>More ways to manage your finances.</SheetDescription>
+        </SheetHeader>
+        <div className="grid grid-cols-2 gap-2 px-5">
+          {mobileMoreNavigation.map(({ icon: Icon, label, href }) => {
+            const active = pathname === href || pathname.startsWith(`${href}/`);
+
+            return (
+              <SheetClose asChild key={label}>
+                <Link
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "flex min-h-16 flex-col justify-center gap-1 rounded-lg border px-3 text-sm font-medium",
+                    active ? "border-primary/30 bg-primary/10 text-foreground" : "text-muted-foreground",
+                  )}
+                  href={href}
+                >
+                  <Icon aria-hidden="true" className="size-4" />
+                  {label}
+                </Link>
+              </SheetClose>
+            );
+          })}
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
 }
 
 export function AppShell({
@@ -160,10 +215,10 @@ export function AppShell({
         <SidebarRail />
       </Sidebar>
 
-      <SidebarInset className="pb-20 md:pb-0">
-        <header className="flex items-center justify-between border-b px-4 py-3 sm:px-6">
+      <SidebarInset className="pb-24 md:pb-0">
+        <header className="flex min-h-14 items-center justify-between border-b px-4 py-3 sm:px-6">
           <div className="flex items-center gap-2">
-            <SidebarTrigger />
+            <SidebarTrigger className="hidden md:inline-flex" />
             <div className="md:hidden">
               <AppLogo />
             </div>
@@ -183,7 +238,7 @@ export function AppShell({
 
       <nav
         aria-label="Mobile navigation"
-        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t bg-background px-1 py-2 md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t bg-background px-1 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 md:hidden"
       >
         {mobileNavigation.map(({ icon: Icon, label, href }) => {
           const active = pathname === href || pathname.startsWith(`${href}/`);
@@ -192,7 +247,7 @@ export function AppShell({
             <Link
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex min-w-0 flex-col items-center gap-1 rounded-md px-1 py-1 text-[10px]",
+                "flex min-w-0 flex-col items-center gap-1 rounded-md px-1 py-1 text-[11px]",
                 active ? "font-medium text-foreground" : "text-muted-foreground"
               )}
               href={href}
@@ -203,6 +258,7 @@ export function AppShell({
             </Link>
           );
         })}
+        <MobileMoreMenu pathname={pathname} />
       </nav>
     </SidebarProvider>
     </ScreenPrivacyProvider>

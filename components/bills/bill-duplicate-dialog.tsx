@@ -2,6 +2,7 @@
 
 import { Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import {
   Dialog,
   DialogContent,
@@ -32,7 +33,11 @@ export function BillDuplicateDialog({ item }: { item: BillItem }) {
             The copy starts unpaid and keeps this bill&apos;s category, account, amount, note, and relative coverage month.
           </DialogDescription>
         </DialogHeader>
-        <form action={duplicateBillItem} className="flex flex-col gap-5">
+        <ActionFeedbackForm
+          action={duplicateBillItem}
+          className="flex flex-col gap-5"
+          successMessage="Bill duplicated"
+        >
           <input name="sourceBillItemId" type="hidden" value={item.id} />
           <FieldGroup>
             <Field>
@@ -56,7 +61,7 @@ export function BillDuplicateDialog({ item }: { item: BillItem }) {
               Duplicate bill
             </Button>
           </DialogFooter>
-        </form>
+        </ActionFeedbackForm>
       </DialogContent>
     </Dialog>
   );

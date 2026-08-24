@@ -10,6 +10,7 @@ import {
 import Link from "next/link";
 import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
 import { SalaryProfileForm } from "@/components/salary/salary-profile-form";
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -393,7 +394,7 @@ export default async function SalaryPage() {
                                 </DialogContent>
                               </Dialog>
                             ) : null}
-                            <form action={setSalaryProfileArchived}>
+                            <ActionFeedbackForm action={setSalaryProfileArchived} successMessage={profile.isArchived ? "Salary profile restored" : "Salary profile archived"}>
                               <input name="id" type="hidden" value={profile.id} />
                               <input
                                 name="isArchived"
@@ -412,7 +413,7 @@ export default async function SalaryPage() {
                               >
                                 {profile.isArchived ? <RotateCcw /> : <Archive />}
                               </Button>
-                            </form>
+                            </ActionFeedbackForm>
                           </div>
                         </TableCell>
                       </TableRow>

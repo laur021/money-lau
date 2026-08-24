@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -53,7 +54,7 @@ export function AccountForm({ account }: { account?: AccountRecord }) {
   const action = account ? updateAccount : createAccount;
 
   return (
-    <form action={action}>
+    <ActionFeedbackForm action={action} successMessage={account ? "Account updated" : "Account added"}>
       {account ? <input name="id" type="hidden" value={account.id} /> : null}
       <FieldGroup className="grid gap-4 md:grid-cols-2">
         <Field>
@@ -169,7 +170,7 @@ export function AccountForm({ account }: { account?: AccountRecord }) {
           {account ? "Save account" : "Add account"}
         </Button>
       </FieldGroup>
-    </form>
+    </ActionFeedbackForm>
   );
 }
 

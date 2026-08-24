@@ -1,5 +1,7 @@
 import { ExpenseDonutChart } from "@/components/charts/expense-donut-chart";
 import { MonthlyCashFlowChart } from "@/components/charts/monthly-cash-flow-chart";
+import { FinancialMetricCard } from "@/components/finance/financial-metric-card";
+import { PageHeader } from "@/components/layout/page-header";
 import {
   PrivateFinancialChart,
   PrivateFinancialValue,
@@ -60,7 +62,6 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 function parameterValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? (value[0] ?? "") : (value ?? "");
 }
-
 function transactionTitle(row: ReportingRow) {
   return row.merchant || row.description || row.category?.name || "Transaction";
 }
@@ -187,12 +188,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 sm:p-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <p className="text-sm text-muted-foreground">Your financial command center</p>
-          <h1 className="text-2xl font-semibold">Overview</h1>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
+      <PageHeader
+        actions={
+          <>
           <form className="flex items-center gap-2">
             <NativeSelect aria-label="Dashboard period" defaultValue={period} name="period">
               {REPORTING_PERIODS.map((value) => (
@@ -218,8 +216,11 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
               Add transaction
             </Link>
           </Button>
-        </div>
-      </div>
+          </>
+        }
+        description="A focused view of your balances, cash flow, and upcoming commitments."
+        title="Overview"
+      />
 
       <AccountRail
         accounts={visibleAccounts}
@@ -228,38 +229,38 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
       />
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        <SummaryCard
+        <FinancialMetricCard
           description="Included active accounts"
-          icon={<WalletCards className="size-4 text-muted-foreground" />}
-          title="Available balance"
+          icon={<WalletCards className="size-4" />}
+          label="Available balance"
           value={<PrivateFinancialValue>{formatMoney(totalBalance, currency)}</PrivateFinancialValue>}
         />
-        <SummaryCard
-          className="text-emerald-600 dark:text-emerald-400"
+        <FinancialMetricCard
           description="Completed income"
-          icon={<ArrowUpRight className="size-4 text-emerald-500" />}
-          title="Income"
+          icon={<ArrowUpRight className="size-4" />}
+          label="Income"
+          tone="positive"
           value={<PrivateFinancialValue>{formatMoney(totals.income, currency)}</PrivateFinancialValue>}
         />
-        <SummaryCard
-          className="text-destructive"
+        <FinancialMetricCard
           description={`${totals.count} completed entries`}
-          icon={<ArrowDownRight className="size-4 text-destructive" />}
-          title="Expenses"
+          icon={<ArrowDownRight className="size-4" />}
+          label="Expenses"
+          tone="negative"
           value={<PrivateFinancialValue>{formatMoney(totals.expense, currency)}</PrivateFinancialValue>}
         />
-        <SummaryCard
-          className={net < 0 ? "text-destructive" : undefined}
+        <FinancialMetricCard
           description="Income minus expenses"
-          icon={<Scale className="size-4 text-muted-foreground" />}
-          title="Net cash flow"
+          icon={<Scale className="size-4" />}
+          label="Net cash flow"
+          tone={net < 0 ? "negative" : "default"}
           value={<PrivateFinancialValue>{formatMoney(net, currency)}</PrivateFinancialValue>}
         />
-        <SummaryCard
-          className={afterBills < 0 ? "text-destructive" : undefined}
+        <FinancialMetricCard
           description={`${unpaidBills.length} unpaid bill${unpaidBills.length === 1 ? "" : "s"}`}
-          icon={<CalendarClock className="size-4 text-muted-foreground" />}
-          title="After bills"
+          icon={<CalendarClock className="size-4" />}
+          label="After bills"
+          tone={afterBills < 0 ? "negative" : "default"}
           value={<PrivateFinancialValue>{formatMoney(afterBills, currency)}</PrivateFinancialValue>}
         />
       </section>
@@ -528,33 +529,6 @@ function SalarySnapshot({
           <span className="text-muted-foreground">Net received this year</span>
           <span className="font-semibold tabular-nums"><PrivateFinancialValue>{formatMoney(salaryYearToDate, currency)}</PrivateFinancialValue></span>
         </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function SummaryCard({
-  title,
-  description,
-  value,
-  icon,
-  className,
-}: {
-  title: string;
-  description: string;
-  value: React.ReactNode;
-  icon: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <Card size="sm">
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardAction>{icon}</CardAction>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardContent className={cn("text-xl font-semibold tabular-nums", className)}>
-        {value}
       </CardContent>
     </Card>
   );

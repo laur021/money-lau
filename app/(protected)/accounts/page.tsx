@@ -4,6 +4,7 @@ import {
   type AccountRecord,
 } from "@/components/accounts/account-form";
 import { Badge } from "@/components/ui/badge";
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Button } from "@/components/ui/button";
 import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -140,7 +141,7 @@ export default async function AccountsPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-1">
-                        <form action={moveAccount}>
+                        <ActionFeedbackForm action={moveAccount} pendingMessage="Reordering account…" successMessage="Account order updated">
                           <input name="id" type="hidden" value={account.id} />
                           <input name="displayOrder" type="hidden" value={account.display_order} />
                           <input name="direction" type="hidden" value="up" />
@@ -152,8 +153,8 @@ export default async function AccountsPage() {
                           >
                             <ArrowUp />
                           </Button>
-                        </form>
-                        <form action={moveAccount}>
+                        </ActionFeedbackForm>
+                        <ActionFeedbackForm action={moveAccount} pendingMessage="Reordering account…" successMessage="Account order updated">
                           <input name="id" type="hidden" value={account.id} />
                           <input name="displayOrder" type="hidden" value={account.display_order} />
                           <input name="direction" type="hidden" value="down" />
@@ -165,9 +166,9 @@ export default async function AccountsPage() {
                           >
                             <ArrowDown />
                           </Button>
-                        </form>
+                        </ActionFeedbackForm>
                         <AccountEditDialog account={account} />
-                        <form action={setAccountArchived}>
+                        <ActionFeedbackForm action={setAccountArchived} successMessage={account.is_archived ? "Account restored" : "Account archived"}>
                           <input name="id" type="hidden" value={account.id} />
                           <input
                             name="archived"
@@ -178,7 +179,7 @@ export default async function AccountsPage() {
                             <ArchiveRestore data-icon="inline-start" />
                             {account.is_archived ? "Restore" : "Archive"}
                           </Button>
-                        </form>
+                        </ActionFeedbackForm>
                       </div>
                     </TableCell>
                   </TableRow>

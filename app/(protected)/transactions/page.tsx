@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
@@ -142,16 +143,16 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
             <DialogTrigger asChild><Button variant="outline"><Tags data-icon="inline-start" />Manage tags</Button></DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>Manage tags</DialogTitle><DialogDescription>Tags can be reused across transactions and removed without deleting activity.</DialogDescription></DialogHeader>
-              <form action={createTag} className="flex gap-2">
+              <ActionFeedbackForm action={createTag} className="flex gap-2" successMessage="Tag added">
                 <Input aria-label="New tag name" name="name" placeholder="reimbursable" required />
                 <Button type="submit"><Plus data-icon="inline-start" />Add</Button>
-              </form>
+              </ActionFeedbackForm>
               <div className="flex flex-wrap gap-2">
                 {(tags ?? []).map((tag) => (
-                  <form action={deleteTag} key={tag.id}>
+                  <ActionFeedbackForm action={deleteTag} key={tag.id} pendingMessage="Deleting tag…" successMessage="Tag deleted">
                     <input name="id" type="hidden" value={tag.id} />
                     <Button size="sm" type="submit" variant="outline">{tag.name}<Trash2 data-icon="inline-end" /></Button>
-                  </form>
+                  </ActionFeedbackForm>
                 ))}
               </div>
             </DialogContent>
@@ -209,7 +210,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
                         </PrivateFinancialValue>
                       </TableCell>
                       <TableCell><div className="flex flex-wrap gap-1"><Badge variant="outline">{transaction.transaction_type}</Badge><Badge variant={statusVariant(transaction.status)}>{transaction.status}</Badge></div></TableCell>
-                      <TableCell>{salaryRunId ? <div className="flex justify-end"><Button asChild size="sm" variant="ghost"><Link href={`/salary/${salaryRunId}`}><BadgeDollarSign data-icon="inline-start" />Open salary</Link></Button></div> : billItemId ? <div className="flex justify-end"><Button asChild size="sm" variant="ghost"><Link href="/bills"><CalendarCheck2 data-icon="inline-start" />Open bill</Link></Button></div> : <div className="flex justify-end gap-1"><Dialog><DialogTrigger asChild><Button aria-label="Edit transaction" size="icon-sm" variant="ghost"><Pencil /></Button></DialogTrigger><DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-4xl"><DialogHeader><DialogTitle>Edit transaction</DialogTitle><DialogDescription>Archived references remain available only for this historical record.</DialogDescription></DialogHeader><TransactionForm accounts={accounts ?? []} categories={(categories ?? []) as { id: string; name: string; transaction_type: "income" | "expense"; is_archived: boolean }[]} initialValue={initialValue} /></DialogContent></Dialog><AlertDialog><AlertDialogTrigger asChild><Button aria-label="Delete transaction" size="icon-sm" variant="ghost"><Trash2 /></Button></AlertDialogTrigger><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Delete this transaction?</AlertDialogTitle><AlertDialogDescription>This permanently removes the entry and recalculates affected balances. This action cannot be undone.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><form action={deleteTransaction}><input name="id" type="hidden" value={transaction.id} /><AlertDialogAction type="submit" variant="destructive">Delete</AlertDialogAction></form></AlertDialogFooter></AlertDialogContent></AlertDialog></div>}</TableCell>
+                      <TableCell>{salaryRunId ? <div className="flex justify-end"><Button asChild size="sm" variant="ghost"><Link href={`/salary/${salaryRunId}`}><BadgeDollarSign data-icon="inline-start" />Open salary</Link></Button></div> : billItemId ? <div className="flex justify-end"><Button asChild size="sm" variant="ghost"><Link href="/bills"><CalendarCheck2 data-icon="inline-start" />Open bill</Link></Button></div> : <div className="flex justify-end gap-1"><Dialog><DialogTrigger asChild><Button aria-label="Edit transaction" size="icon-sm" variant="ghost"><Pencil /></Button></DialogTrigger><DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-4xl"><DialogHeader><DialogTitle>Edit transaction</DialogTitle><DialogDescription>Archived references remain available only for this historical record.</DialogDescription></DialogHeader><TransactionForm accounts={accounts ?? []} categories={(categories ?? []) as { id: string; name: string; transaction_type: "income" | "expense"; is_archived: boolean }[]} initialValue={initialValue} /></DialogContent></Dialog><AlertDialog><AlertDialogTrigger asChild><Button aria-label="Delete transaction" size="icon-sm" variant="ghost"><Trash2 /></Button></AlertDialogTrigger><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Delete this transaction?</AlertDialogTitle><AlertDialogDescription>This permanently removes the entry and recalculates affected balances. This action cannot be undone.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><ActionFeedbackForm action={deleteTransaction} pendingMessage="Deleting transaction…" successMessage="Transaction deleted"><input name="id" type="hidden" value={transaction.id} /><AlertDialogAction type="submit" variant="destructive">Delete</AlertDialogAction></ActionFeedbackForm></AlertDialogFooter></AlertDialogContent></AlertDialog></div>}</TableCell>
                     </TableRow>
                   );
                 })}

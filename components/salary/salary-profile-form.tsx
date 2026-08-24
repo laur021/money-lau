@@ -6,6 +6,7 @@ import { SalaryComponentEditor } from "@/components/salary/salary-component-edit
 import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
@@ -144,7 +145,11 @@ export function SalaryProfileForm({
   };
 
   return (
-    <form action={saveSalaryProfile} className="flex flex-col gap-5">
+    <ActionFeedbackForm
+      action={saveSalaryProfile}
+      className="flex flex-col gap-5"
+      successMessage={profile ? "Salary profile updated" : "Salary profile created"}
+    >
       {profile ? <input name="id" type="hidden" value={profile.id} /> : null}
       <input name="components" type="hidden" value={JSON.stringify(components)} />
       {!hasGovernmentPresets ? (
@@ -398,6 +403,6 @@ export function SalaryProfileForm({
         <Save data-icon="inline-start" />
         {profile ? "Save profile" : "Create profile"}
       </Button>
-    </form>
+    </ActionFeedbackForm>
   );
 }

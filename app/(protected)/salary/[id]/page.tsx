@@ -11,6 +11,7 @@ import {
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SalaryRunForm } from "@/components/salary/salary-run-form";
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
 import {
   AlertDialog,
@@ -104,10 +105,10 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <form action={unpostSalaryRun}>
+                  <ActionFeedbackForm action={unpostSalaryRun} pendingMessage="Unposting salary…" successMessage="Salary unposted">
                     <input name="id" type="hidden" value={run.id} />
                     <AlertDialogAction type="submit">Unpost salary</AlertDialogAction>
-                  </form>
+                  </ActionFeedbackForm>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
@@ -130,12 +131,12 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <form action={deleteSalaryDraft}>
+                    <ActionFeedbackForm action={deleteSalaryDraft} pendingMessage="Deleting draft…" successMessage="Salary draft deleted">
                       <input name="id" type="hidden" value={run.id} />
                       <AlertDialogAction type="submit" variant="destructive">
                         Delete draft
                       </AlertDialogAction>
-                    </form>
+                    </ActionFeedbackForm>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
@@ -160,10 +161,10 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <form action={postSalaryRun}>
+                    <ActionFeedbackForm action={postSalaryRun} pendingMessage="Posting salary…" successMessage="Salary posted to the ledger">
                       <input name="id" type="hidden" value={run.id} />
                       <AlertDialogAction type="submit">Post salary</AlertDialogAction>
-                    </form>
+                    </ActionFeedbackForm>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
