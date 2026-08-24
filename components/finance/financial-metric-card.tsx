@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 type FinancialMetricCardProps = {
   label: string;
-  description?: string;
+  description?: React.ReactNode;
   value: React.ReactNode;
   icon: React.ReactNode;
   tone?: "default" | "positive" | "negative";

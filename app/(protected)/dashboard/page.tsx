@@ -1,11 +1,7 @@
-import { ExpenseDonutChart } from "@/components/charts/expense-donut-chart";
-import { MonthlyCashFlowChart } from "@/components/charts/monthly-cash-flow-chart";
+import { InstitutionLogo } from "@/components/accounts/institution-logo";
 import { FinancialMetricCard } from "@/components/finance/financial-metric-card";
 import { PageHeader } from "@/components/layout/page-header";
-import {
-  PrivateFinancialChart,
-  PrivateFinancialValue,
-} from "@/components/privacy/screen-privacy";
+import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +15,6 @@ import {
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { getBillItems } from "@/features/bills/data";
 import type { BillDueState, BillItem } from "@/features/bills/types";
-import { getSalaryRuns } from "@/features/salary/data";
 import {
   billDueState,
   calculateBillTotals,
@@ -32,26 +27,13 @@ import {
   isReportingPeriod,
   reportingDateRange,
 } from "@/lib/calculations/periods";
-import {
-  categoryPortions,
-  monthlyCashFlow,
-  reportingTotals,
-  type ReportingRow,
-} from "@/lib/calculations/reporting";
+import { reportingTotals, type ReportingRow } from "@/lib/calculations/reporting";
 import { formatMoney } from "@/lib/formatting/money";
 import { createClient } from "@/lib/supabase/server";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
 import {
-  ArrowDownRight,
-  ArrowRight,
-  ArrowUpRight,
-  BadgeDollarSign,
   CalendarClock,
   CircleAlert,
-  Landmark,
   Plus,
-  ReceiptText,
   Scale,
   WalletCards,
 } from "lucide-react";
@@ -62,18 +44,6 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 function parameterValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? (value[0] ?? "") : (value ?? "");
 }
-function transactionTitle(row: ReportingRow) {
-  return row.merchant || row.description || row.category?.name || "Transaction";
-}
-
-function dateIsInRange(value: string, range: { from?: Date; to?: Date }) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return false;
-  if (range.from && date < range.from) return false;
-  if (range.to && date > range.to) return false;
-  return true;
-}
-
 function dueBadge(state: BillDueState) {
   if (state === "overdue") return <Badge variant="destructive">Overdue</Badge>;
   if (state === "due_soon") return <Badge variant="outline">Due soon</Badge>;
@@ -91,7 +61,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
       .maybeSingle(),
     supabase
       .from("accounts")
-      .select("id,name,currency,account_type,include_in_total,is_archived,color")
+      .select("id,name,institution_name,currency,account_type,include_in_total,is_archived,color")
       .eq("is_archived", false)
       .order("display_order")
       .order("name"),
@@ -135,15 +105,12 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
     transactionQuery = transactionQuery.lte("transaction_date", range.to.toISOString());
   }
 
-  const [{ data: transactions }, billItems, salaryRuns] = await Promise.all([
+  const [{ data: transactions }, billItems] = await Promise.all([
     transactionQuery,
     getBillItems(plannerMonth),
-    getSalaryRuns(100),
   ]);
   const rows = (transactions ?? []) as unknown as ReportingRow[];
   const totals = reportingTotals(rows, currency);
-  const expenseData = categoryPortions(rows, currency);
-  const monthlyData = monthlyCashFlow(rows, currency);
   const balanceById = new Map(
     (balances ?? []).map((balance) => [balance.id, Number(balance.current_balance)]),
   );
@@ -160,57 +127,42 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
     .filter((item) => !item.transactionId)
     .sort((left, right) => left.dueDate.localeCompare(right.dueDate));
   const overdueBills = unpaidBills.filter((item) => billDueState(item) === "overdue");
-  const postedSalaryRuns = salaryRuns
-    .filter((run) => run.currency === currency && run.transactionId)
-    .sort((left, right) => right.paymentDate.localeCompare(left.paymentDate));
-  const salaryInPeriod = postedSalaryRuns.filter((run) => dateIsInRange(run.paymentDate, range));
-  const latestSalary = salaryInPeriod[0] ?? postedSalaryRuns[0];
-  const currentYear = String(new Date().getFullYear());
-  const salaryYearToDate = postedSalaryRuns
-    .filter((run) => run.paymentDate.startsWith(currentYear))
-    .reduce((sum, run) => sum + run.netPay, 0);
-  const recent = rows.slice(0, 6);
-  const recentIds = recent.map((row) => row.id).filter((id): id is string => Boolean(id));
-  const salaryLinkByTransaction = new Map<string, string>();
-  const billLinkByTransaction = new Map<string, string>();
-  if (recentIds.length) {
-    const [{ data: salaryLinks }, { data: billLinks }] = await Promise.all([
-      supabase.from("salary_runs").select("id,transaction_id").in("transaction_id", recentIds),
-      supabase.from("bill_items").select("id,transaction_id").in("transaction_id", recentIds),
-    ]);
-    (salaryLinks ?? []).forEach((link) => {
-      if (link.transaction_id) salaryLinkByTransaction.set(link.transaction_id, link.id);
-    });
-    (billLinks ?? []).forEach((link) => {
-      if (link.transaction_id) billLinkByTransaction.set(link.transaction_id, link.id);
-    });
-  }
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 sm:p-6">
       <PageHeader
         actions={
           <>
-          <form className="flex items-center gap-2">
-            <NativeSelect aria-label="Dashboard period" defaultValue={period} name="period">
+          <form className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
+            <NativeSelect
+              aria-label="Dashboard period"
+              className="sm:w-auto"
+              defaultValue={period}
+              name="period"
+            >
               {REPORTING_PERIODS.map((value) => (
                 <NativeSelectOption key={value} value={value}>
                   {PERIOD_LABELS[value]}
                 </NativeSelectOption>
               ))}
             </NativeSelect>
-            <NativeSelect aria-label="Dashboard currency" defaultValue={currency} name="currency">
+            <NativeSelect
+              aria-label="Dashboard currency"
+              className="sm:w-auto"
+              defaultValue={currency}
+              name="currency"
+            >
               {currencyOptions.map((value) => (
                 <NativeSelectOption key={value} value={value}>
                   {value}
                 </NativeSelectOption>
               ))}
             </NativeSelect>
-            <Button size="sm" type="submit" variant="outline">
+            <Button className="col-span-2 sm:col-auto" size="sm" type="submit" variant="outline">
               Apply
             </Button>
           </form>
-          <Button asChild size="sm">
+          <Button asChild className="w-full sm:w-auto" size="sm">
             <Link href="/transactions">
               <Plus data-icon="inline-start" />
               Add transaction
@@ -218,17 +170,11 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
           </Button>
           </>
         }
-        description="A focused view of your balances, cash flow, and upcoming commitments."
+        description="Your current position and the commitments that need attention."
         title="Overview"
       />
 
-      <AccountRail
-        accounts={visibleAccounts}
-        balanceById={balanceById}
-        currency={currency}
-      />
-
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+      <section className="grid gap-3 sm:grid-cols-3">
         <FinancialMetricCard
           description="Included active accounts"
           icon={<WalletCards className="size-4" />}
@@ -236,24 +182,16 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
           value={<PrivateFinancialValue>{formatMoney(totalBalance, currency)}</PrivateFinancialValue>}
         />
         <FinancialMetricCard
-          description="Completed income"
-          icon={<ArrowUpRight className="size-4" />}
-          label="Income"
-          tone="positive"
-          value={<PrivateFinancialValue>{formatMoney(totals.income, currency)}</PrivateFinancialValue>}
-        />
-        <FinancialMetricCard
-          description={`${totals.count} completed entries`}
-          icon={<ArrowDownRight className="size-4" />}
-          label="Expenses"
-          tone="negative"
-          value={<PrivateFinancialValue>{formatMoney(totals.expense, currency)}</PrivateFinancialValue>}
-        />
-        <FinancialMetricCard
-          description="Income minus expenses"
+          description={
+            <>
+              <span className="text-primary">In <PrivateFinancialValue>{formatMoney(totals.income, currency)}</PrivateFinancialValue></span>
+              <span aria-hidden="true"> · </span>
+              <span className="text-destructive">Out <PrivateFinancialValue>{formatMoney(totals.expense, currency)}</PrivateFinancialValue></span>
+            </>
+          }
           icon={<Scale className="size-4" />}
           label="Net cash flow"
-          tone={net < 0 ? "negative" : "default"}
+          tone={net < 0 ? "negative" : net > 0 ? "positive" : "default"}
           value={<PrivateFinancialValue>{formatMoney(net, currency)}</PrivateFinancialValue>}
         />
         <FinancialMetricCard
@@ -265,112 +203,19 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
         />
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(20rem,0.8fr)]">
-        <Card>
-          <CardHeader className="border-b">
-            <CardTitle>Where your money went</CardTitle>
-            <CardDescription>
-              Expense portions by category for {PERIOD_LABELS[period].toLowerCase()}.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <PrivateFinancialChart>
-              <ExpenseDonutChart currency={currency} data={expenseData} />
-            </PrivateFinancialChart>
-          </CardContent>
-        </Card>
+      <BillsOutlook
+        currency={currency}
+        items={currentBills}
+        month={plannerMonth}
+        overdueCount={overdueBills.length}
+        remaining={remainingBills}
+      />
 
-        <BillsOutlook
-          currency={currency}
-          items={currentBills}
-          month={plannerMonth}
-          overdueCount={overdueBills.length}
-          remaining={remainingBills}
-        />
-      </section>
-
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(20rem,0.75fr)]">
-        <Card>
-          <CardHeader className="border-b">
-            <CardTitle>Cash-flow trend</CardTitle>
-            <CardDescription>Completed income and expense activity</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <PrivateFinancialChart>
-              <MonthlyCashFlowChart currency={currency} data={monthlyData} />
-            </PrivateFinancialChart>
-          </CardContent>
-        </Card>
-
-        <SalarySnapshot
-          currency={currency}
-          latestSalary={latestSalary}
-          salaryYearToDate={salaryYearToDate}
-        />
-      </section>
-
-      <section>
-        <Card>
-          <CardHeader className="border-b">
-            <CardTitle>Recent transactions</CardTitle>
-            <CardDescription>Latest completed and pending entries in this view</CardDescription>
-            <CardAction>
-              <Button asChild size="sm" variant="ghost">
-                <Link href="/transactions">
-                  View all <ArrowRight data-icon="inline-end" />
-                </Link>
-              </Button>
-            </CardAction>
-          </CardHeader>
-          <CardContent className="grid gap-1">
-            {recent.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 py-8 text-center">
-                <ReceiptText className="size-5 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">No activity in this period.</p>
-              </div>
-            ) : (
-              recent.map((row) => {
-                const source = row.id && salaryLinkByTransaction.has(row.id)
-                  ? "Salary"
-                  : row.id && billLinkByTransaction.has(row.id)
-                    ? "Bill"
-                    : "Manual";
-                return (
-                  <div
-                    className="flex items-center justify-between gap-3 rounded-md px-2 py-2.5 hover:bg-muted/60"
-                    key={row.id}
-                  >
-                    <div className="flex min-w-0 items-center gap-3">
-                      <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted">
-                        {source === "Salary" ? <BadgeDollarSign /> : source === "Bill" ? <CalendarClock /> : <ReceiptText />}
-                      </span>
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium">{transactionTitle(row)}</p>
-                        <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                          {format(new Date(row.transaction_date), "MMM d")}
-                          {row.source_account?.name ? <span>{row.source_account.name}</span> : null}
-                          <Badge variant="outline">{source}</Badge>
-                          {row.status !== "completed" ? <Badge variant="outline">{row.status}</Badge> : null}
-                        </p>
-                      </div>
-                    </div>
-                    <span
-                      className={cn(
-                        "shrink-0 text-sm font-medium tabular-nums",
-                        row.transaction_type === "expense" && "text-destructive",
-                        row.transaction_type === "income" && "text-emerald-600 dark:text-emerald-400",
-                      )}
-                    >
-                      {row.transaction_type === "expense" ? "-" : row.transaction_type === "income" ? "+" : ""}
-                      <PrivateFinancialValue>{formatMoney(row.amount, row.currency)}</PrivateFinancialValue>
-                    </span>
-                  </div>
-                );
-              })
-            )}
-          </CardContent>
-        </Card>
-      </section>
+      <AccountRail
+        accounts={visibleAccounts}
+        balanceById={balanceById}
+        currency={currency}
+      />
     </main>
   );
 }
@@ -380,52 +225,70 @@ function AccountRail({
   balanceById,
   currency,
 }: {
-  accounts: { id: string; name: string; account_type: string; color: string | null }[];
+  accounts: {
+    id: string;
+    name: string;
+    institution_name: string | null;
+    account_type: string;
+  }[];
   balanceById: Map<string, number>;
   currency: string;
 }) {
   return (
-    <section className="flex gap-3 overflow-x-auto pb-1" aria-label="Accounts">
+    <Card>
+      <CardHeader className="border-b">
+        <CardTitle>Account balances</CardTitle>
+        <CardDescription>
+          {accounts.length} active account{accounts.length === 1 ? "" : "s"} in {currency}
+        </CardDescription>
+        <CardAction>
+          <Button asChild size="sm" variant="ghost">
+            <Link href="/accounts">Manage accounts</Link>
+          </Button>
+        </CardAction>
+      </CardHeader>
+      <CardContent>
       {accounts.length === 0 ? (
-        <Card className="w-full">
-          <CardContent className="flex items-center justify-between gap-3 py-4">
-            <div>
-              <p className="font-medium">Add your first account</p>
-              <p className="text-sm text-muted-foreground">Balances and bill affordability start here.</p>
-            </div>
-            <Button asChild size="sm">
-              <Link href="/accounts">
-                <Plus data-icon="inline-start" /> Add account
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="flex flex-wrap items-center justify-between gap-3 py-2">
+          <div>
+            <p className="font-medium">Add your first account</p>
+            <p className="text-sm text-muted-foreground">Balances and bill affordability start here.</p>
+          </div>
+          <Button asChild size="sm">
+            <Link href="/accounts">
+              <Plus data-icon="inline-start" /> Add account
+            </Link>
+          </Button>
+        </div>
       ) : (
-        accounts.map((account) => (
-          <Card className="min-w-56 shrink-0" key={account.id}>
-            <CardContent className="flex items-center justify-between gap-4 py-4">
-              <Link className="flex min-w-0 items-center gap-3" href={`/transactions?account=${account.id}`}>
-                <span
-                  className="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted"
-                  style={{ color: account.color ?? undefined }}
-                >
-                  <Landmark />
-                </span>
+        <div className="grid gap-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {accounts.map((account) => (
+            <Link
+              className="flex min-w-0 items-center justify-between gap-3 rounded-md px-2 py-2.5 hover:bg-muted"
+              href={`/transactions?account=${account.id}`}
+              key={account.id}
+            >
+              <span className="flex min-w-0 items-center gap-3">
+                <InstitutionLogo
+                  accountType={account.account_type}
+                  institutionName={account.institution_name ?? account.name}
+                />
                 <span className="min-w-0">
                   <span className="block truncate font-medium">{account.name}</span>
-                  <span className="block truncate text-xs capitalize text-muted-foreground">
-                    {account.account_type.replaceAll("_", " ")}
+                  <span className="block truncate text-xs text-muted-foreground">
+                    {account.institution_name ?? account.account_type.replaceAll("_", " ")}
                   </span>
                 </span>
-              </Link>
+              </span>
               <span className="shrink-0 text-right text-sm font-semibold tabular-nums">
                 <PrivateFinancialValue>{formatMoney(balanceById.get(account.id) ?? 0, currency)}</PrivateFinancialValue>
               </span>
-            </CardContent>
-          </Card>
-        ))
+            </Link>
+          ))}
+        </div>
       )}
-    </section>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -449,7 +312,7 @@ function BillsOutlook({
         <CardTitle>Bills outlook</CardTitle>
         <CardDescription>{monthLabel(month)} planned payments</CardDescription>
         <CardAction>
-          <Button asChild size="sm" variant="ghost">
+          <Button asChild size="sm" variant={overdueCount > 0 ? "warning" : "secondary"}>
             <Link href={`/bills?month=${month}`}>Open Bills</Link>
           </Button>
         </CardAction>
@@ -483,52 +346,6 @@ function BillsOutlook({
         ) : (
           <p className="py-4 text-center text-sm text-muted-foreground">No unpaid bills for this month.</p>
         )}
-      </CardContent>
-    </Card>
-  );
-}
-
-function SalarySnapshot({
-  currency,
-  latestSalary,
-  salaryYearToDate,
-}: {
-  currency: string;
-  latestSalary?: { netPay: number; paymentDate: string; profileName: string };
-  salaryYearToDate: number;
-}) {
-  return (
-    <Card>
-      <CardHeader className="border-b">
-        <CardTitle>Salary snapshot</CardTitle>
-        <CardDescription>Received income from posted salary runs</CardDescription>
-        <CardAction>
-          <Button asChild size="sm" variant="ghost">
-            <Link href="/salary">Open Salary</Link>
-          </Button>
-        </CardAction>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        {latestSalary ? (
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-3">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted">
-                <BadgeDollarSign />
-              </span>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium">{latestSalary.profileName}</p>
-                <p className="text-xs text-muted-foreground">Received {format(new Date(latestSalary.paymentDate), "MMM d, yyyy")}</p>
-              </div>
-            </div>
-            <span className="shrink-0 text-sm font-semibold tabular-nums"><PrivateFinancialValue>{formatMoney(latestSalary.netPay, currency)}</PrivateFinancialValue></span>
-          </div>
-        ) : (
-          <p className="py-4 text-center text-sm text-muted-foreground">No posted salary in this view.</p>
-        )}
-        <div className="flex items-center justify-between border-t pt-3 text-sm">
-          <span className="text-muted-foreground">Net received this year</span>
-          <span className="font-semibold tabular-nums"><PrivateFinancialValue>{formatMoney(salaryYearToDate, currency)}</PrivateFinancialValue></span>
-        </div>
       </CardContent>
     </Card>
   );

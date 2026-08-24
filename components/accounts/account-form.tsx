@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+import { InstitutionLogo, PHILIPPINE_INSTITUTIONS } from "@/components/accounts/institution-logo";
 import { Button } from "@/components/ui/button";
 import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -18,6 +22,16 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { createAccount, updateAccount } from "@/features/accounts/actions";
 import { Pencil, Plus } from "lucide-react";
 
@@ -48,10 +62,33 @@ const accountTypes = [
 ] as const;
 
 const accountColors = ["blue", "cyan", "green", "amber", "rose", "violet"];
+const CUSTOM_INSTITUTION = "custom-institution";
+
+function institutionSelection(institutionName: string) {
+  return PHILIPPINE_INSTITUTIONS.some(({ name }) => name === institutionName)
+    ? institutionName
+    : institutionName
+      ? CUSTOM_INSTITUTION
+      : "";
+}
 
 export function AccountForm({ account }: { account?: AccountRecord }) {
   const prefix = account ? `account-${account.id}` : "new-account";
   const action = account ? updateAccount : createAccount;
+  const initialInstitution = account?.institution_name ?? "";
+  const [selectedInstitutionName, setSelectedInstitutionName] = useState(() =>
+    institutionSelection(initialInstitution),
+  );
+  const [customInstitutionName, setCustomInstitutionName] = useState(() =>
+    selectedInstitutionName === CUSTOM_INSTITUTION ? initialInstitution : "",
+  );
+  const selectedInstitution = PHILIPPINE_INSTITUTIONS.find(
+    ({ name }) => name === selectedInstitutionName,
+  );
+  const institutionName =
+    selectedInstitutionName === CUSTOM_INSTITUTION
+      ? customInstitutionName
+      : selectedInstitutionName;
 
   return (
     <ActionFeedbackForm action={action} successMessage={account ? "Account updated" : "Account added"}>
@@ -69,13 +106,73 @@ export function AccountForm({ account }: { account?: AccountRecord }) {
         </Field>
         <Field>
           <FieldLabel htmlFor={`${prefix}-institution`}>Institution</FieldLabel>
-          <Input
-            defaultValue={account?.institution_name ?? ""}
-            id={`${prefix}-institution`}
-            name="institutionName"
-            placeholder="BDO, GCash, or custom name"
-          />
+          <input name="institutionName" type="hidden" value={institutionName} />
+          <Select
+            onValueChange={(value) => setSelectedInstitutionName(value)}
+            value={selectedInstitutionName}
+          >
+            <SelectTrigger className="w-full" id={`${prefix}-institution`}>
+              {selectedInstitution ? (
+                <span className="flex min-w-0 items-center gap-2">
+                  <InstitutionLogo
+                    accountType={selectedInstitution.type}
+                    className="size-6 rounded-sm p-1"
+                    institutionName={selectedInstitution.name}
+                  />
+                  <span className="truncate">{selectedInstitution.name}</span>
+                </span>
+              ) : (
+                <SelectValue placeholder="Select a bank or e-wallet" />
+              )}
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Banks</SelectLabel>
+                {PHILIPPINE_INSTITUTIONS.filter(({ type }) => type === "bank").map((institution) => (
+                  <SelectItem key={institution.name} value={institution.name}>
+                    <InstitutionLogo
+                      accountType={institution.type}
+                      className="size-7 rounded-sm p-1"
+                      institutionName={institution.name}
+                    />
+                    <span>{institution.name}</span>
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+              <SelectSeparator />
+              <SelectGroup>
+                <SelectLabel>E-wallets</SelectLabel>
+                {PHILIPPINE_INSTITUTIONS.filter(({ type }) => type === "e_wallet").map((institution) => (
+                  <SelectItem key={institution.name} value={institution.name}>
+                    <InstitutionLogo
+                      accountType={institution.type}
+                      className="size-7 rounded-sm p-1"
+                      institutionName={institution.name}
+                    />
+                    <span>{institution.name}</span>
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+              <SelectSeparator />
+              <SelectGroup>
+                <SelectItem value={CUSTOM_INSTITUTION}>Other institution</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <FieldDescription>Choose from supported Philippine providers or enter another institution.</FieldDescription>
         </Field>
+        {selectedInstitutionName === CUSTOM_INSTITUTION ? (
+          <Field>
+            <FieldLabel htmlFor={`${prefix}-custom-institution`}>Institution name</FieldLabel>
+            <Input
+              id={`${prefix}-custom-institution`}
+              onChange={(event) => setCustomInstitutionName(event.target.value)}
+              placeholder="Enter the institution name"
+              required
+              value={customInstitutionName}
+            />
+          </Field>
+        ) : null}
         <Field>
           <FieldLabel htmlFor={`${prefix}-type`}>Account type</FieldLabel>
           <NativeSelect
