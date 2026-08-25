@@ -1,15 +1,23 @@
-import type { ReceiptCategoryHistory, ReceiptDraft } from "@/features/receipts/types";
-import type { OcrSpaceEnv } from "@/lib/validation/ocr-space";
+import type { ReceiptCategoryHistory, ReceiptDraft, ReceiptItem } from "@/features/receipts/types";
+import type { AzureReceiptEnv } from "@/lib/validation/azure-receipts";
 
-type OcrSpacePayload = {
-  ErrorMessage?: string | string[] | null;
-  IsErroredOnProcessing?: boolean;
-  OCRExitCode?: number | string;
-  ParsedResults?: Array<{
-    ErrorMessage?: string | string[] | null;
-    FileParseExitCode?: number | string;
-    ParsedText?: string | null;
-  }>;
+type AzureReceiptField = {
+  content?: string;
+  valueArray?: Array<{ valueObject?: Record<string, AzureReceiptField> }>;
+  valueCurrency?: { amount?: number; currencyCode?: string };
+  valueDate?: string;
+  valueNumber?: number;
+  valueString?: string;
+};
+
+type AzureReceiptPayload = {
+  status?: "notStarted" | "running" | "succeeded" | "failed";
+  analyzeResult?: {
+    content?: string;
+    documents?: Array<{
+      fields?: Record<string, AzureReceiptField>;
+    }>;
+  };
 };
 
 export class ReceiptServiceError extends Error {
@@ -66,7 +74,7 @@ function dateFromText(value: string) {
   return normalizeReceiptDate(`${year}-${String(month).padStart(2, "0")}-${day.padStart(2, "0")}`);
 }
 
-export function mapOcrSpaceReceiptText(text: string): Omit<ReceiptDraft, "categoryId"> {
+export function mapReceiptText(text: string): Omit<ReceiptDraft, "categoryId"> {
   const lines = text.split(/\r?\n/).map((line) => line.replace(/\s+/g, " ").trim()).filter(Boolean);
   const labeledAmountLine = [...lines].reverse().find(
     (line) =>
@@ -84,10 +92,44 @@ export function mapOcrSpaceReceiptText(text: string): Omit<ReceiptDraft, "catego
   return {
     amount,
     currency: currencyFromText(totalLine ?? "") ?? currencyFromText(text),
+    items: [],
     merchant: merchant?.slice(0, 500) ?? null,
     tax: taxLine ? moneyFromText(taxLine) : null,
     transactionDate: lines.map(dateFromText).find((date): date is string => Boolean(date)) ?? null,
   };
+}
+
+function fieldNumber(field: AzureReceiptField | undefined) {
+  const value = field?.valueCurrency?.amount ?? field?.valueNumber;
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function mapAzureReceiptItems(field: AzureReceiptField | undefined, receiptCurrency: string | null): ReceiptItem[] {
+  return (field?.valueArray ?? []).reduce<ReceiptItem[]>((items, item) => {
+      const fields = item.valueObject;
+      const description = fields?.Description?.valueString?.trim()
+        || fields?.Name?.valueString?.trim()
+        || fields?.Description?.content?.trim()
+        || fields?.Name?.content?.trim();
+      if (!description) return items;
+
+      const unitPriceField = fields?.Price ?? fields?.UnitPrice;
+      const totalPriceField = fields?.TotalPrice ?? fields?.Amount;
+      const quantity = fieldNumber(fields?.Quantity);
+      const unitPrice = fieldNumber(unitPriceField);
+      const totalPrice = fieldNumber(totalPriceField) ?? (quantity !== null && unitPrice !== null ? quantity * unitPrice : null);
+      if (totalPrice === null || totalPrice <= 0) return items;
+      items.push({
+        currency: normalizeReceiptCurrency(totalPriceField?.valueCurrency?.currencyCode)
+          ?? normalizeReceiptCurrency(unitPriceField?.valueCurrency?.currencyCode)
+          ?? receiptCurrency,
+        description: description.slice(0, 500),
+        quantity,
+        totalPrice,
+        unitPrice,
+      });
+      return items;
+    }, []).slice(0, 100);
 }
 
 export function normalizeMerchant(value: string | null | undefined) {
@@ -122,57 +164,102 @@ export function suggestReceiptCategory({
     .sort((left, right) => right[1].count - left[1].count || right[1].latest - left[1].latest)[0]?.[0] ?? null;
 }
 
-export async function analyzeOcrSpaceReceipt({
+export function mapAzureReceipt(document: AzureReceiptPayload["analyzeResult"]): Omit<ReceiptDraft, "categoryId"> {
+  const fields = document?.documents?.[0]?.fields;
+  const total = fields?.Total;
+  const amount = total?.valueCurrency?.amount ?? total?.valueNumber;
+  if (typeof amount !== "number" || !Number.isFinite(amount) || amount <= 0) {
+    if (document?.content) return mapReceiptText(document.content);
+    throw new ReceiptServiceError("NO_TOTAL", "MoneyLau could not confidently find a positive total on this receipt.");
+  }
+
+  const tax = fields?.TotalTax?.valueCurrency?.amount ?? fields?.TotalTax?.valueNumber ?? null;
+  const merchant = fields?.MerchantName?.valueString?.trim() || null;
+  const currency = normalizeReceiptCurrency(total?.valueCurrency?.currencyCode) ?? currencyFromText(total?.content ?? "");
+  const transactionDate = normalizeReceiptDate(fields?.TransactionDate?.valueDate)
+    ?? dateFromText(fields?.TransactionDate?.content ?? "");
+
+  return {
+    amount,
+    currency,
+    items: mapAzureReceiptItems(fields?.Items, currency),
+    merchant: merchant?.slice(0, 500) ?? null,
+    tax: typeof tax === "number" && Number.isFinite(tax) ? tax : null,
+    transactionDate,
+  };
+}
+
+const azureApiVersion = "2024-11-30";
+
+function analyzeUrl(endpoint: string) {
+  return new URL(
+    `/documentintelligence/documentModels/prebuilt-receipt:analyze?api-version=${azureApiVersion}`,
+    endpoint,
+  ).toString();
+}
+
+function wait(milliseconds: number) {
+  return new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
+}
+
+export async function analyzeAzureReceipt({
   file,
   env,
   fetcher = fetch,
+  waitForResult = wait,
 }: {
   file: File;
-  env: OcrSpaceEnv & { OCR_SPACE_API_KEY: string };
+  env: AzureReceiptEnv & { AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT: string; AZURE_DOCUMENT_INTELLIGENCE_KEY: string };
   fetcher?: typeof fetch;
+  waitForResult?: (milliseconds: number) => Promise<void>;
 }) {
-  const formData = new FormData();
-  formData.set("file", file);
-  formData.set("language", "eng");
-  formData.set("OCREngine", "2");
-  formData.set("detectOrientation", "true");
-  formData.set("isOverlayRequired", "false");
-  formData.set("isTable", "true");
-  formData.set("scale", "true");
   let response: Response;
   try {
-    response = await fetcher("https://api.ocr.space/parse/image", {
-      body: formData,
-    cache: "no-store",
-    headers: {
-        apikey: env.OCR_SPACE_API_KEY,
-    },
-    method: "POST",
-    signal: AbortSignal.timeout(15_000),
+    response = await fetcher(analyzeUrl(env.AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT), {
+      body: file,
+      cache: "no-store",
+      headers: {
+        "Content-Type": file.type,
+        "Ocp-Apim-Subscription-Key": env.AZURE_DOCUMENT_INTELLIGENCE_KEY,
+      },
+      method: "POST",
+      signal: AbortSignal.timeout(30_000),
     });
   } catch (error) {
     if (error instanceof DOMException && error.name === "TimeoutError") {
       throw new ReceiptServiceError("TIMEOUT", "Receipt analysis took too long. Please try again.");
     }
-    throw new ReceiptServiceError("PROVIDER", "OCR.space could not analyze this receipt right now.");
+    throw new ReceiptServiceError("PROVIDER", "Azure Document Intelligence could not analyze this receipt right now.");
   }
-  if (!response.ok) {
-    throw new ReceiptServiceError("PROVIDER", "OCR.space could not analyze this receipt right now.");
+  const operationLocation = response.headers.get("operation-location");
+  if (response.status !== 202 || !operationLocation) {
+    throw new ReceiptServiceError("PROVIDER", "Azure Document Intelligence could not analyze this receipt right now.");
   }
-  const payload = (await response.json()) as OcrSpacePayload;
-  const parsedText = payload.ParsedResults
-    ?.filter((result) => String(result.FileParseExitCode) === "1")
-    .map((result) => result.ParsedText?.trim())
-    .filter((result): result is string => Boolean(result))
-    .join("\n");
-  if (payload.IsErroredOnProcessing || String(payload.OCRExitCode) === "3" || String(payload.OCRExitCode) === "4" || !parsedText) {
-    throw new ReceiptServiceError("PROVIDER", "OCR.space could not read this receipt. Try a clearer photo.");
-  }
-  return mapOcrSpaceReceiptText(parsedText);
-}
 
-/* Azure Document Intelligence backup (inactive while OCR.space is configured)
- * AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT and AZURE_DOCUMENT_INTELLIGENCE_KEY remain
- * documented in the previous implementation. Restore the Azure analyzer and its
- * structured prebuilt-receipt mapping when an Azure subscription is available.
- */
+  const deadline = Date.now() + 30_000;
+  while (Date.now() < deadline) {
+    await waitForResult(1_000);
+    try {
+      response = await fetcher(operationLocation, {
+        cache: "no-store",
+        headers: { "Ocp-Apim-Subscription-Key": env.AZURE_DOCUMENT_INTELLIGENCE_KEY },
+        method: "GET",
+        signal: AbortSignal.timeout(15_000),
+      });
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "TimeoutError") {
+        throw new ReceiptServiceError("TIMEOUT", "Receipt analysis took too long. Please try again.");
+      }
+      throw new ReceiptServiceError("PROVIDER", "Azure Document Intelligence could not analyze this receipt right now.");
+    }
+    if (!response.ok) {
+      throw new ReceiptServiceError("PROVIDER", "Azure Document Intelligence could not analyze this receipt right now.");
+    }
+    const payload = (await response.json()) as AzureReceiptPayload;
+    if (payload.status === "succeeded") return mapAzureReceipt(payload.analyzeResult);
+    if (payload.status === "failed") {
+      throw new ReceiptServiceError("PROVIDER", "Azure Document Intelligence could not read this receipt. Try a clearer photo.");
+    }
+  }
+  throw new ReceiptServiceError("TIMEOUT", "Receipt analysis took too long. Please try again.");
+}

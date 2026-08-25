@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { analyzeOcrSpaceReceipt, ReceiptServiceError, suggestReceiptCategory } from "@/features/receipts/service";
+import { analyzeAzureReceipt, ReceiptServiceError, suggestReceiptCategory } from "@/features/receipts/service";
 import { createClient } from "@/lib/supabase/server";
-import { hasOcrSpaceConfig, readOcrSpaceEnv } from "@/lib/validation/ocr-space";
+import { hasAzureReceiptConfig, readAzureReceiptEnv } from "@/lib/validation/azure-receipts";
 
 const allowedTypes = new Set(["image/jpeg", "image/png"]);
 const maxFileSize = 1 * 1024 * 1024;
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     if (profileError) throw new Error(profileError.message);
     if (!profile?.receipt_scanning_consent_at) {
       return NextResponse.json(
-        { code: "CONSENT_REQUIRED", error: "Allow OCR.space receipt scanning before uploading a receipt." },
+        { code: "CONSENT_REQUIRED", error: "Allow Azure Document Intelligence receipt scanning before uploading a receipt." },
         { status: 403 },
       );
     }
@@ -34,11 +34,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const env = readOcrSpaceEnv();
-    if (!hasOcrSpaceConfig(env)) {
+    const env = readAzureReceiptEnv();
+    if (!hasAzureReceiptConfig(env)) {
       return NextResponse.json({ code: "CONFIGURATION", error: "Receipt scanning is not configured yet." }, { status: 503 });
     }
-    const result = await analyzeOcrSpaceReceipt({ file: receipt, env });
+    const result = await analyzeAzureReceipt({ file: receipt, env });
     const [{ data: categories, error: categoriesError }, { data: history, error: historyError }] = await Promise.all([
       supabase.from("categories").select("id").eq("transaction_type", "expense").eq("is_archived", false),
       supabase

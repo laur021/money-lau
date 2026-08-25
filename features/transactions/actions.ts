@@ -136,6 +136,45 @@ export async function createTransaction(formData: FormData) {
   refreshTransactionViews();
 }
 
+export async function createReceiptLineItems(formData: FormData) {
+  const header = z.object({
+    accountId: z.string().uuid(),
+    categoryId: z.string().uuid(),
+    currency: z.string().trim().length(3).transform((value) => value.toUpperCase()),
+    merchant: optionalText,
+    status: z.enum(["completed", "pending", "cancelled"]),
+    transactionDate: z.string().date().optional().or(z.literal("")),
+  }).parse(Object.fromEntries(formData));
+  const descriptions = formData.getAll("itemDescription");
+  const amounts = formData.getAll("itemAmount");
+  if (!descriptions.length || descriptions.length !== amounts.length) {
+    throw new Error("Add at least one complete receipt item.");
+  }
+  const items = z.array(z.object({
+    amount: z.coerce.number().positive(),
+    description: z.string().trim().min(1).max(500),
+  })).min(1).max(100).parse(descriptions.map((description, index) => ({
+    amount: amounts[index],
+    description,
+  })));
+
+  const { supabase, userId } = await getAuthenticatedClient();
+  const { error } = await supabase.from("transactions").insert(items.map((item) => ({
+    account_id: header.accountId,
+    amount: item.amount,
+    category_id: header.categoryId,
+    currency: header.currency,
+    description: item.description,
+    merchant: header.merchant || null,
+    status: header.status,
+    transaction_date: header.transactionDate || new Date().toISOString(),
+    transaction_type: "expense" as const,
+    user_id: userId,
+  })));
+  if (error) throw new Error(error.message);
+  refreshTransactionViews();
+}
+
 export async function updateTransaction(formData: FormData) {
   const id = z.string().uuid().parse(formData.get("id"));
   const value = transactionSchema.parse(Object.fromEntries(formData));

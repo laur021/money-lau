@@ -10,7 +10,7 @@ MoneyLau is a privacy-conscious, manual personal finance manager built with Next
 - Income, expense, and transfer ledger with search, filters, pagination, editing, deletion, references, and reusable tags
 - Reusable salary profiles, flexible earnings and deductions, optional SSS/PhilHealth/Pag-IBIG employee estimates, payslip drafts, posted history, and atomic net-income ledger posting
 - Read-only Ask MoneyLau budgeting insights using a server-only DeepSeek key, explicit consent, privacy masking, capped usage, and aggregate-only financial context
-- Optional OCR.space receipt scanning with explicit consent, mobile camera/desktop upload, ephemeral image handling, and review-before-save transaction drafts
+- Optional Azure Document Intelligence receipt scanning with explicit consent, mobile camera/desktop upload, ephemeral image handling, and review-before-save total or itemized transaction drafts
 - Period, currency, account, category, and status reporting with authenticated filtered CSV export
 - Google authentication, guided onboarding, profile preferences, dark/light/system themes, and responsive desktop/mobile navigation
 - Supabase PostgreSQL storage with per-user Row Level Security and explicit anonymous-access revocation
@@ -30,8 +30,8 @@ MoneyLau is a privacy-conscious, manual personal finance manager built with Next
 4. Apply the SQL files in `supabase/migrations` to the same Supabase project in filename order.
 5. Configure Google in Supabase as described in [docs/AUTHENTICATION_SETUP.md](docs/AUTHENTICATION_SETUP.md).
 6. To enable Ask MoneyLau, set `DEEPSEEK_API_KEY` in `.env.local`. `DEEPSEEK_MODEL` defaults to `deepseek-chat` and `AI_INSIGHTS_MONTHLY_REQUEST_LIMIT` defaults to `40`.
-7. To enable receipt scanning, set `OCR_SPACE_API_KEY` in `.env.local`. OCR.space's free tier accepts JPEG/PNG uploads up to 1 MB.
-7. Run `npm install` and then `npm run dev`.
+7. To enable receipt scanning, create an Azure Document Intelligence **F0** resource and set `AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT` and `AZURE_DOCUMENT_INTELLIGENCE_KEY` in `.env.local`. The app sends JPEG/PNG receipts up to 1 MB to the `prebuilt-receipt` model.
+8. Run `npm install` and then `npm run dev`.
 
 Open [http://localhost:3000](http://localhost:3000). The protected application requires a working Google provider configuration.
 
@@ -58,7 +58,7 @@ The application is configured for Vercel with `vercel.json`. Follow [docs/DEPLOY
 - Philippine contribution presets are editable planning estimates based on versioned official schedules, not payroll, tax, or legal advice.
 - `NEXT_PUBLIC_*` values are public client configuration, not secrets. `DEEPSEEK_API_KEY` is server-only and must never use a `NEXT_PUBLIC_` name.
 - Ask MoneyLau sends only the selected aggregated summary to DeepSeek after explicit consent. It never sends raw ledger text, account IDs, emails, or saved chat history, and cannot change financial records.
-- Receipt scanning sends the selected JPEG or PNG directly to OCR.space only after explicit consent. MoneyLau never stores the receipt image or OCR result, and always requires review before a transaction is saved.
+- Receipt scanning sends the selected JPEG or PNG directly to Azure Document Intelligence only after explicit consent. MoneyLau never stores the receipt image or OCR result, and always requires review before a transaction is saved.
 - The account-deletion button records a review request; permanent Auth-user deletion requires a secure administrative process.
 - PWA packaging is intentionally outside the completed application scope.
 

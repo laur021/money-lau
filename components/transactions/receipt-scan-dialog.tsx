@@ -4,6 +4,7 @@ import {
   TransactionForm,
   type ReceiptTransactionDraft,
 } from "@/components/transactions/transaction-form";
+import { ReceiptItemImportForm } from "@/components/transactions/receipt-item-import-form";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -204,11 +205,23 @@ export function ReceiptScanDialog({
             <DialogDescription>
               {draft
                 ? "Nothing has been saved yet. Review the details, then explicitly save the transaction."
-                : "Upload a JPEG or PNG receipt up to 1 MB. MoneyLau sends it to OCR.space for one-time analysis and does not retain the image."}
+                : "Upload a JPEG or PNG receipt up to 1 MB. MoneyLau sends it to Azure Document Intelligence for one-time analysis and does not retain the image."}
             </DialogDescription>
           </DialogHeader>
           {draft ? (
-            <TransactionForm accounts={accounts} categories={categories} receiptDraft={draft} />
+            draft.items.length ? (
+              <ReceiptItemImportForm
+                accounts={accounts}
+                categories={categories}
+                onSaved={() => {
+                  setOpen(false);
+                  reset();
+                }}
+                receipt={draft}
+              />
+            ) : (
+              <TransactionForm accounts={accounts} categories={categories} receiptDraft={draft} />
+            )
           ) : (
             <div className="grid gap-4">
               <Field>
@@ -315,9 +328,9 @@ export function ReceiptScanDialog({
       <Dialog onOpenChange={setConsentOpen} open={consentOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Allow OCR.space receipt scanning?</DialogTitle>
+          <DialogTitle>Allow Azure Document Intelligence receipt scanning?</DialogTitle>
             <DialogDescription>
-              MoneyLau will send each selected receipt image to OCR.space to extract receipt text
+              MoneyLau will send each selected receipt image to Azure Document Intelligence to extract receipt data
               and prepare a merchant, date, total, currency, and tax draft. Images and extraction
               results are not saved by MoneyLau and are never attached to a transaction.
             </DialogDescription>

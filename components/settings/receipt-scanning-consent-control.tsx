@@ -14,7 +14,7 @@ export function ReceiptScanningConsentControl({ defaultEnabled }: { defaultEnabl
   return (
     <Field orientation="horizontal">
       <Switch
-        aria-label="Allow OCR.space receipt scanning"
+        aria-label="Allow Azure Document Intelligence receipt scanning"
         checked={enabled}
         disabled={isPending}
         id="receipt-scanning-consent"
@@ -37,11 +37,11 @@ export function ReceiptScanningConsentControl({ defaultEnabled }: { defaultEnabl
       <FieldContent>
         <FieldLabel className="flex items-center gap-2" htmlFor="receipt-scanning-consent">
           <ScanLine />
-          Allow OCR.space receipt scanning
+          Allow Azure Document Intelligence receipt scanning
           {isPending ? <LoaderCircle aria-label="Saving" className="animate-spin" /> : null}
         </FieldLabel>
         <FieldDescription>
-          Allow selected receipt images to be sent to OCR.space for one-time text extraction. Images and results are not saved in MoneyLau.
+          Allow selected receipt images to be sent to Azure Document Intelligence for one-time receipt extraction. Images and results are not saved in MoneyLau.
         </FieldDescription>
       </FieldContent>
     </Field>

@@ -216,7 +216,7 @@ export default async function SettingsPage() {
             Receipt scanning
           </CardTitle>
           <CardDescription>
-            Control whether MoneyLau may send selected receipt images to OCR.space for one-time text extraction.
+            Control whether MoneyLau may send selected receipt images to Azure Document Intelligence for one-time receipt extraction.
           </CardDescription>
         </CardHeader>
         <CardContent>

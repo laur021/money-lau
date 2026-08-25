@@ -8,6 +8,7 @@ type ServerAction = (formData: FormData) => void | Promise<void>;
 
 type ActionFeedbackFormProps = Omit<React.ComponentProps<"form">, "action"> & {
   action: ServerAction;
+  onSuccess?: () => void;
   pendingMessage?: string;
   successMessage: string;
 };
@@ -38,6 +39,7 @@ export function ActionFeedbackForm({
   action,
   children,
   className,
+  onSuccess,
   pendingMessage = "Saving your changes…",
   successMessage,
   ...props
@@ -50,6 +52,7 @@ export function ActionFeedbackForm({
     try {
       await action(formData);
       toast.success(successMessage, { id: toastId });
+      onSuccess?.();
     } catch (error) {
       // `redirect()` completes server actions by throwing a framework control-flow
       // value. Navigate to its target instead of presenting it as a failed action.

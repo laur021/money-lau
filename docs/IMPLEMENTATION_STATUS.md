@@ -4,11 +4,11 @@
 
 MoneyLau now includes the planned personal-finance workflows, authenticated data model, salary calculator with optional Philippine contribution estimates, Bills planning, a private read-only DeepSeek insight assistant, reporting experience, production configuration, and final runtime states. PWA packaging is intentionally not included.
 
-## Completed: OCR.space Receipt Scanner
+## Completed: Azure Document Intelligence Receipt Scanner
 
-- Added optional OCR.space receipt scanning with a mobile camera/desktop image upload path, server-only credentials, authenticated analysis, and explicit, revocable consent.
+- Added optional Azure Document Intelligence receipt scanning with a mobile camera/desktop image upload path, server-only credentials, authenticated analysis, and explicit, revocable consent.
 - Scans accept JPEG/PNG files up to 1 MB and return only an in-memory transaction draft; receipt images and OCR results are never stored in MoneyLau.
-- Receipt drafts prefill merchant, amount, date, and matching-currency account, optionally reuse an active category from prior same-merchant expenses, and require explicit review and save.
+- Receipt drafts prefill merchant, date, and matching-currency account, optionally reuse an active category from prior same-merchant expenses, and require explicit review. When Azure returns priced item lines, MoneyLau saves one reviewed expense transaction per item rather than a separate receipt total.
 
 ## Completed: Phase 14 - AI Expense Insights
 
