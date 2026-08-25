@@ -4,6 +4,12 @@
 
 MoneyLau now includes the planned personal-finance workflows, authenticated data model, salary calculator with optional Philippine contribution estimates, Bills planning, a private read-only DeepSeek insight assistant, reporting experience, production configuration, and final runtime states. PWA packaging is intentionally not included.
 
+## Completed: OCR.space Receipt Scanner
+
+- Added optional OCR.space receipt scanning with a mobile camera/desktop image upload path, server-only credentials, authenticated analysis, and explicit, revocable consent.
+- Scans accept JPEG/PNG files up to 1 MB and return only an in-memory transaction draft; receipt images and OCR results are never stored in MoneyLau.
+- Receipt drafts prefill merchant, amount, date, and matching-currency account, optionally reuse an active category from prior same-merchant expenses, and require explicit review and save.
+
 ## Completed: Phase 14 - AI Expense Insights
 
 - Added Ask MoneyLau as a protected, privacy-aware shadcn Sheet in the application header with suggested questions, browser-only conversation context, New chat, consent, loading, and error states.

@@ -6,6 +6,8 @@ import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { createTransaction, updateTransaction } from "@/features/transactions/actions";
+import type { ReceiptDraft } from "@/features/receipts/types";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Pencil, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -33,19 +35,29 @@ export type TransactionFormValue = {
   tags?: string[];
 };
 
+export type ReceiptTransactionDraft = Omit<ReceiptDraft, "categoryId" | "transactionDate"> & {
+  categoryId: string | null;
+  transactionDate: string | null;
+};
+
 export function TransactionForm({
   accounts,
   categories,
   initialValue,
+  receiptDraft,
 }: {
   accounts: Account[];
   categories: Category[];
   initialValue?: TransactionFormValue;
+  receiptDraft?: ReceiptTransactionDraft;
 }) {
+  const receiptAccount = receiptDraft?.currency
+    ? accounts.find((account) => !account.is_archived && account.currency === receiptDraft.currency)
+    : undefined;
   const [transactionType, setTransactionType] = useState<"income" | "expense" | "transfer">(
-    initialValue?.transaction_type ?? "expense"
+    initialValue?.transaction_type ?? "expense",
   );
-  const [accountId, setAccountId] = useState(initialValue?.account_id ?? accounts[0]?.id ?? "");
+  const [accountId, setAccountId] = useState(initialValue?.account_id ?? receiptAccount?.id ?? accounts[0]?.id ?? "");
   const sourceAccount = useMemo(
     () => accounts.find((account) => account.id === accountId),
     [accountId, accounts]
@@ -61,7 +73,8 @@ export function TransactionForm({
       (!category.is_archived || category.id === initialValue?.category_id)
   );
   const needsCategory = transactionType !== "transfer";
-  const canSubmit = Boolean(sourceAccount && (!needsCategory || matchingCategories.length));
+  const receiptCurrencyMismatch = Boolean(receiptDraft?.currency && sourceAccount?.currency !== receiptDraft.currency);
+  const canSubmit = Boolean(sourceAccount && (!needsCategory || matchingCategories.length) && !receiptCurrencyMismatch);
   const prefix = initialValue ? `transaction-${initialValue.id}` : "new-transaction";
 
   return (
@@ -70,6 +83,23 @@ export function TransactionForm({
       successMessage={initialValue ? "Transaction updated" : "Transaction added"}
     >
       {initialValue ? <input name="id" type="hidden" value={initialValue.id} /> : null}
+      {receiptDraft ? (
+        <Alert>
+          <AlertTitle>Review the extracted details</AlertTitle>
+          <AlertDescription>
+            Receipt details are a draft only. Confirm the account, category, amount, and date before saving.
+            {receiptDraft.tax !== null ? ` Detected tax: ${receiptDraft.tax.toFixed(2)}.` : ""}
+          </AlertDescription>
+        </Alert>
+      ) : null}
+      {receiptCurrencyMismatch ? (
+        <Alert variant="destructive">
+          <AlertTitle>Select an account in {receiptDraft?.currency}</AlertTitle>
+          <AlertDescription>
+            The scanned receipt is in {receiptDraft?.currency}, but the selected account is in {sourceAccount?.currency ?? "another currency"}. Saving is disabled until they match.
+          </AlertDescription>
+        </Alert>
+      ) : null}
       <FieldGroup className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <Field>
           <FieldLabel htmlFor={`${prefix}-type`}>Transaction type</FieldLabel>
@@ -138,18 +168,21 @@ export function TransactionForm({
             <FieldLabel htmlFor={`${prefix}-category`}>Category</FieldLabel>
             <NativeSelect
               className="w-full"
-              defaultValue={initialValue?.category_id ?? matchingCategories[0]?.id ?? ""}
+              defaultValue={initialValue?.category_id ?? receiptDraft?.categoryId ?? (receiptDraft ? "" : matchingCategories[0]?.id ?? "")}
               id={`${prefix}-category`}
               name="categoryId"
               required
             >
               {matchingCategories.length ? (
-                matchingCategories.map((category) => (
+                <>
+                  {receiptDraft ? <NativeSelectOption disabled value="">Select category</NativeSelectOption> : null}
+                  {matchingCategories.map((category) => (
                   <NativeSelectOption key={category.id} value={category.id}>
                     {category.name}
                     {category.is_archived ? " - archived" : ""}
                   </NativeSelectOption>
-                ))
+                  ))}
+                </>
               ) : (
                 <NativeSelectOption value="">No matching categories</NativeSelectOption>
               )}
@@ -159,7 +192,7 @@ export function TransactionForm({
         <Field>
           <FieldLabel htmlFor={`${prefix}-amount`}>Amount</FieldLabel>
           <Input
-            defaultValue={Number(initialValue?.amount ?? 0) || undefined}
+            defaultValue={Number(initialValue?.amount ?? receiptDraft?.amount ?? 0) || undefined}
             id={`${prefix}-amount`}
             min="0.01"
             name="amount"
@@ -180,7 +213,7 @@ export function TransactionForm({
         <Field>
           <FieldLabel htmlFor={`${prefix}-date`}>Transaction date</FieldLabel>
           <Input
-            defaultValue={initialValue?.transaction_date.slice(0, 10)}
+            defaultValue={initialValue?.transaction_date.slice(0, 10) ?? receiptDraft?.transactionDate ?? undefined}
             id={`${prefix}-date`}
             name="transactionDate"
             type="date"
@@ -202,7 +235,7 @@ export function TransactionForm({
         <Field>
           <FieldLabel htmlFor={`${prefix}-merchant`}>Merchant or source</FieldLabel>
           <Input
-            defaultValue={initialValue?.merchant ?? ""}
+            defaultValue={initialValue?.merchant ?? receiptDraft?.merchant ?? ""}
             id={`${prefix}-merchant`}
             name="merchant"
             placeholder="Optional"

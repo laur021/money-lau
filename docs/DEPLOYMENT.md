@@ -35,9 +35,13 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY
 DEEPSEEK_API_KEY=YOUR_DEEPSEEK_API_KEY
 DEEPSEEK_MODEL=deepseek-chat
 AI_INSIGHTS_MONTHLY_REQUEST_LIMIT=40
+# Azure backup (inactive until an Azure subscription is available)
+# AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT=https://YOUR-RESOURCE.cognitiveservices.azure.com
+# AZURE_DOCUMENT_INTELLIGENCE_KEY=YOUR_AZURE_DOCUMENT_INTELLIGENCE_KEY
+OCR_SPACE_API_KEY=YOUR_OCR_SPACE_API_KEY
 ```
 
-The Supabase URL and publishable/anon key are designed for browser use. `DEEPSEEK_API_KEY` is server-only: do not give it a `NEXT_PUBLIC_` prefix. Do not add `SUPABASE_SERVICE_ROLE_KEY`, a database password, or the Google OAuth client secret.
+The Supabase URL and publishable/anon key are designed for browser use. `DEEPSEEK_API_KEY` and `OCR_SPACE_API_KEY` are server-only: do not give them a `NEXT_PUBLIC_` prefix. The commented Azure variables are retained only as an inactive backup. Do not add `SUPABASE_SERVICE_ROLE_KEY`, a database password, or the Google OAuth client secret.
 
 4. Deploy. Any change to an environment value needs a new deployment before the value is available to the application.
 
@@ -56,6 +60,7 @@ The Supabase URL and publishable/anon key are designed for browser use. `DEEPSEE
 - [ ] Google has the final Vercel domain as an authorized origin and the Supabase `/auth/v1/callback` URL as an authorized redirect URI.
 - [ ] Google is enabled in Supabase with its client ID and secret.
 - [ ] `DEEPSEEK_API_KEY` is set only in Vercel server environments, and Ask MoneyLau consent is tested from Settings.
+- [ ] `OCR_SPACE_API_KEY` is set only in Vercel server environments, OCR.space consent is tested from Settings, and a JPEG/PNG scan is reviewed before saving.
 - [ ] Sign in, sign out, onboarding, account creation, transaction creation, report CSV export, dark/light/system theme selection, and account-deletion request have been checked in production.
 - [ ] The Privacy and Terms pages are reachable at `/privacy` and `/terms`.
 

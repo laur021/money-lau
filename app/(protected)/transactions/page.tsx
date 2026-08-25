@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import { BadgeDollarSign, CalendarCheck2, Pencil, Plus, ReceiptText, Search, Tags, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { TransactionForm, type TransactionFormValue } from "@/components/transactions/transaction-form";
+import { ReceiptScanDialog } from "@/components/transactions/receipt-scan-dialog";
 import { PageHeader } from "@/components/layout/page-header";
 import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
 import {
@@ -106,11 +107,13 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
     { data: accounts },
     { data: categories },
     { data: tags },
+    { data: profile },
   ] = await Promise.all([
     transactionQuery,
     supabase.from("accounts").select("id,name,currency,is_archived").order("display_order").order("name"),
     supabase.from("categories").select("id,name,transaction_type,is_archived").order("display_order").order("name"),
     supabase.from("tags").select("id,name").order("name"),
+    supabase.from("profiles").select("receipt_scanning_consent_at").maybeSingle(),
   ]);
   const rows = (transactions ?? []) as unknown as TransactionRow[];
   const transactionIds = rows.map((transaction) => transaction.id);
@@ -169,6 +172,11 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
               </div>
             </DialogContent>
           </Dialog>
+          <ReceiptScanDialog
+            accounts={activeAccounts}
+            categories={activeCategories as { id: string; name: string; transaction_type: "income" | "expense"; is_archived: boolean }[]}
+            hasConsent={Boolean(profile?.receipt_scanning_consent_at)}
+          />
           <Dialog>
             <DialogTrigger asChild><Button><Plus data-icon="inline-start" />Add transaction</Button></DialogTrigger>
             <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-4xl">

@@ -59,6 +59,23 @@ export async function updateInsightsConsent(formData: FormData) {
   revalidatePath("/", "layout");
 }
 
+export async function updateReceiptScanningConsent(formData: FormData) {
+  const enabled = z.enum(["true", "false"]).parse(formData.get("enabled")) === "true";
+  const { supabase, userId } = await getUserId();
+  const { error } = await supabase
+    .from("profiles")
+    .update({ receipt_scanning_consent_at: enabled ? new Date().toISOString() : null })
+    .eq("id", userId);
+  if (error) {
+    if (/receipt_scanning_consent_at/i.test(error.message)) {
+      throw new Error("Receipt scanning needs its database migration. Apply 20260825090000_receipt_scanning_consent.sql in Supabase, then try again.");
+    }
+    throw new Error(error.message);
+  }
+  revalidatePath("/settings");
+  revalidatePath("/transactions");
+}
+
 const onboardingSchema = z.object({
   displayName: z.string().trim().min(1).max(100),
   defaultCurrency: z.string().trim().length(3).transform((value) => value.toUpperCase()),
