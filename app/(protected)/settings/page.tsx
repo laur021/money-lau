@@ -1,6 +1,7 @@
 import { DeleteAccountDialog } from "@/components/settings/delete-account-dialog";
 import { PageHeader } from "@/components/layout/page-header";
 import { InsightsConsentControl } from "@/components/settings/insights-consent-control";
+import { ReceiptScanningConsentControl } from "@/components/settings/receipt-scanning-consent-control";
 import { ThemePreference } from "@/components/settings/theme-preference";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { updatePreferences } from "@/features/settings/actions";
 import { createClient } from "@/lib/supabase/server";
-import { Settings2, ShieldAlert, UserRound } from "lucide-react";
+import { ScanLine, Settings2, ShieldAlert, UserRound } from "lucide-react";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -27,7 +28,7 @@ export default async function SettingsPage() {
     supabase
       .from("profiles")
       .select(
-        "display_name,avatar_url,default_currency,date_format,timezone,week_starts_on,theme,default_dashboard_period,number_format,show_archived_accounts,show_archived_categories,deletion_requested_at,ai_insights_consent_at"
+        "display_name,avatar_url,default_currency,date_format,timezone,week_starts_on,theme,default_dashboard_period,number_format,show_archived_accounts,show_archived_categories,deletion_requested_at,ai_insights_consent_at,receipt_scanning_consent_at"
       )
       .single(),
     supabase.auth.getUser(),
@@ -46,6 +47,7 @@ export default async function SettingsPage() {
     show_archived_categories: false,
     deletion_requested_at: null,
     ai_insights_consent_at: null,
+    receipt_scanning_consent_at: null,
   };
   const initials = String(defaults.display_name || authData.user?.email || "ML")
     .split(/[\s@]+/)
@@ -204,6 +206,21 @@ export default async function SettingsPage() {
               </Button>
             </FieldGroup>
           </ActionFeedbackForm>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ScanLine />
+            Receipt scanning
+          </CardTitle>
+          <CardDescription>
+            Control whether MoneyLau may send selected receipt images to OCR.space for one-time text extraction.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ReceiptScanningConsentControl defaultEnabled={Boolean(defaults.receipt_scanning_consent_at)} />
         </CardContent>
       </Card>
 
