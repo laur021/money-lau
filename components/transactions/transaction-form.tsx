@@ -75,8 +75,7 @@ export function TransactionForm({
       (!category.is_archived || category.id === initialValue?.category_id)
   );
   const needsCategory = transactionType !== "transfer";
-  const receiptCurrencyMismatch = Boolean(receiptDraft?.currency && sourceAccount?.currency !== receiptDraft.currency);
-  const canSubmit = Boolean(sourceAccount && (!needsCategory || matchingCategories.length) && !receiptCurrencyMismatch);
+  const canSubmit = Boolean(sourceAccount && (!needsCategory || matchingCategories.length));
   const prefix = initialValue ? `transaction-${initialValue.id}` : "new-transaction";
 
   return (
@@ -92,14 +91,6 @@ export function TransactionForm({
           <AlertDescription>
             Receipt details are a draft only. Confirm the account, category, amount, and date before saving.
             {receiptDraft.tax !== null ? ` Detected tax: ${receiptDraft.tax.toFixed(2)}.` : ""}
-          </AlertDescription>
-        </Alert>
-      ) : null}
-      {receiptCurrencyMismatch ? (
-        <Alert variant="destructive">
-          <AlertTitle>Select an account in {receiptDraft?.currency}</AlertTitle>
-          <AlertDescription>
-            The scanned receipt is in {receiptDraft?.currency}, but the selected account is in {sourceAccount?.currency ?? "another currency"}. Saving is disabled until they match.
           </AlertDescription>
         </Alert>
       ) : null}
@@ -140,6 +131,9 @@ export function TransactionForm({
               <NativeSelectOption value="">No active accounts</NativeSelectOption>
             )}
           </NativeSelect>
+          {receiptDraft ? (
+            <FieldDescription>The currency updates to match the selected account.</FieldDescription>
+          ) : null}
         </Field>
         {transactionType === "transfer" ? (
           <Field>

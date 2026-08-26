@@ -33,13 +33,16 @@ export function ReceiptItemImportForm({
   onSaved?: () => void;
   receipt: ReceiptDraft;
 }) {
-  const availableAccounts = accounts.filter(
-    (account) => !account.is_archived && (!receipt.currency || account.currency === receipt.currency),
-  );
+  const availableAccounts = accounts.filter((account) => !account.is_archived);
   const availableCategories = categories.filter(
     (category) => category.transaction_type === "expense" && !category.is_archived,
   );
-  const [accountId, setAccountId] = useState(availableAccounts[0]?.id ?? "");
+  const [accountId, setAccountId] = useState(
+    () =>
+      availableAccounts.find((account) => account.currency === receipt.currency)?.id ??
+      availableAccounts[0]?.id ??
+      "",
+  );
   const [categoryId, setCategoryId] = useState(
     availableCategories.some((category) => category.id === receipt.categoryId) ? receipt.categoryId ?? "" : "",
   );
@@ -75,7 +78,9 @@ export function ReceiptItemImportForm({
               <NativeSelectOption key={account.id} value={account.id}>{account.name} ({account.currency})</NativeSelectOption>
             ))}
           </NativeSelect>
-          {!availableAccounts.length ? <FieldDescription>No active account matches this receipt&apos;s currency.</FieldDescription> : null}
+          <FieldDescription>
+            The currency updates to match the selected account.
+          </FieldDescription>
         </Field>
         <Field>
           <FieldLabel htmlFor="receipt-items-category">Category</FieldLabel>
