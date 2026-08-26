@@ -73,18 +73,19 @@ export function TransactionForm({
   onSaved?: () => void;
   receiptDraft?: ReceiptTransactionDraft;
 }) {
-  const receiptAccount = receiptDraft?.currency
-    ? accounts.find((account) => !account.is_archived && account.currency === receiptDraft.currency)
-    : undefined;
   const [transactionType, setTransactionType] = useState<"income" | "expense" | "transfer">(
     initialValue?.transaction_type ?? "expense",
   );
-  const [accountId, setAccountId] = useState(initialValue?.account_id ?? receiptAccount?.id ?? accounts[0]?.id ?? "");
+  const [accountId, setAccountId] = useState(
+    initialValue?.account_id ?? (receiptDraft ? "" : accounts[0]?.id ?? ""),
+  );
+  const [currency, setCurrency] = useState(
+    initialValue?.currency ?? receiptDraft?.currency ?? accounts[0]?.currency ?? "",
+  );
   const sourceAccount = useMemo(
     () => accounts.find((account) => account.id === accountId),
     [accountId, accounts]
   );
-  const availableCurrencies = [...new Set(accounts.filter((account) => !account.is_archived).map((account) => account.currency))];
   const matchingAccounts = accounts.filter(
     (account) =>
       account.currency === sourceAccount?.currency &&
@@ -96,7 +97,15 @@ export function TransactionForm({
       (!category.is_archived || category.id === initialValue?.category_id)
   );
   const needsCategory = transactionType !== "transfer";
-  const canSubmit = Boolean(sourceAccount && (!needsCategory || matchingCategories.length));
+  const [categoryId, setCategoryId] = useState(
+    initialValue?.category_id ?? (receiptDraft ? "" : matchingCategories[0]?.id ?? ""),
+  );
+  const currencyMatchesAccount = Boolean(
+    sourceAccount && currency.trim().toUpperCase() === sourceAccount.currency,
+  );
+  const canSubmit = Boolean(
+    sourceAccount && currencyMatchesAccount && (!needsCategory || (matchingCategories.length && categoryId)),
+  );
   const prefix = initialValue ? `transaction-${initialValue.id}` : "new-transaction";
 
   return (
@@ -138,7 +147,13 @@ export function TransactionForm({
             className="w-full"
             id={`${prefix}-source`}
             name="accountId"
-            onChange={(event) => setAccountId(event.target.value)}
+            onChange={(event) => {
+              const nextAccountId = event.target.value;
+              setAccountId(nextAccountId);
+              if (!receiptDraft) {
+                setCurrency(accounts.find((account) => account.id === nextAccountId)?.currency ?? "");
+              }
+            }}
             required
             value={accountId}
           >
@@ -153,7 +168,7 @@ export function TransactionForm({
             )}
           </NativeSelect>
           {receiptDraft ? (
-            <FieldDescription>The currency updates to match the selected account.</FieldDescription>
+            <FieldDescription>Select the account manually. It must match the final transaction currency.</FieldDescription>
           ) : null}
         </Field>
         {transactionType === "transfer" ? (
@@ -186,10 +201,11 @@ export function TransactionForm({
             <FieldLabel htmlFor={`${prefix}-category`}>Category</FieldLabel>
             <NativeSelect
               className="w-full"
-              defaultValue={initialValue?.category_id ?? receiptDraft?.categoryId ?? (receiptDraft ? "" : matchingCategories[0]?.id ?? "")}
               id={`${prefix}-category`}
               name="categoryId"
+              onChange={(event) => setCategoryId(event.target.value)}
               required
+              value={categoryId}
             >
               {matchingCategories.length ? (
                 <>
@@ -221,24 +237,18 @@ export function TransactionForm({
         </Field>
         <Field>
           <FieldLabel htmlFor={`${prefix}-currency`}>Currency</FieldLabel>
-          <NativeSelect
-            className="w-full"
+          <Input
             id={`${prefix}-currency`}
             name="currency"
-            onChange={(event) => {
-              const matchingAccount = accounts.find(
-                (account) => !account.is_archived && account.currency === event.target.value,
-              );
-              if (matchingAccount) setAccountId(matchingAccount.id);
-            }}
+            maxLength={3}
+            onChange={(event) => setCurrency(event.target.value.toUpperCase())}
+            placeholder="PHP"
             required
-            value={sourceAccount?.currency ?? initialValue?.currency ?? ""}
-          >
-            <NativeSelectOption disabled value="">Select currency</NativeSelectOption>
-            {availableCurrencies.map((currency) => (
-              <NativeSelectOption key={currency} value={currency}>{currency}</NativeSelectOption>
-            ))}
-          </NativeSelect>
+            value={currency}
+          />
+          {sourceAccount && !currencyMatchesAccount ? (
+            <FieldDescription>Use {sourceAccount.currency} for the selected account.</FieldDescription>
+          ) : null}
         </Field>
         <Field>
           <FieldLabel htmlFor={`${prefix}-date`}>Transaction date</FieldLabel>

@@ -51,21 +51,17 @@ export function ReceiptItemImportForm({
   const availableCategories = categories.filter(
     (category) => category.transaction_type === "expense" && !category.is_archived,
   );
-  const [accountId, setAccountId] = useState(
-    () =>
-      availableAccounts.find((account) => account.currency === receipt.currency)?.id ??
-      availableAccounts[0]?.id ??
-      "",
-  );
-  const [categoryId, setCategoryId] = useState(
-    availableCategories.some((category) => category.id === receipt.categoryId) ? receipt.categoryId ?? "" : "",
-  );
+  const [accountId, setAccountId] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [currency, setCurrency] = useState(receipt.currency ?? "");
   const [items, setItems] = useState(() =>
     receipt.items.map((item, index) => ({ id: index, item })),
   );
   const selectedAccount = availableAccounts.find((account) => account.id === accountId);
-  const availableCurrencies = [...new Set(availableAccounts.map((account) => account.currency))];
-  const canSubmit = Boolean(accountId && categoryId && selectedAccount && items.length);
+  const currencyMatchesAccount = Boolean(
+    selectedAccount && currency.trim().toUpperCase() === selectedAccount.currency,
+  );
+  const canSubmit = Boolean(accountId && categoryId && currencyMatchesAccount && items.length);
 
   function removeItem(itemId: number) {
     setItems((currentItems) => {
@@ -94,7 +90,7 @@ export function ReceiptItemImportForm({
             ))}
           </NativeSelect>
           <FieldDescription>
-            The currency updates to match the selected account.
+            Select the account manually. It must match the final transaction currency.
           </FieldDescription>
         </Field>
         <Field>
@@ -132,24 +128,20 @@ export function ReceiptItemImportForm({
         </Field>
         <Field>
           <FieldLabel htmlFor="receipt-items-currency">Currency</FieldLabel>
-          <NativeSelect
-            className="w-full"
+          <Input
             id="receipt-items-currency"
             name="currency"
-            onChange={(event) => {
-              const matchingAccount = availableAccounts.find(
-                (account) => account.currency === event.target.value,
-              );
-              if (matchingAccount) setAccountId(matchingAccount.id);
-            }}
+            maxLength={3}
+            onChange={(event) => setCurrency(event.target.value.toUpperCase())}
+            placeholder="PHP"
             required
-            value={selectedAccount?.currency ?? ""}
-          >
-            <NativeSelectOption disabled value="">Select currency</NativeSelectOption>
-            {availableCurrencies.map((currency) => (
-              <NativeSelectOption key={currency} value={currency}>{currency}</NativeSelectOption>
-            ))}
-          </NativeSelect>
+            value={currency}
+          />
+          {selectedAccount && !currencyMatchesAccount ? (
+            <FieldDescription>
+              Use {selectedAccount.currency} for the selected account.
+            </FieldDescription>
+          ) : null}
         </Field>
       </FieldGroup>
       <section aria-labelledby="receipt-items-heading" className="mt-5 grid gap-3 rounded-lg border p-4">
