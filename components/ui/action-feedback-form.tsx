@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { useRef, useState } from "react";
+import { createContext, useContext, useRef, useState } from "react";
 import { toast } from "sonner";
 
 type ServerAction = (formData: FormData) => void | Promise<void>;
@@ -13,6 +13,12 @@ type ActionFeedbackFormProps = Omit<React.ComponentProps<"form">, "action"> & {
   pendingMessage?: string;
   successMessage: string;
 };
+
+const ActionFeedbackFormSubmittingContext = createContext(false);
+
+export function useActionFeedbackFormSubmitting() {
+  return useContext(ActionFeedbackFormSubmittingContext);
+}
 
 function messageFromError(error: unknown) {
   if (error instanceof Error && error.message) return error.message;
@@ -84,9 +90,9 @@ export function ActionFeedbackForm({
 
   return (
     <form action={submit} aria-busy={isSubmitting} aria-live="polite" className={cn(className)} {...props}>
-      <fieldset className="contents" disabled={isSubmitting}>
+      <ActionFeedbackFormSubmittingContext.Provider value={isSubmitting}>
         {children}
-      </fieldset>
+      </ActionFeedbackFormSubmittingContext.Provider>
     </form>
   );
 }

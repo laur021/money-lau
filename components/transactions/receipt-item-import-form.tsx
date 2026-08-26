@@ -1,6 +1,9 @@
 "use client";
 
-import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
+import {
+  ActionFeedbackForm,
+  useActionFeedbackFormSubmitting,
+} from "@/components/ui/action-feedback-form";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -19,6 +22,17 @@ type Category = {
   transaction_type: "income" | "expense";
   is_archived?: boolean;
 };
+
+function ReceiptItemsSubmitButton({ canSubmit, itemCount }: { canSubmit: boolean; itemCount: number }) {
+  const isSubmitting = useActionFeedbackFormSubmitting();
+
+  return (
+    <Button className="mt-5" disabled={!canSubmit || isSubmitting} type="submit">
+      <Plus data-icon="inline-start" />
+      Save {itemCount} item{itemCount === 1 ? "" : "s"}
+    </Button>
+  );
+}
 
 export function ReceiptItemImportForm({
   accounts,
@@ -50,6 +64,7 @@ export function ReceiptItemImportForm({
     receipt.items.map((item, index) => ({ id: index, item })),
   );
   const selectedAccount = availableAccounts.find((account) => account.id === accountId);
+  const availableCurrencies = [...new Set(availableAccounts.map((account) => account.currency))];
   const canSubmit = Boolean(accountId && categoryId && selectedAccount && items.length);
 
   function removeItem(itemId: number) {
@@ -117,7 +132,24 @@ export function ReceiptItemImportForm({
         </Field>
         <Field>
           <FieldLabel htmlFor="receipt-items-currency">Currency</FieldLabel>
-          <Input id="receipt-items-currency" name="currency" readOnly value={selectedAccount?.currency ?? receipt.currency ?? ""} />
+          <NativeSelect
+            className="w-full"
+            id="receipt-items-currency"
+            name="currency"
+            onChange={(event) => {
+              const matchingAccount = availableAccounts.find(
+                (account) => account.currency === event.target.value,
+              );
+              if (matchingAccount) setAccountId(matchingAccount.id);
+            }}
+            required
+            value={selectedAccount?.currency ?? ""}
+          >
+            <NativeSelectOption disabled value="">Select currency</NativeSelectOption>
+            {availableCurrencies.map((currency) => (
+              <NativeSelectOption key={currency} value={currency}>{currency}</NativeSelectOption>
+            ))}
+          </NativeSelect>
         </Field>
       </FieldGroup>
       <section aria-labelledby="receipt-items-heading" className="mt-5 grid gap-3 rounded-lg border p-4">
@@ -158,10 +190,7 @@ export function ReceiptItemImportForm({
           </TableBody>
         </Table>
       </section>
-      <Button className="mt-5" disabled={!canSubmit} type="submit">
-        <Plus data-icon="inline-start" />
-        Save {items.length} item{items.length === 1 ? "" : "s"}
-      </Button>
+      <ReceiptItemsSubmitButton canSubmit={canSubmit} itemCount={items.length} />
     </ActionFeedbackForm>
   );
 }

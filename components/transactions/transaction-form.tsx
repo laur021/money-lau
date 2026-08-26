@@ -1,7 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
+import {
+  ActionFeedbackForm,
+  useActionFeedbackFormSubmitting,
+} from "@/components/ui/action-feedback-form";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
@@ -40,6 +43,23 @@ export type ReceiptTransactionDraft = Omit<ReceiptDraft, "categoryId" | "transac
   transactionDate: string | null;
 };
 
+function TransactionSubmitButton({
+  canSubmit,
+  isEditing,
+}: {
+  canSubmit: boolean;
+  isEditing: boolean;
+}) {
+  const isSubmitting = useActionFeedbackFormSubmitting();
+
+  return (
+    <Button className="w-fit" disabled={!canSubmit || isSubmitting} type="submit">
+      {isEditing ? <Pencil data-icon="inline-start" /> : <Plus data-icon="inline-start" />}
+      {isEditing ? "Save transaction" : "Add transaction"}
+    </Button>
+  );
+}
+
 export function TransactionForm({
   accounts,
   categories,
@@ -64,6 +84,7 @@ export function TransactionForm({
     () => accounts.find((account) => account.id === accountId),
     [accountId, accounts]
   );
+  const availableCurrencies = [...new Set(accounts.filter((account) => !account.is_archived).map((account) => account.currency))];
   const matchingAccounts = accounts.filter(
     (account) =>
       account.currency === sourceAccount?.currency &&
@@ -200,12 +221,24 @@ export function TransactionForm({
         </Field>
         <Field>
           <FieldLabel htmlFor={`${prefix}-currency`}>Currency</FieldLabel>
-          <Input
+          <NativeSelect
+            className="w-full"
             id={`${prefix}-currency`}
             name="currency"
-            readOnly
+            onChange={(event) => {
+              const matchingAccount = accounts.find(
+                (account) => !account.is_archived && account.currency === event.target.value,
+              );
+              if (matchingAccount) setAccountId(matchingAccount.id);
+            }}
+            required
             value={sourceAccount?.currency ?? initialValue?.currency ?? ""}
-          />
+          >
+            <NativeSelectOption disabled value="">Select currency</NativeSelectOption>
+            {availableCurrencies.map((currency) => (
+              <NativeSelectOption key={currency} value={currency}>{currency}</NativeSelectOption>
+            ))}
+          </NativeSelect>
         </Field>
         <Field>
           <FieldLabel htmlFor={`${prefix}-date`}>Transaction date</FieldLabel>
@@ -266,10 +299,7 @@ export function TransactionForm({
             placeholder="Optional note"
           />
         </Field>
-        <Button className="w-fit" disabled={!canSubmit} type="submit">
-          {initialValue ? <Pencil data-icon="inline-start" /> : <Plus data-icon="inline-start" />}
-          {initialValue ? "Save transaction" : "Add transaction"}
-        </Button>
+        <TransactionSubmitButton canSubmit={canSubmit} isEditing={Boolean(initialValue)} />
       </FieldGroup>
     </ActionFeedbackForm>
   );
