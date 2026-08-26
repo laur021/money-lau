@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 type ServerAction = (formData: FormData) => void | Promise<void>;
@@ -45,8 +46,13 @@ export function ActionFeedbackForm({
   ...props
 }: ActionFeedbackFormProps) {
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
 
   async function submit(formData: FormData) {
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+    setIsSubmitting(true);
     const toastId = toast.loading(pendingMessage);
 
     try {
@@ -70,12 +76,17 @@ export function ActionFeedbackForm({
         id: toastId,
         description: messageFromError(error),
       });
+    } finally {
+      isSubmittingRef.current = false;
+      setIsSubmitting(false);
     }
   }
 
   return (
-    <form action={submit} aria-live="polite" className={cn(className)} {...props}>
-      {children}
+    <form action={submit} aria-busy={isSubmitting} aria-live="polite" className={cn(className)} {...props}>
+      <fieldset className="contents" disabled={isSubmitting}>
+        {children}
+      </fieldset>
     </form>
   );
 }

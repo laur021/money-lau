@@ -44,11 +44,13 @@ export function TransactionForm({
   accounts,
   categories,
   initialValue,
+  onSaved,
   receiptDraft,
 }: {
   accounts: Account[];
   categories: Category[];
   initialValue?: TransactionFormValue;
+  onSaved?: () => void;
   receiptDraft?: ReceiptTransactionDraft;
 }) {
   const receiptAccount = receiptDraft?.currency
@@ -80,6 +82,7 @@ export function TransactionForm({
   return (
     <ActionFeedbackForm
       action={initialValue ? updateTransaction : createTransaction}
+      onSuccess={onSaved}
       successMessage={initialValue ? "Transaction updated" : "Transaction added"}
     >
       {initialValue ? <input name="id" type="hidden" value={initialValue.id} /> : null}

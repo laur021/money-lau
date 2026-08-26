@@ -213,6 +213,11 @@ export function ReceiptScanDialog({
               <ReceiptItemImportForm
                 accounts={accounts}
                 categories={categories}
+                onRemoveItem={() =>
+                  setDraft((currentDraft) =>
+                    currentDraft ? { ...currentDraft, items: [] } : currentDraft,
+                  )
+                }
                 onSaved={() => {
                   setOpen(false);
                   reset();
@@ -220,7 +225,15 @@ export function ReceiptScanDialog({
                 receipt={draft}
               />
             ) : (
-              <TransactionForm accounts={accounts} categories={categories} receiptDraft={draft} />
+              <TransactionForm
+                accounts={accounts}
+                categories={categories}
+                onSaved={() => {
+                  setOpen(false);
+                  reset();
+                }}
+                receiptDraft={draft}
+              />
             )
           ) : (
             <div className="grid gap-4">

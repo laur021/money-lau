@@ -1,7 +1,6 @@
 "use client";
 
 import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -10,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { createReceiptLineItems } from "@/features/transactions/actions";
 import type { ReceiptDraft } from "@/features/receipts/types";
 import { formatAmount, formatMoney } from "@/lib/formatting/money";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 type Account = { id: string; name: string; currency: string; is_archived?: boolean };
@@ -24,11 +23,13 @@ type Category = {
 export function ReceiptItemImportForm({
   accounts,
   categories,
+  onRemoveItem,
   onSaved,
   receipt,
 }: {
   accounts: Account[];
   categories: Category[];
+  onRemoveItem: () => void;
   onSaved?: () => void;
   receipt: ReceiptDraft;
 }) {
@@ -42,11 +43,22 @@ export function ReceiptItemImportForm({
   const [categoryId, setCategoryId] = useState(
     availableCategories.some((category) => category.id === receipt.categoryId) ? receipt.categoryId ?? "" : "",
   );
+  const [items, setItems] = useState(() =>
+    receipt.items.map((item, index) => ({ id: index, item })),
+  );
   const selectedAccount = availableAccounts.find((account) => account.id === accountId);
-  const canSubmit = Boolean(accountId && categoryId && selectedAccount && receipt.items.length);
+  const canSubmit = Boolean(accountId && categoryId && selectedAccount && items.length);
+
+  function removeItem(itemId: number) {
+    setItems((currentItems) => {
+      const nextItems = currentItems.filter((entry) => entry.id !== itemId);
+      if (!nextItems.length) onRemoveItem();
+      return nextItems;
+    });
+  }
 
   return (
-    <ActionFeedbackForm action={createReceiptLineItems} onSuccess={onSaved} pendingMessage="Saving receipt items…" successMessage={`${receipt.items.length} receipt items saved`} className="flex flex-col gap-4">
+    <ActionFeedbackForm action={createReceiptLineItems} onSuccess={onSaved} pendingMessage="Saving receipt items…" successMessage={`${items.length} receipt items saved`} className="flex flex-col gap-4">
       <FieldGroup className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <Field>
           <FieldLabel htmlFor="receipt-items-account">Source account</FieldLabel>
@@ -106,7 +118,7 @@ export function ReceiptItemImportForm({
       <section aria-labelledby="receipt-items-heading" className="mt-5 grid gap-3 rounded-lg border p-4">
         <div>
           <h3 className="font-medium" id="receipt-items-heading">Receipt items</h3>
-          <p className="text-sm text-muted-foreground">Correct an item description or amount before saving.</p>
+          <p className="text-sm text-muted-foreground">Correct an item description or amount, or remove an incorrectly captured item before saving.</p>
         </div>
         <Table>
           <TableHeader>
@@ -115,15 +127,27 @@ export function ReceiptItemImportForm({
               <TableHead className="text-right">Qty</TableHead>
               <TableHead className="text-right">Unit price</TableHead>
               <TableHead className="text-right">Amount to save</TableHead>
+              <TableHead><span className="sr-only">Actions</span></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {receipt.items.map((item, index) => (
-              <TableRow key={`${item.description}-${index}`}>
+            {items.map(({ id, item }) => (
+              <TableRow key={id}>
                 <TableCell className="min-w-44"><Input defaultValue={item.description} name="itemDescription" required /></TableCell>
                 <TableCell className="text-right">{item.quantity === null ? "—" : formatAmount(item.quantity)}</TableCell>
                 <TableCell className="text-right">{item.unitPrice === null ? "—" : formatMoney(item.unitPrice, item.currency ?? receipt.currency ?? "PHP")}</TableCell>
                 <TableCell className="min-w-30"><Input defaultValue={item.totalPrice ?? undefined} min="0.01" name="itemAmount" required step="0.01" type="number" /></TableCell>
+                <TableCell>
+                  <Button
+                    aria-label={`Remove ${item.description || "receipt item"}`}
+                    onClick={() => removeItem(id)}
+                    size="icon-sm"
+                    type="button"
+                    variant="ghost"
+                  >
+                    <Trash2 />
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -131,7 +155,7 @@ export function ReceiptItemImportForm({
       </section>
       <Button className="mt-5" disabled={!canSubmit} type="submit">
         <Plus data-icon="inline-start" />
-        Save {receipt.items.length} item{receipt.items.length === 1 ? "" : "s"}
+        Save {items.length} item{items.length === 1 ? "" : "s"}
       </Button>
     </ActionFeedbackForm>
   );
