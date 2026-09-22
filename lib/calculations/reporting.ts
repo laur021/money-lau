@@ -16,6 +16,8 @@ export type ReportingRow = LedgerRow & {
   } | null;
 };
 
+type ReportingTotalRow = Pick<ReportingRow, "amount" | "currency" | "status" | "transaction_type">;
+
 export type CategoryPortion = {
   id: string;
   name: string;
@@ -34,7 +36,7 @@ const FALLBACK_COLORS = [
   "var(--destructive)",
 ];
 
-function completedForCurrency(rows: ReportingRow[], currency: string) {
+function completedForCurrency<T extends ReportingTotalRow>(rows: T[], currency: string) {
   return rows.filter(
     (row) => row.status === "completed" && row.currency === currency,
   );
@@ -95,7 +97,7 @@ export function monthlyCashFlow(rows: ReportingRow[], currency: string) {
   );
 }
 
-export function reportingTotals(rows: ReportingRow[], currency: string) {
+export function reportingTotals(rows: ReportingTotalRow[], currency: string) {
   return completedForCurrency(rows, currency).reduce(
     (result, row) => {
       if (row.transaction_type === "income") result.income += Number(row.amount);

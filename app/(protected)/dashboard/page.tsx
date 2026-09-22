@@ -27,7 +27,8 @@ import {
   isReportingPeriod,
   reportingDateRange,
 } from "@/lib/calculations/periods";
-import { reportingTotals, type ReportingRow } from "@/lib/calculations/reporting";
+import { reportingTotals } from "@/lib/calculations/reporting";
+import { getWorkspaceData } from "@/lib/data/workspace";
 import { formatMoney } from "@/lib/formatting/money";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -54,19 +55,7 @@ function dueBadge(state: BillDueState) {
 export default async function DashboardPage({ searchParams }: { searchParams: SearchParams }) {
   const parameters = await searchParams;
   const supabase = await createClient();
-  const [{ data: profile }, { data: accounts }, { data: balances }] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("default_currency,default_dashboard_period,week_starts_on")
-      .maybeSingle(),
-    supabase
-      .from("accounts")
-      .select("id,name,institution_name,currency,account_type,include_in_total,is_archived,color")
-      .eq("is_archived", false)
-      .order("display_order")
-      .order("name"),
-    supabase.from("account_balances").select("id,currency,current_balance"),
-  ]);
+  const { profile, accounts } = await getWorkspaceData();
 
   const requestedPeriod = parameterValue(parameters.period);
   const configuredPeriod = profile?.default_dashboard_period ?? "this_month";
@@ -92,9 +81,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
 
   let transactionQuery = supabase
     .from("transactions")
-    .select(
-      "id,transaction_type,account_id,destination_account_id,category_id,amount,currency,status,transaction_date,description,merchant,category:categories!transactions_category_id_fkey(name,color),source_account:accounts!transactions_account_id_fkey(name)",
-    )
+    .select("transaction_type,amount,currency,status")
     .eq("currency", currency)
     .order("transaction_date", { ascending: false })
     .limit(1000);
@@ -105,12 +92,12 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
     transactionQuery = transactionQuery.lte("transaction_date", range.to.toISOString());
   }
 
-  const [{ data: transactions }, billItems] = await Promise.all([
+  const [{ data: balances }, { data: transactions }, billItems] = await Promise.all([
+    supabase.from("account_balances").select("id,currency,current_balance"),
     transactionQuery,
     getBillItems(plannerMonth),
   ]);
-  const rows = (transactions ?? []) as unknown as ReportingRow[];
-  const totals = reportingTotals(rows, currency);
+  const totals = reportingTotals(transactions ?? [], currency);
   const balanceById = new Map(
     (balances ?? []).map((balance) => [balance.id, Number(balance.current_balance)]),
   );

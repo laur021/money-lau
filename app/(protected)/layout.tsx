@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
+import { getWorkspaceData } from "@/lib/data/workspace";
 import { createClient } from "@/lib/supabase/server";
 import { hasSupabaseConfig, readPublicEnv } from "@/lib/validation/env";
 
@@ -9,17 +10,7 @@ export default async function ProtectedLayout({ children }: Readonly<{ children:
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   if (!data?.claims?.sub) redirect("/login");
-  const [{ data: profile }, { data: accounts }] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("display_name,avatar_url,default_currency,ai_insights_consent_at")
-      .eq("id", data.claims.sub)
-      .maybeSingle(),
-    supabase
-      .from("accounts")
-      .select("currency")
-      .eq("is_archived", false),
-  ]);
+  const { profile, accounts } = await getWorkspaceData();
   const defaultCurrency = profile?.default_currency ?? "PHP";
   const insightCurrencies = Array.from(
     new Set([defaultCurrency, ...(accounts ?? []).map((account) => account.currency)]),

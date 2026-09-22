@@ -154,7 +154,7 @@ export function AppShell({
                   return (
                     <SidebarMenuItem key={label}>
                       <SidebarMenuButton asChild isActive={active} tooltip={label}>
-                        <Link aria-current={active ? "page" : undefined} href={href}>
+                        <Link aria-current={active ? "page" : undefined} href={href} prefetch={href === "/dashboard"}>
                           <Icon aria-hidden="true" />
                           <span>{label}</span>
                         </Link>
@@ -252,6 +252,7 @@ export function AppShell({
               )}
               href={href}
               key={label}
+              prefetch={href === "/dashboard"}
             >
               <Icon aria-hidden="true" className="size-4" />
               <span className="w-full truncate text-center">{label}</span>
