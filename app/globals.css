@@ -164,19 +164,14 @@
 }
 
 .moneylau-date-modal {
-  --height: min(82dvh, 42rem);
-  --border-radius: 1.25rem 1.25rem 0 0;
+  --width: calc(100% - 2rem);
+  --max-width: 22rem;
+  --height: min(31rem, calc(100% - 2rem));
+  --max-height: calc(100dvh - 2rem);
+  --border-radius: 1rem;
   --backdrop-opacity: 0.32;
 }
 
 .moneylau-date-modal ion-datetime {
   margin: 0 auto;
-}
-
-@media (min-width: 768px) {
-  .moneylau-date-modal {
-    --width: 22rem;
-    --height: 31rem;
-    --border-radius: 1rem;
-  }
 }

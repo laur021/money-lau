@@ -4,7 +4,7 @@ import { IonButton, IonButtons, IonContent, IonDatetime, IonHeader, IonModal, Io
 import { calendarOutline } from "ionicons/icons";
 import { IonIcon } from "@ionic/react";
 import { format, parse } from "date-fns";
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import { cn } from "@/lib/utils";
 
 type DateValue = string | null | undefined;
@@ -59,16 +59,7 @@ export function IonicDateInput({
   const [internalValue, setInternalValue] = useState(() => normalizedValue(defaultValue, type));
   const [draftValue, setDraftValue] = useState("");
   const [open, setOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(true);
   const selectedValue = normalizedValue(controlled ? value : internalValue, type);
-
-  useEffect(() => {
-    const query = window.matchMedia("(max-width: 767px)");
-    const update = () => setIsMobile(query.matches);
-    update();
-    query.addEventListener("change", update);
-    return () => query.removeEventListener("change", update);
-  }, []);
 
   const openPicker = () => {
     setDraftValue(selectedValue || normalizedValue(defaultValue, type));
@@ -103,11 +94,7 @@ export function IonicDateInput({
       </button>
       {required ? <span className="sr-only" id={`${inputId}-required`}>Required</span> : null}
       <IonModal
-        backdropBreakpoint={isMobile ? 0.5 : 0}
-        breakpoints={isMobile ? [0, 0.6, 0.82] : undefined}
         className="moneylau-date-modal"
-        handle={isMobile}
-        initialBreakpoint={isMobile ? 0.82 : undefined}
         isOpen={open}
         onDidDismiss={() => setOpen(false)}
       >
