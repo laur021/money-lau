@@ -1,11 +1,11 @@
 "use client";
 
-import { IonApp, setupIonicReact } from "@ionic/react";
+import { setupIonicReact } from "@ionic/react";
 
-setupIonicReact({
-  mode: "ios",
-});
+// Register Ionic web components without allowing IonApp to take ownership of
+// the existing Next.js document, scrolling, or desktop application shell.
+setupIonicReact();
 
-export function IonicProvider({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <IonApp>{children}</IonApp>;
+export function IonicProvider() {
+  return null;
 }

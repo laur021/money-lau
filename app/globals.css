@@ -163,10 +163,6 @@
   }
 }
 
-ion-app {
-  background: var(--background);
-}
-
 .moneylau-date-modal {
   --height: min(82dvh, 42rem);
   --border-radius: 1.25rem 1.25rem 0 0;

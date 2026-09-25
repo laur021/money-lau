@@ -46,15 +46,14 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" suppressHydrationWarning className={cn("font-sans", roboto.variable)}>
       <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased`}>
-        <IonicProvider>
-          <TooltipProvider>
-            <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-              {children}
-              <Toaster position="top-center" richColors visibleToasts={3} />
-              <PwaRegister />
-            </ThemeProvider>
-          </TooltipProvider>
-        </IonicProvider>
+        <IonicProvider />
+        <TooltipProvider>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+            {children}
+            <Toaster position="top-center" richColors visibleToasts={3} />
+            <PwaRegister />
+          </ThemeProvider>
+        </TooltipProvider>
       </body>
     </html>
   );
