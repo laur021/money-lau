@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { IonicDateInput } from "@/components/ionic/ionic-date-input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { postBillPayment } from "@/features/bills/actions";
 import type { BillAccountOption, BillCategoryOption, BillItem } from "@/features/bills/types";
@@ -74,12 +75,11 @@ export function BillPaymentDialog({
             </Field>
             <Field>
               <FieldLabel htmlFor={`bill-payment-date-${item.id}`}>Payment date</FieldLabel>
-              <Input
+              <IonicDateInput
                 defaultValue={today()}
                 id={`bill-payment-date-${item.id}`}
                 name="paymentDate"
                 required
-                type="date"
               />
             </Field>
             <Field>

@@ -10,6 +10,7 @@ import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { IonicDateInput } from "@/components/ionic/ionic-date-input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { saveSalaryRun } from "@/features/salary/actions";
@@ -259,34 +260,31 @@ export function SalaryRunForm({
         </Field>
         <Field>
           <FieldLabel htmlFor="salary-run-payment-date">Payment date</FieldLabel>
-          <Input
+          <IonicDateInput
             id="salary-run-payment-date"
             name="paymentDate"
-            onChange={(event) => changePaymentDate(event.target.value)}
+            onValueChange={changePaymentDate}
             required
-            type="date"
             value={paymentDate}
           />
         </Field>
         <Field>
           <FieldLabel htmlFor="salary-run-period-start">Pay period start</FieldLabel>
-          <Input
+          <IonicDateInput
             id="salary-run-period-start"
             name="payPeriodStart"
-            onChange={(event) => setPayPeriodStart(event.target.value)}
+            onValueChange={setPayPeriodStart}
             required
-            type="date"
             value={payPeriodStart}
           />
         </Field>
         <Field>
           <FieldLabel htmlFor="salary-run-period-end">Pay period end</FieldLabel>
-          <Input
+          <IonicDateInput
             id="salary-run-period-end"
             name="payPeriodEnd"
-            onChange={(event) => setPayPeriodEnd(event.target.value)}
+            onValueChange={setPayPeriodEnd}
             required
-            type="date"
             value={payPeriodEnd}
           />
           <FieldDescription>You can adjust the suggested period before saving.</FieldDescription>

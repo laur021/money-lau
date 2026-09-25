@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { IonicDateInput } from "@/components/ionic/ionic-date-input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { saveBillItem } from "@/features/bills/actions";
@@ -69,17 +70,16 @@ export function BillItemForm({
         </Field>
         <Field>
           <FieldLabel htmlFor={`bill-item-due-${item?.id ?? "new"}`}>Due date</FieldLabel>
-          <Input
+          <IonicDateInput
             defaultValue={item?.dueDate ?? dueDateForMonth(plannerMonth, 1)}
             id={`bill-item-due-${item?.id ?? "new"}`}
             name="dueDate"
             required
-            type="date"
           />
         </Field>
         <Field>
           <FieldLabel htmlFor={`bill-item-coverage-${item?.id ?? "new"}`}>Covered month</FieldLabel>
-          <Input
+          <IonicDateInput
             defaultValue={item?.coverageMonth.slice(0, 7) ?? plannerMonth}
             id={`bill-item-coverage-${item?.id ?? "new"}`}
             name="coverageMonth"

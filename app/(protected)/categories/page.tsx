@@ -35,6 +35,26 @@ import { moveCategory, setCategoryArchived } from "@/features/accounts/actions";
 import { createClient } from "@/lib/supabase/server";
 import { ArchiveRestore, ArrowDown, ArrowUp, FolderTree, Plus } from "lucide-react";
 
+function CategoryActions({ category, parents }: { category: CategoryRecord; parents: CategoryRecord[] }) {
+  return (
+    <div className="flex flex-wrap justify-end gap-1">
+      <ActionFeedbackForm action={moveCategory} pendingMessage="Reordering category…" successMessage="Category order updated">
+        <input name="id" type="hidden" value={category.id} /><input name="displayOrder" type="hidden" value={category.display_order} /><input name="direction" type="hidden" value="up" />
+        <Button aria-label={`Move ${category.name} up`} size="icon-sm" type="submit" variant="ghost"><ArrowUp /></Button>
+      </ActionFeedbackForm>
+      <ActionFeedbackForm action={moveCategory} pendingMessage="Reordering category…" successMessage="Category order updated">
+        <input name="id" type="hidden" value={category.id} /><input name="displayOrder" type="hidden" value={category.display_order} /><input name="direction" type="hidden" value="down" />
+        <Button aria-label={`Move ${category.name} down`} size="icon-sm" type="submit" variant="ghost"><ArrowDown /></Button>
+      </ActionFeedbackForm>
+      <CategoryEditDialog category={category} parents={parents} />
+      <ActionFeedbackForm action={setCategoryArchived} successMessage={category.is_archived ? "Category restored" : "Category archived"}>
+        <input name="id" type="hidden" value={category.id} /><input name="archived" type="hidden" value={String(!category.is_archived)} />
+        <Button size="sm" type="submit" variant="outline"><ArchiveRestore data-icon="inline-start" />{category.is_archived ? "Restore" : "Archive"}</Button>
+      </ActionFeedbackForm>
+    </div>
+  );
+}
+
 export default async function CategoriesPage() {
   const supabase = await createClient();
   const [{ data: categories }, { data: profile }] = await Promise.all([
@@ -92,7 +112,20 @@ export default async function CategoriesPage() {
         </CardHeader>
         <CardContent>
           {visibleCategories.length ? (
-            <Table>
+            <>
+              <div className="flex flex-col gap-3 md:hidden">
+                {visibleCategories.map((category) => {
+                  const parent = parents.find((candidate) => candidate.id === category.parent_category_id);
+                  return (
+                    <article className="rounded-xl border bg-card p-4 shadow-sm" key={category.id}>
+                      <div className="flex items-start justify-between gap-3"><div><h2 className="font-semibold">{category.name}</h2>{parent ? <p className="text-sm text-muted-foreground">Under {parent.name}</p> : null}</div><Badge variant={category.transaction_type === "income" ? "success" : "destructive"}>{category.transaction_type}</Badge></div>
+                      <div className="mt-3 flex flex-wrap gap-2 text-sm"><span>{category.is_system ? "Default" : category.parent_category_id ? "Subcategory" : "Custom"}</span><Badge variant={category.is_archived ? "outline" : "success"}>{category.is_archived ? "Archived" : "Active"}</Badge></div>
+                      <div className="mt-3 border-t pt-2"><CategoryActions category={category} parents={parents} /></div>
+                    </article>
+                  );
+                })}
+              </div>
+            <Table className="hidden md:table">
               <TableHeader>
                 <TableRow>
                   <TableHead>Category</TableHead>
@@ -135,61 +168,14 @@ export default async function CategoriesPage() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <div className="flex justify-end gap-1">
-                          <ActionFeedbackForm action={moveCategory} pendingMessage="Reordering category…" successMessage="Category order updated">
-                            <input name="id" type="hidden" value={category.id} />
-                            <input
-                              name="displayOrder"
-                              type="hidden"
-                              value={category.display_order}
-                            />
-                            <input name="direction" type="hidden" value="up" />
-                            <Button
-                              aria-label={`Move ${category.name} up`}
-                              size="icon-sm"
-                              type="submit"
-                              variant="ghost"
-                            >
-                              <ArrowUp />
-                            </Button>
-                          </ActionFeedbackForm>
-                          <ActionFeedbackForm action={moveCategory} pendingMessage="Reordering category…" successMessage="Category order updated">
-                            <input name="id" type="hidden" value={category.id} />
-                            <input
-                              name="displayOrder"
-                              type="hidden"
-                              value={category.display_order}
-                            />
-                            <input name="direction" type="hidden" value="down" />
-                            <Button
-                              aria-label={`Move ${category.name} down`}
-                              size="icon-sm"
-                              type="submit"
-                              variant="ghost"
-                            >
-                              <ArrowDown />
-                            </Button>
-                          </ActionFeedbackForm>
-                          <CategoryEditDialog category={category} parents={parents} />
-                          <ActionFeedbackForm action={setCategoryArchived} successMessage={category.is_archived ? "Category restored" : "Category archived"}>
-                            <input name="id" type="hidden" value={category.id} />
-                            <input
-                              name="archived"
-                              type="hidden"
-                              value={String(!category.is_archived)}
-                            />
-                            <Button size="sm" type="submit" variant="outline">
-                              <ArchiveRestore data-icon="inline-start" />
-                              {category.is_archived ? "Restore" : "Archive"}
-                            </Button>
-                          </ActionFeedbackForm>
-                        </div>
+                        <CategoryActions category={category} parents={parents} />
                       </TableCell>
                     </TableRow>
                   );
                 })}
               </TableBody>
             </Table>
+            </>
           ) : (
             <Empty>
               <EmptyHeader>

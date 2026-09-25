@@ -215,8 +215,8 @@ export function AppShell({
         <SidebarRail />
       </Sidebar>
 
-      <SidebarInset className="pb-24 md:pb-0">
-        <header className="flex min-h-16 items-center justify-between border-b bg-card px-4 py-3 sm:px-6">
+      <SidebarInset className="pb-[calc(env(safe-area-inset-bottom)+6rem)] md:pb-0">
+        <header className="flex min-h-16 items-center justify-between border-b bg-card px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] pb-3 sm:px-6 sm:py-3">
           <div className="flex items-center gap-2">
             <SidebarTrigger className="hidden md:inline-flex" />
             <div className="md:hidden">

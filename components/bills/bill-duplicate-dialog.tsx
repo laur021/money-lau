@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { IonicDateInput } from "@/components/ionic/ionic-date-input";
 import { duplicateBillItem } from "@/features/bills/actions";
 import type { BillItem } from "@/features/bills/types";
 import { addMonths } from "@/lib/calculations/bills";
@@ -46,7 +47,7 @@ export function BillDuplicateDialog({ item }: { item: BillItem }) {
             </Field>
             <Field>
               <FieldLabel htmlFor={`bill-duplicate-month-${item.id}`}>Planner month</FieldLabel>
-              <Input
+              <IonicDateInput
                 defaultValue={addMonths(item.plannerMonth.slice(0, 7), 1)}
                 id={`bill-duplicate-month-${item.id}`}
                 name="plannerMonth"

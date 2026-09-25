@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { IonicDateInput } from "@/components/ionic/ionic-date-input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { createTransaction, updateTransaction } from "@/features/transactions/actions";
 import type { ReceiptDraft } from "@/features/receipts/types";
@@ -212,11 +213,11 @@ export function TransactionForm({
         </Field>
         <Field>
           <FieldLabel htmlFor={`${prefix}-date`}>Transaction date</FieldLabel>
-          <Input
+          <IonicDateInput
             defaultValue={initialValue?.transaction_date.slice(0, 10) ?? receiptDraft?.transactionDate ?? undefined}
             id={`${prefix}-date`}
             name="transactionDate"
-            type="date"
+            required
           />
         </Field>
         <Field>

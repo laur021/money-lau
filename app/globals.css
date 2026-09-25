@@ -89,6 +89,17 @@
   --sidebar-accent-foreground: #065f46;
   --sidebar-border: #e2e8f0;
   --sidebar-ring: #047857;
+  --ion-background-color: var(--background);
+  --ion-text-color: var(--foreground);
+  --ion-color-primary: #047857;
+  --ion-color-primary-rgb: 4, 120, 87;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #046a4d;
+  --ion-color-primary-tint: #1d8668;
+  --ion-color-success: #15803d;
+  --ion-color-warning: #b45309;
+  --ion-color-danger: #dc2626;
 }
 
 .dark {
@@ -127,6 +138,17 @@
   --sidebar-accent-foreground: #a7f3d0;
   --sidebar-border: #334155;
   --sidebar-ring: #34d399;
+  --ion-background-color: var(--background);
+  --ion-text-color: var(--foreground);
+  --ion-color-primary: #34d399;
+  --ion-color-primary-rgb: 52, 211, 153;
+  --ion-color-primary-contrast: #052e2b;
+  --ion-color-primary-contrast-rgb: 5, 46, 43;
+  --ion-color-primary-shade: #2eb98a;
+  --ion-color-primary-tint: #49dca3;
+  --ion-color-success: #4ade80;
+  --ion-color-warning: #fbbf24;
+  --ion-color-danger: #f87171;
 }
 
 @layer base {
@@ -138,5 +160,27 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+ion-app {
+  background: var(--background);
+}
+
+.moneylau-date-modal {
+  --height: min(82dvh, 42rem);
+  --border-radius: 1.25rem 1.25rem 0 0;
+  --backdrop-opacity: 0.32;
+}
+
+.moneylau-date-modal ion-datetime {
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .moneylau-date-modal {
+    --width: 22rem;
+    --height: 31rem;
+    --border-radius: 1rem;
   }
 }

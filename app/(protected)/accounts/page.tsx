@@ -37,6 +37,31 @@ import { formatMoney } from "@/lib/formatting/money";
 import { createClient } from "@/lib/supabase/server";
 import { ArchiveRestore, ArrowDown, ArrowUp, Plus, WalletCards } from "lucide-react";
 
+function AccountActions({ account }: { account: AccountRecord }) {
+  return (
+    <div className="flex flex-wrap justify-end gap-1">
+      <ActionFeedbackForm action={moveAccount} pendingMessage="Reordering account…" successMessage="Account order updated">
+        <input name="id" type="hidden" value={account.id} />
+        <input name="displayOrder" type="hidden" value={account.display_order} />
+        <input name="direction" type="hidden" value="up" />
+        <Button aria-label={`Move ${account.name} up`} size="icon-sm" type="submit" variant="ghost"><ArrowUp /></Button>
+      </ActionFeedbackForm>
+      <ActionFeedbackForm action={moveAccount} pendingMessage="Reordering account…" successMessage="Account order updated">
+        <input name="id" type="hidden" value={account.id} />
+        <input name="displayOrder" type="hidden" value={account.display_order} />
+        <input name="direction" type="hidden" value="down" />
+        <Button aria-label={`Move ${account.name} down`} size="icon-sm" type="submit" variant="ghost"><ArrowDown /></Button>
+      </ActionFeedbackForm>
+      <AccountEditDialog account={account} />
+      <ActionFeedbackForm action={setAccountArchived} successMessage={account.is_archived ? "Account restored" : "Account archived"}>
+        <input name="id" type="hidden" value={account.id} />
+        <input name="archived" type="hidden" value={String(!account.is_archived)} />
+        <Button size="sm" type="submit" variant="outline"><ArchiveRestore data-icon="inline-start" />{account.is_archived ? "Restore" : "Archive"}</Button>
+      </ActionFeedbackForm>
+    </div>
+  );
+}
+
 export default async function AccountsPage() {
   const supabase = await createClient();
   const [{ data: accounts }, { data: balances }, { data: profile }] = await Promise.all([
@@ -95,7 +120,20 @@ export default async function AccountsPage() {
         </CardHeader>
         <CardContent>
           {visibleAccounts.length ? (
-            <Table>
+            <>
+              <div className="flex flex-col gap-3 md:hidden">
+                {visibleAccounts.map((account) => (
+                  <article className="rounded-xl border bg-card p-4 shadow-sm" key={account.id}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0"><h2 className="truncate font-semibold">{account.name}</h2><p className="truncate text-sm text-muted-foreground">{account.institution_name || "No institution"}{account.account_identifier ? ` · ending ${account.account_identifier}` : ""}</p></div>
+                      <PrivateFinancialValue className="shrink-0 font-semibold tabular-nums">{formatMoney(balanceById.get(account.id) ?? account.opening_balance, account.currency)}</PrivateFinancialValue>
+                    </div>
+                    <div className="mt-3 flex flex-wrap items-center gap-2 text-sm"><span className="capitalize">{account.account_type.replace("_", " ")}</span><Badge variant={account.is_archived ? "outline" : "secondary"}>{account.is_archived ? "Archived" : "Active"}</Badge>{!account.include_in_total ? <Badge variant="outline">Excluded from totals</Badge> : null}</div>
+                    <div className="mt-3 border-t pt-2"><AccountActions account={account} /></div>
+                  </article>
+                ))}
+              </div>
+            <Table className="hidden md:table">
               <TableHeader>
                 <TableRow>
                   <TableHead>Account</TableHead>
@@ -141,52 +179,13 @@ export default async function AccountsPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex justify-end gap-1">
-                        <ActionFeedbackForm action={moveAccount} pendingMessage="Reordering account…" successMessage="Account order updated">
-                          <input name="id" type="hidden" value={account.id} />
-                          <input name="displayOrder" type="hidden" value={account.display_order} />
-                          <input name="direction" type="hidden" value="up" />
-                          <Button
-                            aria-label={`Move ${account.name} up`}
-                            size="icon-sm"
-                            type="submit"
-                            variant="ghost"
-                          >
-                            <ArrowUp />
-                          </Button>
-                        </ActionFeedbackForm>
-                        <ActionFeedbackForm action={moveAccount} pendingMessage="Reordering account…" successMessage="Account order updated">
-                          <input name="id" type="hidden" value={account.id} />
-                          <input name="displayOrder" type="hidden" value={account.display_order} />
-                          <input name="direction" type="hidden" value="down" />
-                          <Button
-                            aria-label={`Move ${account.name} down`}
-                            size="icon-sm"
-                            type="submit"
-                            variant="ghost"
-                          >
-                            <ArrowDown />
-                          </Button>
-                        </ActionFeedbackForm>
-                        <AccountEditDialog account={account} />
-                        <ActionFeedbackForm action={setAccountArchived} successMessage={account.is_archived ? "Account restored" : "Account archived"}>
-                          <input name="id" type="hidden" value={account.id} />
-                          <input
-                            name="archived"
-                            type="hidden"
-                            value={String(!account.is_archived)}
-                          />
-                          <Button size="sm" type="submit" variant="outline">
-                            <ArchiveRestore data-icon="inline-start" />
-                            {account.is_archived ? "Restore" : "Archive"}
-                          </Button>
-                        </ActionFeedbackForm>
-                      </div>
+                      <AccountActions account={account} />
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
+            </>
           ) : (
             <Empty>
               <EmptyHeader>

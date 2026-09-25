@@ -31,6 +31,7 @@ import {
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { IonicDateInput } from "@/components/ionic/ionic-date-input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -198,8 +199,8 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
               <Field><FieldLabel htmlFor="filter-account">Account</FieldLabel><NativeSelect className="w-full" defaultValue={account} id="filter-account" name="account"><NativeSelectOption value="">All accounts</NativeSelectOption>{(accounts ?? []).map((item) => <NativeSelectOption key={item.id} value={item.id}>{item.name}</NativeSelectOption>)}</NativeSelect></Field>
               <Field><FieldLabel htmlFor="filter-category">Category</FieldLabel><NativeSelect className="w-full" defaultValue={category} id="filter-category" name="category"><NativeSelectOption value="">All categories</NativeSelectOption>{(categories ?? []).map((item) => <NativeSelectOption key={item.id} value={item.id}>{item.name}</NativeSelectOption>)}</NativeSelect></Field>
               <Field><FieldLabel htmlFor="filter-currency">Currency</FieldLabel><Input defaultValue={currency} id="filter-currency" maxLength={3} name="currency" placeholder="All" /></Field>
-              <Field><FieldLabel htmlFor="filter-from">From</FieldLabel><Input defaultValue={from} id="filter-from" name="from" type="date" /></Field>
-              <Field><FieldLabel htmlFor="filter-to">To</FieldLabel><Input defaultValue={to} id="filter-to" name="to" type="date" /></Field>
+              <Field><FieldLabel htmlFor="filter-from">From</FieldLabel><IonicDateInput defaultValue={from} id="filter-from" name="from" /></Field>
+              <Field><FieldLabel htmlFor="filter-to">To</FieldLabel><IonicDateInput defaultValue={to} id="filter-to" name="to" /></Field>
               <Button className="w-fit" type="submit"><Search data-icon="inline-start" />Apply filters</Button>
             </FieldGroup>
           </form>
