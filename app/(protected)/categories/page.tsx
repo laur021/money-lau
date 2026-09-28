@@ -3,9 +3,9 @@ import {
   CategoryForm,
   type CategoryRecord,
 } from "@/components/categories/category-form";
-import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/layout/page-header";
 import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -60,23 +60,23 @@ export default async function CategoriesPage() {
         description="Organize income, expenses, and subcategories for clearer reporting."
         title="Categories"
         actions={
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus data-icon="inline-start" />
-              Add category
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add a category</DialogTitle>
-              <DialogDescription>
-                Create a top-level category or place it under a matching parent.
-              </DialogDescription>
-            </DialogHeader>
-            <CategoryForm parents={parents} />
-          </DialogContent>
-        </Dialog>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="sm">
+                <Plus data-icon="inline-start" />
+                Add category
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add a category</DialogTitle>
+                <DialogDescription>
+                  Create a top-level category or place it under a matching parent.
+                </DialogDescription>
+              </DialogHeader>
+              <CategoryForm parents={parents} />
+            </DialogContent>
+          </Dialog>
         }
       />
 
@@ -120,7 +120,13 @@ export default async function CategoriesPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={category.transaction_type === "income" ? "success" : "destructive"}>{category.transaction_type}</Badge>
+                        <Badge
+                          variant={
+                            category.transaction_type === "income" ? "success" : "destructive"
+                          }
+                        >
+                          {category.transaction_type}
+                        </Badge>
                       </TableCell>
                       <TableCell>
                         {category.is_system
@@ -136,7 +142,11 @@ export default async function CategoriesPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex justify-end gap-1">
-                          <ActionFeedbackForm action={moveCategory} pendingMessage="Reordering category…" successMessage="Category order updated">
+                          <ActionFeedbackForm
+                            action={moveCategory}
+                            pendingMessage="Reordering category…"
+                            successMessage="Category order updated"
+                          >
                             <input name="id" type="hidden" value={category.id} />
                             <input
                               name="displayOrder"
@@ -153,7 +163,11 @@ export default async function CategoriesPage() {
                               <ArrowUp />
                             </Button>
                           </ActionFeedbackForm>
-                          <ActionFeedbackForm action={moveCategory} pendingMessage="Reordering category…" successMessage="Category order updated">
+                          <ActionFeedbackForm
+                            action={moveCategory}
+                            pendingMessage="Reordering category…"
+                            successMessage="Category order updated"
+                          >
                             <input name="id" type="hidden" value={category.id} />
                             <input
                               name="displayOrder"
@@ -171,7 +185,12 @@ export default async function CategoriesPage() {
                             </Button>
                           </ActionFeedbackForm>
                           <CategoryEditDialog category={category} parents={parents} />
-                          <ActionFeedbackForm action={setCategoryArchived} successMessage={category.is_archived ? "Category restored" : "Category archived"}>
+                          <ActionFeedbackForm
+                            action={setCategoryArchived}
+                            successMessage={
+                              category.is_archived ? "Category restored" : "Category archived"
+                            }
+                          >
                             <input name="id" type="hidden" value={category.id} />
                             <input
                               name="archived"

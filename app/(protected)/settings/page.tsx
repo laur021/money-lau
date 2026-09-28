@@ -1,12 +1,12 @@
-import { DeleteAccountDialog } from "@/components/settings/delete-account-dialog";
 import { PageHeader } from "@/components/layout/page-header";
+import { DeleteAccountDialog } from "@/components/settings/delete-account-dialog";
 import { InsightsConsentControl } from "@/components/settings/insights-consent-control";
 import { ReceiptScanningConsentControl } from "@/components/settings/receipt-scanning-consent-control";
 import { ThemePreference } from "@/components/settings/theme-preference";
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -201,7 +201,7 @@ export default async function SettingsPage() {
                   </FieldDescription>
                 </FieldContent>
               </Field>
-              <Button className="w-fit" type="submit">
+              <Button className="w-fit" type="submit" size="sm">
                 Save preferences
               </Button>
             </FieldGroup>
@@ -216,11 +216,14 @@ export default async function SettingsPage() {
             Receipt scanning
           </CardTitle>
           <CardDescription>
-            Control whether MoneyLau may send selected receipt images to Azure Document Intelligence for one-time receipt extraction.
+            Control whether MoneyLau may send selected receipt images to Azure Document Intelligence
+            for one-time receipt extraction.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ReceiptScanningConsentControl defaultEnabled={Boolean(defaults.receipt_scanning_consent_at)} />
+          <ReceiptScanningConsentControl
+            defaultEnabled={Boolean(defaults.receipt_scanning_consent_at)}
+          />
         </CardContent>
       </Card>
 
@@ -231,7 +234,8 @@ export default async function SettingsPage() {
             MoneyLau Insights
           </CardTitle>
           <CardDescription>
-            Control whether MoneyLau may send selected financial summaries to DeepSeek for read-only budgeting guidance.
+            Control whether MoneyLau may send selected financial summaries to DeepSeek for read-only
+            budgeting guidance.
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -1,24 +1,10 @@
-import { format } from "date-fns";
-import {
-  Archive,
-  ArrowLeft,
-  ArrowRight,
-  CalendarDays,
-  FilePlus2,
-  Pencil,
-  Plus,
-  RotateCcw,
-  Trash2,
-  WalletCards,
-} from "lucide-react";
-import Link from "next/link";
 import { BillDuplicateDialog } from "@/components/bills/bill-duplicate-dialog";
 import { BillItemForm } from "@/components/bills/bill-item-form";
 import { BillPaymentDialog } from "@/components/bills/bill-payment-dialog";
 import { BillTemplateForm } from "@/components/bills/bill-template-form";
-import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { PageHeader } from "@/components/layout/page-header";
 import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,8 +27,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   deleteBillItem,
@@ -61,6 +60,20 @@ import {
   monthLabel,
 } from "@/lib/calculations/bills";
 import { formatMoney } from "@/lib/formatting/money";
+import { format } from "date-fns";
+import {
+  Archive,
+  ArrowLeft,
+  ArrowRight,
+  CalendarDays,
+  FilePlus2,
+  Pencil,
+  Plus,
+  RotateCcw,
+  Trash2,
+  WalletCards,
+} from "lucide-react";
+import Link from "next/link";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -79,13 +92,22 @@ function dueBadge(state: BillDueState) {
   return <Badge variant="warning">Upcoming</Badge>;
 }
 
-function CurrencyTotals({ totals, value }: { totals: BillTotals; value: "planned" | "paid" | "remaining" }) {
+function CurrencyTotals({
+  totals,
+  value,
+}: {
+  totals: BillTotals;
+  value: "planned" | "paid" | "remaining";
+}) {
   const entries = Object.entries(totals);
-  if (!entries.length) return <PrivateFinancialValue>{formatMoney(0, "PHP")}</PrivateFinancialValue>;
+  if (!entries.length)
+    return <PrivateFinancialValue>{formatMoney(0, "PHP")}</PrivateFinancialValue>;
   return (
     <div className="flex flex-col gap-1">
       {entries.map(([currency, total]) => (
-        <PrivateFinancialValue key={currency}>{formatMoney(total[value], currency)}</PrivateFinancialValue>
+        <PrivateFinancialValue key={currency}>
+          {formatMoney(total[value], currency)}
+        </PrivateFinancialValue>
       ))}
     </div>
   );
@@ -110,7 +132,9 @@ function BillGroup({
     <Card>
       <CardHeader className="border-b">
         <CardTitle>{title}</CardTitle>
-        <CardDescription>{items.length} planned {items.length === 1 ? "bill" : "bills"}</CardDescription>
+        <CardDescription>
+          {items.length} planned {items.length === 1 ? "bill" : "bills"}
+        </CardDescription>
       </CardHeader>
       <CardContent className="px-0">
         <Table>
@@ -134,7 +158,9 @@ function BillGroup({
                   <TableCell>
                     <div className="flex max-w-56 flex-col gap-1">
                       <span className="truncate font-medium">{item.name}</span>
-                      {item.notes ? <span className="truncate text-xs text-muted-foreground">{item.notes}</span> : null}
+                      {item.notes ? (
+                        <span className="truncate text-xs text-muted-foreground">{item.notes}</span>
+                      ) : null}
                     </div>
                   </TableCell>
                   <TableCell>
@@ -144,13 +170,17 @@ function BillGroup({
                     </div>
                   </TableCell>
                   <TableCell className="tabular-nums">
-                    <PrivateFinancialValue>{formatMoney(item.plannedAmount, item.currency)}</PrivateFinancialValue>
+                    <PrivateFinancialValue>
+                      {formatMoney(item.plannedAmount, item.currency)}
+                    </PrivateFinancialValue>
                   </TableCell>
                   <TableCell className="tabular-nums">
                     {item.actualPaidAmount === null ? (
                       <span className="text-muted-foreground">-</span>
                     ) : (
-                      <PrivateFinancialValue>{formatMoney(item.actualPaidAmount, item.currency)}</PrivateFinancialValue>
+                      <PrivateFinancialValue>
+                        {formatMoney(item.actualPaidAmount, item.currency)}
+                      </PrivateFinancialValue>
                     )}
                   </TableCell>
                   <TableCell>{dueBadge(billDueState(item))}</TableCell>
@@ -159,7 +189,11 @@ function BillGroup({
                       {paid ? (
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button aria-label={`Unpay ${item.name}`} size="icon-sm" variant="ghost">
+                            <Button
+                              aria-label={`Unpay ${item.name}`}
+                              size="icon-sm"
+                              variant="ghost"
+                            >
                               <RotateCcw />
                             </Button>
                           </AlertDialogTrigger>
@@ -167,12 +201,17 @@ function BillGroup({
                             <AlertDialogHeader>
                               <AlertDialogTitle>Mark this bill unpaid?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                The linked expense transaction will be removed and the bill will return to the open list.
+                                The linked expense transaction will be removed and the bill will
+                                return to the open list.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <ActionFeedbackForm action={unpostBillPayment} pendingMessage="Unpaying bill…" successMessage="Bill payment removed">
+                              <ActionFeedbackForm
+                                action={unpostBillPayment}
+                                pendingMessage="Unpaying bill…"
+                                successMessage="Bill payment removed"
+                              >
                                 <input name="id" type="hidden" value={item.id} />
                                 <AlertDialogAction type="submit">Unpay bill</AlertDialogAction>
                               </ActionFeedbackForm>
@@ -181,17 +220,27 @@ function BillGroup({
                         </AlertDialog>
                       ) : (
                         <>
-                          <BillPaymentDialog accounts={accounts} categories={categories} item={item} />
+                          <BillPaymentDialog
+                            accounts={accounts}
+                            categories={categories}
+                            item={item}
+                          />
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button aria-label={`Edit ${item.name}`} size="icon-sm" variant="ghost">
+                              <Button
+                                aria-label={`Edit ${item.name}`}
+                                size="icon-sm"
+                                variant="ghost"
+                              >
                                 <Pencil />
                               </Button>
                             </DialogTrigger>
                             <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
                               <DialogHeader>
                                 <DialogTitle>Edit bill</DialogTitle>
-                                <DialogDescription>Update this monthly bill without changing its template.</DialogDescription>
+                                <DialogDescription>
+                                  Update this monthly bill without changing its template.
+                                </DialogDescription>
                               </DialogHeader>
                               <BillItemForm
                                 accounts={accounts}
@@ -204,20 +253,32 @@ function BillGroup({
                           </Dialog>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button aria-label={`Delete ${item.name}`} size="icon-sm" variant="ghost">
+                              <Button
+                                aria-label={`Delete ${item.name}`}
+                                size="icon-sm"
+                                variant="ghost"
+                              >
                                 <Trash2 />
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Delete this bill?</AlertDialogTitle>
-                                <AlertDialogDescription>This removes the unpaid planner item only.</AlertDialogDescription>
+                                <AlertDialogDescription>
+                                  This removes the unpaid planner item only.
+                                </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <ActionFeedbackForm action={deleteBillItem} pendingMessage="Deleting bill…" successMessage="Bill deleted">
+                                <ActionFeedbackForm
+                                  action={deleteBillItem}
+                                  pendingMessage="Deleting bill…"
+                                  successMessage="Bill deleted"
+                                >
                                   <input name="id" type="hidden" value={item.id} />
-                                  <AlertDialogAction type="submit" variant="destructive">Delete bill</AlertDialogAction>
+                                  <AlertDialogAction type="submit" variant="destructive">
+                                    Delete bill
+                                  </AlertDialogAction>
                                 </ActionFeedbackForm>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -259,56 +320,110 @@ export default async function BillsPage({ searchParams }: { searchParams: Search
       <PageHeader
         description="Plan what is due, then post each real payment to your ledger."
         title="Bills"
-        actions={<>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline"><FilePlus2 data-icon="inline-start" />New template</Button>
-            </DialogTrigger>
-            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
-              <DialogHeader>
-                <DialogTitle>Create recurring bill template</DialogTitle>
-                <DialogDescription>Templates create unpaid monthly bill snapshots when you start a month.</DialogDescription>
-              </DialogHeader>
-              <BillTemplateForm accounts={options.accounts} categories={options.categories} defaultCurrency={options.defaultCurrency} />
-            </DialogContent>
-          </Dialog>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button><Plus data-icon="inline-start" />Add bill</Button>
-            </DialogTrigger>
-            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
-              <DialogHeader>
-                <DialogTitle>Add one-off bill</DialogTitle>
-                <DialogDescription>Create an unpaid expense plan for {monthLabel(plannerMonth)}.</DialogDescription>
-              </DialogHeader>
-              <BillItemForm accounts={options.accounts} categories={options.categories} defaultCurrency={options.defaultCurrency} plannerMonth={plannerMonth} />
-            </DialogContent>
-          </Dialog>
-        </>}
+        actions={
+          <>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <FilePlus2 data-icon="inline-start" />
+                  New template
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
+                <DialogHeader>
+                  <DialogTitle>Create recurring bill template</DialogTitle>
+                  <DialogDescription>
+                    Templates create unpaid monthly bill snapshots when you start a month.
+                  </DialogDescription>
+                </DialogHeader>
+                <BillTemplateForm
+                  accounts={options.accounts}
+                  categories={options.categories}
+                  defaultCurrency={options.defaultCurrency}
+                />
+              </DialogContent>
+            </Dialog>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button size="sm">
+                  <Plus data-icon="inline-start" />
+                  Add bill
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
+                <DialogHeader>
+                  <DialogTitle>Add one-off bill</DialogTitle>
+                  <DialogDescription>
+                    Create an unpaid expense plan for {monthLabel(plannerMonth)}.
+                  </DialogDescription>
+                </DialogHeader>
+                <BillItemForm
+                  accounts={options.accounts}
+                  categories={options.categories}
+                  defaultCurrency={options.defaultCurrency}
+                  plannerMonth={plannerMonth}
+                />
+              </DialogContent>
+            </Dialog>
+          </>
+        }
       />
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-1">
           <Button asChild aria-label="Previous month" size="icon-sm" variant="ghost">
-            <Link href={`/bills?month=${addMonths(plannerMonth, -1)}`}><ArrowLeft /></Link>
+            <Link href={`/bills?month=${addMonths(plannerMonth, -1)}`}>
+              <ArrowLeft />
+            </Link>
           </Button>
           <div className="min-w-44 text-center text-sm font-medium">{monthLabel(plannerMonth)}</div>
           <Button asChild aria-label="Next month" size="icon-sm" variant="ghost">
-            <Link href={`/bills?month=${addMonths(plannerMonth, 1)}`}><ArrowRight /></Link>
+            <Link href={`/bills?month=${addMonths(plannerMonth, 1)}`}>
+              <ArrowRight />
+            </Link>
           </Button>
         </div>
-        <ActionFeedbackForm action={generateBillMonth} pendingMessage="Adding recurring bills…" successMessage="Recurring bills added">
+        <ActionFeedbackForm
+          action={generateBillMonth}
+          pendingMessage="Adding recurring bills…"
+          successMessage="Recurring bills added"
+        >
           <input name="plannerMonth" type="hidden" value={plannerMonth} />
-          <Button disabled={!activeTemplates.length} type="submit" variant="outline">
-            <CalendarDays data-icon="inline-start" />Add recurring bills
+          <Button disabled={!activeTemplates.length} type="submit" variant="outline" size="sm">
+            <CalendarDays data-icon="inline-start" />
+            Add recurring bills
           </Button>
         </ActionFeedbackForm>
       </div>
 
       <section className="grid gap-3 sm:grid-cols-3">
-        <Card size="sm"><CardHeader><CardTitle>Planned</CardTitle><CardDescription>All scheduled bills</CardDescription></CardHeader><CardContent className="text-2xl font-bold tabular-nums"><CurrencyTotals totals={totals} value="planned" /></CardContent></Card>
-        <Card size="sm"><CardHeader><CardTitle>Paid</CardTitle><CardDescription>Posted expense payments</CardDescription></CardHeader><CardContent className="text-2xl font-bold text-success tabular-nums"><CurrencyTotals totals={totals} value="paid" /></CardContent></Card>
-        <Card size="sm"><CardHeader><CardTitle>Remaining</CardTitle><CardDescription>Still unpaid this month</CardDescription></CardHeader><CardContent className="text-2xl font-bold text-warning tabular-nums"><CurrencyTotals totals={totals} value="remaining" /></CardContent></Card>
+        <Card size="sm">
+          <CardHeader>
+            <CardTitle>Planned</CardTitle>
+            <CardDescription>All scheduled bills</CardDescription>
+          </CardHeader>
+          <CardContent className="text-2xl font-bold tabular-nums">
+            <CurrencyTotals totals={totals} value="planned" />
+          </CardContent>
+        </Card>
+        <Card size="sm">
+          <CardHeader>
+            <CardTitle>Paid</CardTitle>
+            <CardDescription>Posted expense payments</CardDescription>
+          </CardHeader>
+          <CardContent className="text-2xl font-bold text-success tabular-nums">
+            <CurrencyTotals totals={totals} value="paid" />
+          </CardContent>
+        </Card>
+        <Card size="sm">
+          <CardHeader>
+            <CardTitle>Remaining</CardTitle>
+            <CardDescription>Still unpaid this month</CardDescription>
+          </CardHeader>
+          <CardContent className="text-2xl font-bold text-warning tabular-nums">
+            <CurrencyTotals totals={totals} value="remaining" />
+          </CardContent>
+        </Card>
       </section>
 
       <Tabs defaultValue="bills">
@@ -332,9 +447,13 @@ export default async function BillsPage({ searchParams }: { searchParams: Search
           ) : (
             <Empty>
               <EmptyHeader>
-                <EmptyMedia variant="icon"><WalletCards /></EmptyMedia>
+                <EmptyMedia variant="icon">
+                  <WalletCards />
+                </EmptyMedia>
                 <EmptyTitle>No bills for {monthLabel(plannerMonth)}</EmptyTitle>
-                <EmptyDescription>Add a one-off bill or start this month from your recurring templates.</EmptyDescription>
+                <EmptyDescription>
+                  Add a one-off bill or start this month from your recurring templates.
+                </EmptyDescription>
               </EmptyHeader>
             </Empty>
           )}
@@ -348,24 +467,120 @@ export default async function BillsPage({ searchParams }: { searchParams: Search
             <CardContent className="px-0">
               {templates.length ? (
                 <Table>
-                  <TableHeader><TableRow><TableHead>Bill</TableHead><TableHead>Due</TableHead><TableHead>Default amount</TableHead><TableHead>Default account</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Bill</TableHead>
+                      <TableHead>Due</TableHead>
+                      <TableHead>Default amount</TableHead>
+                      <TableHead>Default account</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
                   <TableBody>
                     {templates.map((template) => (
                       <TableRow key={template.id}>
-                        <TableCell><div className="flex flex-col"><span className="font-medium">{template.name}</span>{template.notes ? <span className="max-w-56 truncate text-xs text-muted-foreground">{template.notes}</span> : null}</div></TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{template.name}</span>
+                            {template.notes ? (
+                              <span className="max-w-56 truncate text-xs text-muted-foreground">
+                                {template.notes}
+                              </span>
+                            ) : null}
+                          </div>
+                        </TableCell>
                         <TableCell>Day {template.dueDay}</TableCell>
-                        <TableCell className="tabular-nums"><PrivateFinancialValue>{formatMoney(template.defaultAmount, template.currency)}</PrivateFinancialValue></TableCell>
-                        <TableCell>{options.accounts.find((account) => account.id === template.defaultAccountId)?.name ?? "Choose when paid"}</TableCell>
-                        <TableCell><Badge variant={template.isArchived ? "outline" : "secondary"}>{template.isArchived ? "Archived" : "Active"}</Badge></TableCell>
-                        <TableCell><div className="flex justify-end gap-1">
-                          {!template.isArchived ? <Dialog><DialogTrigger asChild><Button aria-label={`Edit ${template.name}`} size="icon-sm" variant="ghost"><Pencil /></Button></DialogTrigger><DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl"><DialogHeader><DialogTitle>Edit recurring bill</DialogTitle><DialogDescription>Past monthly bills keep their saved details.</DialogDescription></DialogHeader><BillTemplateForm accounts={options.accounts} categories={options.categories} defaultCurrency={options.defaultCurrency} template={template} /></DialogContent></Dialog> : null}
-                          <ActionFeedbackForm action={setBillTemplateArchived} successMessage={template.isArchived ? "Recurring bill restored" : "Recurring bill archived"}><input name="id" type="hidden" value={template.id} /><input name="isArchived" type="hidden" value={template.isArchived ? "false" : "true"} /><Button aria-label={template.isArchived ? `Restore ${template.name}` : `Archive ${template.name}`} size="icon-sm" type="submit" variant="ghost">{template.isArchived ? <RotateCcw /> : <Archive />}</Button></ActionFeedbackForm>
-                        </div></TableCell>
+                        <TableCell className="tabular-nums">
+                          <PrivateFinancialValue>
+                            {formatMoney(template.defaultAmount, template.currency)}
+                          </PrivateFinancialValue>
+                        </TableCell>
+                        <TableCell>
+                          {options.accounts.find(
+                            (account) => account.id === template.defaultAccountId
+                          )?.name ?? "Choose when paid"}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={template.isArchived ? "outline" : "secondary"}>
+                            {template.isArchived ? "Archived" : "Active"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex justify-end gap-1">
+                            {!template.isArchived ? (
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button
+                                    aria-label={`Edit ${template.name}`}
+                                    size="icon-sm"
+                                    variant="ghost"
+                                  >
+                                    <Pencil />
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
+                                  <DialogHeader>
+                                    <DialogTitle>Edit recurring bill</DialogTitle>
+                                    <DialogDescription>
+                                      Past monthly bills keep their saved details.
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  <BillTemplateForm
+                                    accounts={options.accounts}
+                                    categories={options.categories}
+                                    defaultCurrency={options.defaultCurrency}
+                                    template={template}
+                                  />
+                                </DialogContent>
+                              </Dialog>
+                            ) : null}
+                            <ActionFeedbackForm
+                              action={setBillTemplateArchived}
+                              successMessage={
+                                template.isArchived
+                                  ? "Recurring bill restored"
+                                  : "Recurring bill archived"
+                              }
+                            >
+                              <input name="id" type="hidden" value={template.id} />
+                              <input
+                                name="isArchived"
+                                type="hidden"
+                                value={template.isArchived ? "false" : "true"}
+                              />
+                              <Button
+                                aria-label={
+                                  template.isArchived
+                                    ? `Restore ${template.name}`
+                                    : `Archive ${template.name}`
+                                }
+                                size="icon-sm"
+                                type="submit"
+                                variant="ghost"
+                              >
+                                {template.isArchived ? <RotateCcw /> : <Archive />}
+                              </Button>
+                            </ActionFeedbackForm>
+                          </div>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
-              ) : <Empty><EmptyHeader><EmptyMedia variant="icon"><CalendarDays /></EmptyMedia><EmptyTitle>No recurring templates</EmptyTitle><EmptyDescription>Create a template for a bill you pay regularly.</EmptyDescription></EmptyHeader></Empty>}
+              ) : (
+                <Empty>
+                  <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                      <CalendarDays />
+                    </EmptyMedia>
+                    <EmptyTitle>No recurring templates</EmptyTitle>
+                    <EmptyDescription>
+                      Create a template for a bill you pay regularly.
+                    </EmptyDescription>
+                  </EmptyHeader>
+                </Empty>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

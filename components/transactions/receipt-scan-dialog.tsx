@@ -1,10 +1,10 @@
 "use client";
 
+import { ReceiptItemImportForm } from "@/components/transactions/receipt-item-import-form";
 import {
   TransactionForm,
   type ReceiptTransactionDraft,
 } from "@/components/transactions/transaction-form";
-import { ReceiptItemImportForm } from "@/components/transactions/receipt-item-import-form";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -181,11 +181,7 @@ export function ReceiptScanDialog({
 
   return (
     <>
-      <Button
-        onClick={openScanner}
-        type="button"
-        variant="outline"
-      >
+      <Button onClick={openScanner} type="button" variant="outline" size="sm">
         <Camera data-icon="inline-start" />
         Scan receipt
       </Button>
@@ -215,7 +211,7 @@ export function ReceiptScanDialog({
                 categories={categories}
                 onRemoveItem={() =>
                   setDraft((currentDraft) =>
-                    currentDraft ? { ...currentDraft, items: [] } : currentDraft,
+                    currentDraft ? { ...currentDraft, items: [] } : currentDraft
                   )
                 }
                 onSaved={() => {
@@ -283,7 +279,8 @@ export function ReceiptScanDialog({
                         src={previewUrl}
                       />
                       <p className="text-xs text-muted-foreground">
-                        {file.name} ({Math.ceil(file.size / 1024)} KB) — click or drop another image to replace it
+                        {file.name} ({Math.ceil(file.size / 1024)} KB) — click or drop another image
+                        to replace it
                       </p>
                     </>
                   ) : (
@@ -341,11 +338,12 @@ export function ReceiptScanDialog({
       <Dialog onOpenChange={setConsentOpen} open={consentOpen}>
         <DialogContent>
           <DialogHeader>
-          <DialogTitle>Allow Azure Document Intelligence receipt scanning?</DialogTitle>
+            <DialogTitle>Allow Azure Document Intelligence receipt scanning?</DialogTitle>
             <DialogDescription>
-              MoneyLau will send each selected receipt image to Azure Document Intelligence to extract receipt data
-              and prepare a merchant, date, total, currency, and tax draft. Images and extraction
-              results are not saved by MoneyLau and are never attached to a transaction.
+              MoneyLau will send each selected receipt image to Azure Document Intelligence to
+              extract receipt data and prepare a merchant, date, total, currency, and tax draft.
+              Images and extraction results are not saved by MoneyLau and are never attached to a
+              transaction.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

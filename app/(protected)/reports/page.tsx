@@ -2,18 +2,9 @@ import { ExpenseDonutChart } from "@/components/charts/expense-donut-chart";
 import { MonthlyCashFlowChart } from "@/components/charts/monthly-cash-flow-chart";
 import { FinancialMetricCard } from "@/components/finance/financial-metric-card";
 import { PageHeader } from "@/components/layout/page-header";
-import {
-  PrivateFinancialChart,
-  PrivateFinancialValue,
-} from "@/components/privacy/screen-privacy";
+import { PrivateFinancialChart, PrivateFinancialValue } from "@/components/privacy/screen-privacy";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import {
@@ -116,12 +107,12 @@ export default async function ReportsPage({ searchParams }: { searchParams: Sear
     <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 sm:p-6">
       <PageHeader
         actions={
-        <Button asChild variant="outline">
-          <a href={`/api/reports/transactions.csv?${exportParameters.toString()}`}>
-            <Download data-icon="inline-start" />
-            Export filtered CSV
-          </a>
-        </Button>
+          <Button asChild variant="outline" size="sm">
+            <a href={`/api/reports/transactions.csv?${exportParameters.toString()}`}>
+              <Download data-icon="inline-start" />
+              Export filtered CSV
+            </a>
+          </Button>
         }
         description="Explore completed activity, cash flow, and category distribution."
         title="Reports"
@@ -139,7 +130,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Sear
             <FieldGroup className="contents">
               <FilterSelect label="Period" name="period" value={period}>
                 {REPORTING_PERIODS.map((value) => (
-                  <NativeSelectOption key={value} value={value}>
+                  <NativeSelectOption key={value} value={value} size="sm">
                     {PERIOD_LABELS[value]}
                   </NativeSelectOption>
                 ))}
@@ -175,8 +166,10 @@ export default async function ReportsPage({ searchParams }: { searchParams: Sear
               </FilterSelect>
             </FieldGroup>
             <div className="flex gap-2 sm:col-span-2 xl:col-span-5">
-              <Button type="submit">Apply filters</Button>
-              <Button asChild variant="ghost">
+              <Button type="submit" size="sm">
+                Apply filters
+              </Button>
+              <Button asChild variant="outline" size="sm">
                 <Link href="/reports">Reset</Link>
               </Button>
             </div>
@@ -189,13 +182,17 @@ export default async function ReportsPage({ searchParams }: { searchParams: Sear
           icon={<ArrowUpRight className="size-4" />}
           label="Income"
           tone="positive"
-          value={<PrivateFinancialValue>{formatMoney(totals.income, currency)}</PrivateFinancialValue>}
+          value={
+            <PrivateFinancialValue>{formatMoney(totals.income, currency)}</PrivateFinancialValue>
+          }
         />
         <FinancialMetricCard
           icon={<ArrowDownRight className="size-4" />}
           label="Expenses"
           tone="negative"
-          value={<PrivateFinancialValue>{formatMoney(totals.expense, currency)}</PrivateFinancialValue>}
+          value={
+            <PrivateFinancialValue>{formatMoney(totals.expense, currency)}</PrivateFinancialValue>
+          }
         />
         <FinancialMetricCard
           icon={<Scale className="size-4" />}
@@ -291,7 +288,6 @@ function FilterSelect({
   );
 }
 
-
 function ActivityTable({
   title,
   rows,
@@ -336,7 +332,9 @@ function ActivityTable({
                   </TableCell>
                   <TableCell>{format(new Date(row.transaction_date), "MMM d, yyyy")}</TableCell>
                   <TableCell className="text-right font-medium tabular-nums">
-                    <PrivateFinancialValue>{formatMoney(row.amount, currency)}</PrivateFinancialValue>
+                    <PrivateFinancialValue>
+                      {formatMoney(row.amount, currency)}
+                    </PrivateFinancialValue>
                   </TableCell>
                 </TableRow>
               ))

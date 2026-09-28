@@ -3,11 +3,11 @@ import {
   AccountForm,
   type AccountRecord,
 } from "@/components/accounts/account-form";
-import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/layout/page-header";
-import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
-import { Button } from "@/components/ui/button";
 import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
@@ -63,23 +63,23 @@ export default async function AccountsPage() {
         description="Cash, banks, cards, and wallets in one clear view."
         title="Accounts"
         actions={
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus data-icon="inline-start" />
-              Add account
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Add an account</DialogTitle>
-              <DialogDescription>
-                MoneyLau tracks balances manually and never asks for banking credentials.
-              </DialogDescription>
-            </DialogHeader>
-            <AccountForm />
-          </DialogContent>
-        </Dialog>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="sm">
+                <Plus data-icon="inline-start" />
+                Add account
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Add an account</DialogTitle>
+                <DialogDescription>
+                  MoneyLau tracks balances manually and never asks for banking credentials.
+                </DialogDescription>
+              </DialogHeader>
+              <AccountForm />
+            </DialogContent>
+          </Dialog>
         }
       />
 
@@ -142,7 +142,11 @@ export default async function AccountsPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-1">
-                        <ActionFeedbackForm action={moveAccount} pendingMessage="Reordering account…" successMessage="Account order updated">
+                        <ActionFeedbackForm
+                          action={moveAccount}
+                          pendingMessage="Reordering account…"
+                          successMessage="Account order updated"
+                        >
                           <input name="id" type="hidden" value={account.id} />
                           <input name="displayOrder" type="hidden" value={account.display_order} />
                           <input name="direction" type="hidden" value="up" />
@@ -155,7 +159,11 @@ export default async function AccountsPage() {
                             <ArrowUp />
                           </Button>
                         </ActionFeedbackForm>
-                        <ActionFeedbackForm action={moveAccount} pendingMessage="Reordering account…" successMessage="Account order updated">
+                        <ActionFeedbackForm
+                          action={moveAccount}
+                          pendingMessage="Reordering account…"
+                          successMessage="Account order updated"
+                        >
                           <input name="id" type="hidden" value={account.id} />
                           <input name="displayOrder" type="hidden" value={account.display_order} />
                           <input name="direction" type="hidden" value="down" />
@@ -169,7 +177,12 @@ export default async function AccountsPage() {
                           </Button>
                         </ActionFeedbackForm>
                         <AccountEditDialog account={account} />
-                        <ActionFeedbackForm action={setAccountArchived} successMessage={account.is_archived ? "Account restored" : "Account archived"}>
+                        <ActionFeedbackForm
+                          action={setAccountArchived}
+                          successMessage={
+                            account.is_archived ? "Account restored" : "Account archived"
+                          }
+                        >
                           <input name="id" type="hidden" value={account.id} />
                           <input
                             name="archived"

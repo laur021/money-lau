@@ -1,15 +1,5 @@
-import { format, isSameYear } from "date-fns";
-import {
-  Archive,
-  BadgeDollarSign,
-  BriefcaseBusiness,
-  Pencil,
-  Plus,
-  RotateCcw,
-} from "lucide-react";
-import Link from "next/link";
-import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
 import { PageHeader } from "@/components/layout/page-header";
+import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
 import { SalaryProfileForm } from "@/components/salary/salary-profile-form";
 import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Badge } from "@/components/ui/badge";
@@ -23,21 +13,39 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { setSalaryProfileArchived } from "@/features/salary/actions";
 import { getSalaryOptions, getSalaryProfiles, getSalaryRuns } from "@/features/salary/data";
 import type { SalaryRun } from "@/features/salary/types";
 import { formatMoney } from "@/lib/formatting/money";
+import { format, isSameYear } from "date-fns";
+import { Archive, BadgeDollarSign, BriefcaseBusiness, Pencil, Plus, RotateCcw } from "lucide-react";
+import Link from "next/link";
 
 function formatFrequency(value: string) {
-  return {
-    weekly: "Weekly",
-    biweekly: "Every two weeks",
-    semi_monthly: "Twice a month",
-    monthly: "Monthly",
-  }[value] ?? value;
+  return (
+    {
+      weekly: "Weekly",
+      biweekly: "Every two weeks",
+      semi_monthly: "Twice a month",
+      monthly: "Monthly",
+    }[value] ?? value
+  );
 }
 
 function totalsByCurrency(runs: SalaryRun[]) {
@@ -49,7 +57,7 @@ function totalsByCurrency(runs: SalaryRun[]) {
       totals[run.currency].net += run.netPay;
       return totals;
     },
-    {},
+    {}
   );
 }
 
@@ -84,7 +92,7 @@ export default async function SalaryPage() {
   const drafts = runs.filter((run) => !run.transactionId);
   const posted = runs.filter((run) => run.transactionId);
   const ytdTotals = totalsByCurrency(
-    posted.filter((run) => isSameYear(new Date(`${run.paymentDate}T12:00:00`), new Date())),
+    posted.filter((run) => isSameYear(new Date(`${run.paymentDate}T12:00:00`), new Date()))
   );
 
   return (
@@ -92,38 +100,40 @@ export default async function SalaryPage() {
       <PageHeader
         description="Calculate gross pay, deductions, and the net amount received."
         title="Salary"
-        actions={<>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline">
-                <BriefcaseBusiness data-icon="inline-start" />
-                New profile
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-5xl">
-              <DialogHeader>
-                <DialogTitle>Create salary profile</DialogTitle>
-                <DialogDescription>
-                  Store recurring pay details and defaults for future calculations.
-                </DialogDescription>
-              </DialogHeader>
-              <SalaryProfileForm
-                accounts={options.accounts}
-                categories={options.categories}
-                defaultCurrency={options.defaultCurrency}
-              />
-            </DialogContent>
-          </Dialog>
-          <Button asChild disabled={!activeProfiles.length}>
-            <Link
-              aria-disabled={!activeProfiles.length}
-              href={activeProfiles.length ? "/salary/new" : "/salary"}
-            >
-              <Plus data-icon="inline-start" />
-              Calculate salary
-            </Link>
-          </Button>
-        </>}
+        actions={
+          <>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <BriefcaseBusiness data-icon="inline-start" />
+                  New profile
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-5xl">
+                <DialogHeader>
+                  <DialogTitle>Create salary profile</DialogTitle>
+                  <DialogDescription>
+                    Store recurring pay details and defaults for future calculations.
+                  </DialogDescription>
+                </DialogHeader>
+                <SalaryProfileForm
+                  accounts={options.accounts}
+                  categories={options.categories}
+                  defaultCurrency={options.defaultCurrency}
+                />
+              </DialogContent>
+            </Dialog>
+            <Button asChild disabled={!activeProfiles.length} size="sm">
+              <Link
+                aria-disabled={!activeProfiles.length}
+                href={activeProfiles.length ? "/salary/new" : "/salary"}
+              >
+                <Plus data-icon="inline-start" />
+                Calculate salary
+              </Link>
+            </Button>
+          </>
+        }
       />
 
       <div className="grid gap-3 sm:grid-cols-3">
@@ -391,7 +401,14 @@ export default async function SalaryPage() {
                                 </DialogContent>
                               </Dialog>
                             ) : null}
-                            <ActionFeedbackForm action={setSalaryProfileArchived} successMessage={profile.isArchived ? "Salary profile restored" : "Salary profile archived"}>
+                            <ActionFeedbackForm
+                              action={setSalaryProfileArchived}
+                              successMessage={
+                                profile.isArchived
+                                  ? "Salary profile restored"
+                                  : "Salary profile archived"
+                              }
+                            >
                               <input name="id" type="hidden" value={profile.id} />
                               <input
                                 name="isArchived"

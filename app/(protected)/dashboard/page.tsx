@@ -30,13 +30,7 @@ import {
 import { reportingTotals, type ReportingRow } from "@/lib/calculations/reporting";
 import { formatMoney } from "@/lib/formatting/money";
 import { createClient } from "@/lib/supabase/server";
-import {
-  CalendarClock,
-  CircleAlert,
-  Plus,
-  Scale,
-  WalletCards,
-} from "lucide-react";
+import { CalendarClock, CircleAlert, Plus, Scale, WalletCards } from "lucide-react";
 import Link from "next/link";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -79,21 +73,20 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
     new Set([
       profile?.default_currency ?? "PHP",
       ...(accounts ?? []).map((account) => account.currency),
-    ]),
+    ])
   ).sort();
   const requestedCurrency = parameterValue(parameters.currency).toUpperCase();
   const currency = currencyOptions.includes(requestedCurrency)
     ? requestedCurrency
     : (profile?.default_currency ?? currencyOptions[0] ?? "PHP");
   const range = reportingDateRange(period, new Date(), profile?.week_starts_on ?? 1);
-  const plannerMonth = period === "last_month"
-    ? monthFromDate(range.from ?? new Date())
-    : monthFromDate(new Date());
+  const plannerMonth =
+    period === "last_month" ? monthFromDate(range.from ?? new Date()) : monthFromDate(new Date());
 
   let transactionQuery = supabase
     .from("transactions")
     .select(
-      "id,transaction_type,account_id,destination_account_id,category_id,amount,currency,status,transaction_date,description,merchant,category:categories!transactions_category_id_fkey(name,color),source_account:accounts!transactions_account_id_fkey(name)",
+      "id,transaction_type,account_id,destination_account_id,category_id,amount,currency,status,transaction_date,description,merchant,category:categories!transactions_category_id_fkey(name,color),source_account:accounts!transactions_account_id_fkey(name)"
     )
     .eq("currency", currency)
     .order("transaction_date", { ascending: false })
@@ -112,7 +105,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
   const rows = (transactions ?? []) as unknown as ReportingRow[];
   const totals = reportingTotals(rows, currency);
   const balanceById = new Map(
-    (balances ?? []).map((balance) => [balance.id, Number(balance.current_balance)]),
+    (balances ?? []).map((balance) => [balance.id, Number(balance.current_balance)])
   );
   const visibleAccounts = (accounts ?? []).filter((account) => account.currency === currency);
   const totalBalance = visibleAccounts
@@ -133,41 +126,40 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
       <PageHeader
         actions={
           <>
-          <form className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
-            <NativeSelect
-              aria-label="Dashboard period"
-              className="sm:w-auto"
-              defaultValue={period}
-              name="period"
-            >
-              {REPORTING_PERIODS.map((value) => (
-                <NativeSelectOption key={value} value={value}>
-                  {PERIOD_LABELS[value]}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
-            <NativeSelect
-              aria-label="Dashboard currency"
-              className="sm:w-auto"
-              defaultValue={currency}
-              name="currency"
-            >
-              {currencyOptions.map((value) => (
-                <NativeSelectOption key={value} value={value}>
-                  {value}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
-            <Button className="col-span-2 sm:col-auto" size="sm" type="submit" variant="outline">
-              Apply
+            <form className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
+              <NativeSelect
+                aria-label="Dashboard period"
+                className="sm:w-auto"
+                defaultValue={period}
+                name="period"
+                size="sm"
+              >
+                {REPORTING_PERIODS.map((value) => (
+                  <NativeSelectOption key={value} value={value}>
+                    {PERIOD_LABELS[value]}
+                  </NativeSelectOption>
+                ))}
+              </NativeSelect>
+              <NativeSelect
+                aria-label="Dashboard currency"
+                className="sm:w-auto"
+                size="sm"
+                defaultValue={currency}
+                name="currency"
+              >
+                {currencyOptions.map((value) => (
+                  <NativeSelectOption key={value} value={value}>
+                    {value}
+                  </NativeSelectOption>
+                ))}
+              </NativeSelect>
+              <Button className="sm:w-auto" size="sm" type="submit" variant="outline">
+                Apply
+              </Button>
+            </form>
+            <Button asChild className="w-full sm:w-auto" size="sm">
+              <Link href="/transactions">Add transaction</Link>
             </Button>
-          </form>
-          <Button asChild className="w-full sm:w-auto" size="sm">
-            <Link href="/transactions">
-              <Plus data-icon="inline-start" />
-              Add transaction
-            </Link>
-          </Button>
           </>
         }
         description="Your current position and the commitments that need attention."
@@ -179,14 +171,26 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
           description="Included active accounts"
           icon={<WalletCards className="size-4" />}
           label="Available balance"
-          value={<PrivateFinancialValue>{formatMoney(totalBalance, currency)}</PrivateFinancialValue>}
+          value={
+            <PrivateFinancialValue>{formatMoney(totalBalance, currency)}</PrivateFinancialValue>
+          }
         />
         <FinancialMetricCard
           description={
             <>
-              <span className="text-primary">In <PrivateFinancialValue>{formatMoney(totals.income, currency)}</PrivateFinancialValue></span>
+              <span className="text-primary">
+                In{" "}
+                <PrivateFinancialValue>
+                  {formatMoney(totals.income, currency)}
+                </PrivateFinancialValue>
+              </span>
               <span aria-hidden="true"> · </span>
-              <span className="text-destructive">Out <PrivateFinancialValue>{formatMoney(totals.expense, currency)}</PrivateFinancialValue></span>
+              <span className="text-destructive">
+                Out{" "}
+                <PrivateFinancialValue>
+                  {formatMoney(totals.expense, currency)}
+                </PrivateFinancialValue>
+              </span>
             </>
           }
           icon={<Scale className="size-4" />}
@@ -211,11 +215,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
         remaining={remainingBills}
       />
 
-      <AccountRail
-        accounts={visibleAccounts}
-        balanceById={balanceById}
-        currency={currency}
-      />
+      <AccountRail accounts={visibleAccounts} balanceById={balanceById} currency={currency} />
     </main>
   );
 }
@@ -248,45 +248,49 @@ function AccountRail({
         </CardAction>
       </CardHeader>
       <CardContent>
-      {accounts.length === 0 ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 py-2">
-          <div>
-            <p className="font-medium">Add your first account</p>
-            <p className="text-sm text-muted-foreground">Balances and bill affordability start here.</p>
+        {accounts.length === 0 ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 py-2">
+            <div>
+              <p className="font-medium">Add your first account</p>
+              <p className="text-sm text-muted-foreground">
+                Balances and bill affordability start here.
+              </p>
+            </div>
+            <Button asChild size="sm">
+              <Link href="/accounts">
+                <Plus data-icon="inline-start" /> Add account
+              </Link>
+            </Button>
           </div>
-          <Button asChild size="sm">
-            <Link href="/accounts">
-              <Plus data-icon="inline-start" /> Add account
-            </Link>
-          </Button>
-        </div>
-      ) : (
-        <div className="grid gap-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {accounts.map((account) => (
-            <Link
-              className="flex min-w-0 items-center justify-between gap-3 rounded-md px-2 py-2.5 hover:bg-muted"
-              href={`/transactions?account=${account.id}`}
-              key={account.id}
-            >
-              <span className="flex min-w-0 items-center gap-3">
-                <InstitutionLogo
-                  accountType={account.account_type}
-                  institutionName={account.institution_name ?? account.name}
-                />
-                <span className="min-w-0">
-                  <span className="block truncate font-medium">{account.name}</span>
-                  <span className="block truncate text-xs text-muted-foreground">
-                    {account.institution_name ?? account.account_type.replaceAll("_", " ")}
+        ) : (
+          <div className="grid gap-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {accounts.map((account) => (
+              <Link
+                className="flex min-w-0 items-center justify-between gap-3 rounded-md px-2 py-2.5 hover:bg-muted"
+                href={`/transactions?account=${account.id}`}
+                key={account.id}
+              >
+                <span className="flex min-w-0 items-center gap-3">
+                  <InstitutionLogo
+                    accountType={account.account_type}
+                    institutionName={account.institution_name ?? account.name}
+                  />
+                  <span className="min-w-0">
+                    <span className="block truncate font-medium">{account.name}</span>
+                    <span className="block truncate text-xs text-muted-foreground">
+                      {account.institution_name ?? account.account_type.replaceAll("_", " ")}
+                    </span>
                   </span>
                 </span>
-              </span>
-              <span className="shrink-0 text-right text-sm font-semibold tabular-nums">
-                <PrivateFinancialValue>{formatMoney(balanceById.get(account.id) ?? 0, currency)}</PrivateFinancialValue>
-              </span>
-            </Link>
-          ))}
-        </div>
-      )}
+                <span className="shrink-0 text-right text-sm font-semibold tabular-nums">
+                  <PrivateFinancialValue>
+                    {formatMoney(balanceById.get(account.id) ?? 0, currency)}
+                  </PrivateFinancialValue>
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -305,7 +309,9 @@ function BillsOutlook({
   overdueCount: number;
   remaining: number;
 }) {
-  const unpaid = items.filter((item) => !item.transactionId).sort((left, right) => left.dueDate.localeCompare(right.dueDate));
+  const unpaid = items
+    .filter((item) => !item.transactionId)
+    .sort((left, right) => left.dueDate.localeCompare(right.dueDate));
   return (
     <Card>
       <CardHeader className="border-b">
@@ -321,7 +327,9 @@ function BillsOutlook({
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-md bg-muted/50 p-3">
             <p className="text-xs text-muted-foreground">Remaining</p>
-            <p className="mt-1 font-semibold tabular-nums"><PrivateFinancialValue>{formatMoney(remaining, currency)}</PrivateFinancialValue></p>
+            <p className="mt-1 font-semibold tabular-nums">
+              <PrivateFinancialValue>{formatMoney(remaining, currency)}</PrivateFinancialValue>
+            </p>
           </div>
           <div className="rounded-md bg-muted/50 p-3">
             <p className="text-xs text-muted-foreground">Overdue</p>
@@ -331,20 +339,33 @@ function BillsOutlook({
         {unpaid.length ? (
           <div className="grid gap-1">
             {unpaid.slice(0, 4).map((item) => (
-              <div className="flex items-center justify-between gap-3 rounded-md px-2 py-2 hover:bg-muted/60" key={item.id}>
+              <div
+                className="flex items-center justify-between gap-3 rounded-md px-2 py-2 hover:bg-muted/60"
+                key={item.id}
+              >
                 <div className="flex min-w-0 items-center gap-2">
-                  {billDueState(item) === "overdue" ? <CircleAlert className="size-4 shrink-0 text-destructive" /> : <CalendarClock className="size-4 shrink-0 text-muted-foreground" />}
+                  {billDueState(item) === "overdue" ? (
+                    <CircleAlert className="size-4 shrink-0 text-destructive" />
+                  ) : (
+                    <CalendarClock className="size-4 shrink-0 text-muted-foreground" />
+                  )}
                   <span className="min-w-0 truncate text-sm">{item.name}</span>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   {dueBadge(billDueState(item))}
-                  <span className="text-sm tabular-nums"><PrivateFinancialValue>{formatMoney(item.plannedAmount, currency)}</PrivateFinancialValue></span>
+                  <span className="text-sm tabular-nums">
+                    <PrivateFinancialValue>
+                      {formatMoney(item.plannedAmount, currency)}
+                    </PrivateFinancialValue>
+                  </span>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <p className="py-4 text-center text-sm text-muted-foreground">No unpaid bills for this month.</p>
+          <p className="py-4 text-center text-sm text-muted-foreground">
+            No unpaid bills for this month.
+          </p>
         )}
       </CardContent>
     </Card>
