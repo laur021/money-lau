@@ -130,7 +130,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Sear
             <FieldGroup className="contents">
               <FilterSelect label="Period" name="period" value={period}>
                 {REPORTING_PERIODS.map((value) => (
-                  <NativeSelectOption key={value} value={value} size="sm">
+                  <NativeSelectOption key={value} value={value}>
                     {PERIOD_LABELS[value]}
                   </NativeSelectOption>
                 ))}
