@@ -3,6 +3,11 @@ import { AppShell } from "@/components/layout/app-shell";
 import { createClient } from "@/lib/supabase/server";
 import { hasSupabaseConfig, readPublicEnv } from "@/lib/validation/env";
 
+// Every child reads the authenticated Supabase session from request cookies.
+// Do not prerender these routes during CI builds, where the public Supabase
+// environment variables are deliberately absent.
+export const dynamic = "force-dynamic";
+
 export default async function ProtectedLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const env = readPublicEnv();
   if (!hasSupabaseConfig(env)) redirect("/login?error=configuration");
