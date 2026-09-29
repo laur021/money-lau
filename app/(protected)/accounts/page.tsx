@@ -151,8 +151,9 @@ export default async function AccountsPage() {
                           <input name="displayOrder" type="hidden" value={account.display_order} />
                           <input name="direction" type="hidden" value="up" />
                           <Button
+                            size="sm"
                             aria-label={`Move ${account.name} up`}
-                            size="icon-sm"
+
                             type="submit"
                             variant="ghost"
                           >
@@ -168,8 +169,9 @@ export default async function AccountsPage() {
                           <input name="displayOrder" type="hidden" value={account.display_order} />
                           <input name="direction" type="hidden" value="down" />
                           <Button
+                            size="sm"
                             aria-label={`Move ${account.name} down`}
-                            size="icon-sm"
+
                             type="submit"
                             variant="ghost"
                           >
@@ -189,7 +191,7 @@ export default async function AccountsPage() {
                             type="hidden"
                             value={String(!account.is_archived)}
                           />
-                          <Button size="sm" type="submit" variant="outline">
+                          <Button size="sm"  type="submit" variant="outline">
                             <ArchiveRestore data-icon="inline-start" />
                             {account.is_archived ? "Restore" : "Archive"}
                           </Button>

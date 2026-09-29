@@ -25,10 +25,14 @@ export function ThemeToggle() {
     <Button
       aria-label={`Switch to ${nextTheme} theme`}
       onClick={() => setTheme(nextTheme)}
-      size="icon"
+      size="icon-sm"
       variant="ghost"
     >
-      {resolvedTheme === "dark" ? <Sun data-icon="inline-start" /> : <Moon data-icon="inline-start" />}
+      {resolvedTheme === "dark" ? (
+        <Sun data-icon="inline-start" />
+      ) : (
+        <Moon data-icon="inline-start" />
+      )}
     </Button>
   );
 }
@@ -38,7 +42,7 @@ export function ThemeToggleMenuButton() {
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
-    () => false,
+    () => false
   );
 
   if (!mounted) {
@@ -58,7 +62,11 @@ export function ThemeToggleMenuButton() {
       tooltip={`Switch to ${nextTheme} theme`}
       type="button"
     >
-      {resolvedTheme === "dark" ? <Sun aria-hidden="true" data-icon="inline-start" /> : <Moon aria-hidden="true" data-icon="inline-start" />}
+      {resolvedTheme === "dark" ? (
+        <Sun aria-hidden="true" data-icon="inline-start" />
+      ) : (
+        <Moon aria-hidden="true" data-icon="inline-start" />
+      )}
       <span>{resolvedTheme === "dark" ? "Light theme" : "Dark theme"}</span>
     </SidebarMenuButton>
   );

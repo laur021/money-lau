@@ -107,7 +107,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Sear
     <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 sm:p-6">
       <PageHeader
         actions={
-          <Button asChild variant="outline" size="sm">
+          <Button size="sm" asChild variant="outline" >
             <a href={`/api/reports/transactions.csv?${exportParameters.toString()}`}>
               <Download data-icon="inline-start" />
               Export filtered CSV
@@ -166,10 +166,10 @@ export default async function ReportsPage({ searchParams }: { searchParams: Sear
               </FilterSelect>
             </FieldGroup>
             <div className="flex gap-2 sm:col-span-2 xl:col-span-5">
-              <Button type="submit" size="sm">
+              <Button size="sm" type="submit" >
                 Apply filters
               </Button>
-              <Button asChild variant="outline" size="sm">
+              <Button size="sm" asChild variant="outline" >
                 <Link href="/reports">Reset</Link>
               </Button>
             </div>

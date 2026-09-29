@@ -1,15 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Save } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
+import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { saveBillTemplate } from "@/features/bills/actions";
 import type { BillAccountOption, BillCategoryOption, BillTemplate } from "@/features/bills/types";
+import { Save } from "lucide-react";
+import { useMemo, useState } from "react";
 
 export function BillTemplateForm({
   accounts,
@@ -29,9 +29,9 @@ export function BillTemplateForm({
       accounts.filter(
         (account) =>
           account.currency === currency &&
-          (!account.is_archived || account.id === template?.defaultAccountId),
+          (!account.is_archived || account.id === template?.defaultAccountId)
       ),
-    [accounts, currency, template?.defaultAccountId],
+    [accounts, currency, template?.defaultAccountId]
   );
   const currencies = [...new Set(accounts.map((account) => account.currency))];
 
@@ -117,7 +117,8 @@ export function BillTemplateForm({
             <NativeSelectOption value="">Choose when paid</NativeSelectOption>
             {matchingAccounts.map((account) => (
               <NativeSelectOption key={account.id} value={account.id}>
-                {account.name}{account.is_archived ? " - archived" : ""}
+                {account.name}
+                {account.is_archived ? " - archived" : ""}
               </NativeSelectOption>
             ))}
           </NativeSelect>
@@ -134,11 +135,14 @@ export function BillTemplateForm({
           >
             <NativeSelectOption value="">Choose when paid</NativeSelectOption>
             {categories
-              .filter((category) => !category.is_archived || category.id === template?.defaultCategoryId)
+              .filter(
+                (category) => !category.is_archived || category.id === template?.defaultCategoryId
+              )
               .map((category) => (
-              <NativeSelectOption key={category.id} value={category.id}>
-                {category.name}{category.is_archived ? " - archived" : ""}
-              </NativeSelectOption>
+                <NativeSelectOption key={category.id} value={category.id}>
+                  {category.name}
+                  {category.is_archived ? " - archived" : ""}
+                </NativeSelectOption>
               ))}
           </NativeSelect>
         </Field>
@@ -152,7 +156,7 @@ export function BillTemplateForm({
           />
         </Field>
       </FieldGroup>
-      <Button className="w-fit" type="submit">
+      <Button size="sm" className="w-fit" type="submit">
         <Save data-icon="inline-start" />
         {template ? "Save template" : "Create template"}
       </Button>

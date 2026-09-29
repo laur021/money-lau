@@ -1,23 +1,10 @@
 "use client";
 
-import {
-  CircleMinus,
-  ExternalLink,
-  Landmark,
-  Plus,
-  RotateCcw,
-} from "lucide-react";
+import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -53,6 +40,7 @@ import {
   SALARY_ALLOCATION_FRACTIONS,
 } from "@/lib/calculations/ph-government-contributions";
 import { formatMoney } from "@/lib/formatting/money";
+import { CircleMinus, ExternalLink, Landmark, Plus, RotateCcw } from "lucide-react";
 
 function numberValue(value: string) {
   return value === "" ? 0 : Number(value);
@@ -91,8 +79,8 @@ export function SalaryComponentEditor({
   const updateComponent = (index: number, patch: Partial<SalaryComponentInput>) => {
     onChange(
       components.map((component, componentIndex) =>
-        componentIndex === index ? { ...component, ...patch } : component,
-      ),
+        componentIndex === index ? { ...component, ...patch } : component
+      )
     );
   };
 
@@ -109,22 +97,17 @@ export function SalaryComponentEditor({
   const updateCalculationType = (index: number, calculationType: SalaryCalculationType) => {
     updateComponent(index, {
       calculationType,
-      fixedAmount: calculationType === "fixed" ? components[index].fixedAmount ?? 0 : undefined,
+      fixedAmount: calculationType === "fixed" ? (components[index].fixedAmount ?? 0) : undefined,
       percentage: calculationType.startsWith("percentage")
-        ? components[index].percentage ?? 0
+        ? (components[index].percentage ?? 0)
         : undefined,
-      hours: calculationType === "hourly" ? components[index].hours ?? 0 : undefined,
-      hourlyRate:
-        calculationType === "hourly" ? components[index].hourlyRate ?? 0 : undefined,
-      multiplier:
-        calculationType === "hourly" ? components[index].multiplier ?? 1 : undefined,
+      hours: calculationType === "hourly" ? (components[index].hours ?? 0) : undefined,
+      hourlyRate: calculationType === "hourly" ? (components[index].hourlyRate ?? 0) : undefined,
+      multiplier: calculationType === "hourly" ? (components[index].multiplier ?? 1) : undefined,
     });
   };
 
-  const toggleGovernmentPreset = (
-    code: PhilippineContributionCode,
-    checked: boolean,
-  ) => {
+  const toggleGovernmentPreset = (code: PhilippineContributionCode, checked: boolean) => {
     if (checked) {
       const rule = PHILIPPINE_CONTRIBUTION_SOURCES[code];
       onChange([
@@ -142,7 +125,7 @@ export function SalaryComponentEditor({
   };
 
   const governmentComponents = components.filter(
-    (component) => component.calculationType === "government_preset",
+    (component) => component.calculationType === "government_preset"
   );
 
   return (
@@ -150,12 +133,8 @@ export function SalaryComponentEditor({
       {components.map((component, index) => {
         const calculatedComponent = calculatedComponents?.[index];
 
-        if (
-          component.calculationType === "government_preset" &&
-          component.governmentPresetCode
-        ) {
-          const rule =
-            PHILIPPINE_CONTRIBUTION_SOURCES[component.governmentPresetCode];
+        if (component.calculationType === "government_preset" && component.governmentPresetCode) {
+          const rule = PHILIPPINE_CONTRIBUTION_SOURCES[component.governmentPresetCode];
           const allocation =
             calculatedComponent?.governmentAllocation ??
             component.governmentAllocation ??
@@ -173,13 +152,10 @@ export function SalaryComponentEditor({
                 {!disabled ? (
                   <CardAction>
                     <Button
+
                       aria-label={`Remove ${rule.shortLabel}`}
                       onClick={() =>
-                        onChange(
-                          components.filter(
-                            (_, componentIndex) => componentIndex !== index,
-                          ),
-                        )
+                        onChange(components.filter((_, componentIndex) => componentIndex !== index))
                       }
                       size="icon-sm"
                       type="button"
@@ -200,18 +176,15 @@ export function SalaryComponentEditor({
                     <dt className="text-muted-foreground">Prescribed monthly</dt>
                     <dd className="font-medium tabular-nums">
                       <PrivateFinancialValue>
-                        {formatMoney(
-                          calculatedComponent?.governmentMonthlyAmount ?? 0,
-                          "PHP",
-                        )}
+                        {formatMoney(calculatedComponent?.governmentMonthlyAmount ?? 0, "PHP")}
                       </PrivateFinancialValue>
                     </dd>
                   </div>
                   <div>
                     <dt className="text-muted-foreground">Allocation</dt>
                     <dd className="font-medium">
-                      {allocationLabel(allocation)} (
-                      {SALARY_ALLOCATION_FRACTIONS[allocation] * 100}%)
+                      {allocationLabel(allocation)} ({SALARY_ALLOCATION_FRACTIONS[allocation] * 100}
+                      %)
                     </dd>
                   </div>
                   <div>
@@ -233,7 +206,7 @@ export function SalaryComponentEditor({
                       onCheckedChange={(checked) =>
                         updateComponent(index, {
                           governmentOverrideAmount: checked
-                            ? calculatedComponent?.calculatedAmount ?? 0
+                            ? (calculatedComponent?.calculatedAmount ?? 0)
                             : undefined,
                         })
                       }
@@ -259,9 +232,7 @@ export function SalaryComponentEditor({
                           min="0"
                           onChange={(event) =>
                             updateComponent(index, {
-                              governmentOverrideAmount: numberValue(
-                                event.target.value,
-                              ),
+                              governmentOverrideAmount: numberValue(event.target.value),
                             })
                           }
                           step="0.01"
@@ -271,6 +242,7 @@ export function SalaryComponentEditor({
                       </Field>
                       {!disabled ? (
                         <Button
+
                           aria-label={`Reset ${rule.shortLabel} to computed amount`}
                           onClick={() =>
                             updateComponent(index, {
@@ -289,7 +261,7 @@ export function SalaryComponentEditor({
                   ) : null}
                 </FieldGroup>
 
-                <Button asChild className="w-fit" size="sm" variant="link">
+                <Button size="sm" asChild className="w-fit"  variant="link">
                   <a href={rule.sourceUrl} rel="noreferrer" target="_blank">
                     <ExternalLink data-icon="inline-start" />
                     Official source
@@ -305,38 +277,27 @@ export function SalaryComponentEditor({
             <CardContent className="pt-4">
               <FieldGroup className="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
                 <Field className="xl:col-span-2">
-                  <FieldLabel htmlFor={`salary-component-name-${index}`}>
-                    Component
-                  </FieldLabel>
+                  <FieldLabel htmlFor={`salary-component-name-${index}`}>Component</FieldLabel>
                   <Input
                     disabled={disabled}
                     id={`salary-component-name-${index}`}
-                    onChange={(event) =>
-                      updateComponent(index, { name: event.target.value })
-                    }
+                    onChange={(event) => updateComponent(index, { name: event.target.value })}
                     value={component.name}
                   />
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor={`salary-component-kind-${index}`}>
-                    Type
-                  </FieldLabel>
+                  <FieldLabel htmlFor={`salary-component-kind-${index}`}>Type</FieldLabel>
                   <NativeSelect
                     className="w-full"
                     disabled={disabled}
                     id={`salary-component-kind-${index}`}
                     onChange={(event) =>
-                      updateKind(
-                        index,
-                        event.target.value as SalaryComponentKind,
-                      )
+                      updateKind(index, event.target.value as SalaryComponentKind)
                     }
                     value={component.kind}
                   >
                     <NativeSelectOption value="earning">Earning</NativeSelectOption>
-                    <NativeSelectOption value="deduction">
-                      Deduction
-                    </NativeSelectOption>
+                    <NativeSelectOption value="deduction">Deduction</NativeSelectOption>
                   </NativeSelect>
                 </Field>
                 <Field className="xl:col-span-2">
@@ -348,17 +309,12 @@ export function SalaryComponentEditor({
                     disabled={disabled}
                     id={`salary-component-calculation-${index}`}
                     onChange={(event) =>
-                      updateCalculationType(
-                        index,
-                        event.target.value as SalaryCalculationType,
-                      )
+                      updateCalculationType(index, event.target.value as SalaryCalculationType)
                     }
                     value={component.calculationType}
                   >
                     <NativeSelectOption value="fixed">Fixed amount</NativeSelectOption>
-                    <NativeSelectOption value="percentage_base">
-                      % of base pay
-                    </NativeSelectOption>
+                    <NativeSelectOption value="percentage_base">% of base pay</NativeSelectOption>
                     {component.kind === "deduction" ? (
                       <NativeSelectOption value="percentage_gross">
                         % of gross pay
@@ -382,13 +338,10 @@ export function SalaryComponentEditor({
                   </div>
                   {!disabled ? (
                     <Button
+
                       aria-label={`Remove ${component.name || "component"}`}
                       onClick={() =>
-                        onChange(
-                          components.filter(
-                            (_, componentIndex) => componentIndex !== index,
-                          ),
-                        )
+                        onChange(components.filter((_, componentIndex) => componentIndex !== index))
                       }
                       size="icon-sm"
                       type="button"
@@ -400,9 +353,7 @@ export function SalaryComponentEditor({
                 </div>
                 {component.calculationType === "fixed" ? (
                   <Field>
-                    <FieldLabel htmlFor={`salary-component-amount-${index}`}>
-                      Amount
-                    </FieldLabel>
+                    <FieldLabel htmlFor={`salary-component-amount-${index}`}>Amount</FieldLabel>
                     <Input
                       disabled={disabled}
                       id={`salary-component-amount-${index}`}
@@ -441,9 +392,7 @@ export function SalaryComponentEditor({
                 {component.calculationType === "hourly" ? (
                   <>
                     <Field>
-                      <FieldLabel htmlFor={`salary-component-hours-${index}`}>
-                        Hours
-                      </FieldLabel>
+                      <FieldLabel htmlFor={`salary-component-hours-${index}`}>Hours</FieldLabel>
                       <Input
                         disabled={disabled}
                         id={`salary-component-hours-${index}`}
@@ -459,9 +408,7 @@ export function SalaryComponentEditor({
                       />
                     </Field>
                     <Field>
-                      <FieldLabel htmlFor={`salary-component-rate-${index}`}>
-                        Rate
-                      </FieldLabel>
+                      <FieldLabel htmlFor={`salary-component-rate-${index}`}>Rate</FieldLabel>
                       <Input
                         disabled={disabled}
                         id={`salary-component-rate-${index}`}
@@ -505,8 +452,9 @@ export function SalaryComponentEditor({
       {!disabled ? (
         <div className="flex flex-wrap gap-2">
           <Button
-            onClick={() => onChange([...components, newComponent("earning")])}
             size="sm"
+            onClick={() => onChange([...components, newComponent("earning")])}
+
             type="button"
             variant="outline"
           >
@@ -514,8 +462,9 @@ export function SalaryComponentEditor({
             Add earning
           </Button>
           <Button
-            onClick={() => onChange([...components, newComponent("deduction")])}
             size="sm"
+            onClick={() => onChange([...components, newComponent("deduction")])}
+
             type="button"
             variant="outline"
           >
@@ -525,8 +474,9 @@ export function SalaryComponentEditor({
           <Dialog>
             <DialogTrigger asChild>
               <Button
-                disabled={currency !== "PHP"}
                 size="sm"
+                disabled={currency !== "PHP"}
+              
                 type="button"
                 variant="outline"
               >
@@ -538,24 +488,22 @@ export function SalaryComponentEditor({
               <DialogHeader>
                 <DialogTitle>Philippine government contributions</DialogTitle>
                 <DialogDescription>
-                  Select private-sector employee deductions to estimate from the
-                  salary bases. Existing presets cannot be duplicated.
+                  Select private-sector employee deductions to estimate from the salary bases.
+                  Existing presets cannot be duplicated.
                 </DialogDescription>
               </DialogHeader>
               <FieldGroup>
                 {philippineContributionCodes.map((code) => {
                   const rule = PHILIPPINE_CONTRIBUTION_SOURCES[code];
                   const checked = governmentComponents.some(
-                    (component) => component.governmentPresetCode === code,
+                    (component) => component.governmentPresetCode === code
                   );
                   return (
                     <Field key={code} orientation="horizontal">
                       <Checkbox
                         checked={checked}
                         id={`government-preset-${code}`}
-                        onCheckedChange={(value) =>
-                          toggleGovernmentPreset(code, value === true)
-                        }
+                        onCheckedChange={(value) => toggleGovernmentPreset(code, value === true)}
                       />
                       <FieldContent>
                         <FieldLabel htmlFor={`government-preset-${code}`}>
@@ -582,8 +530,8 @@ export function SalaryComponentEditor({
           <Landmark />
           <AlertTitle>Estimated government contributions</AlertTitle>
           <AlertDescription>
-            Compare these estimates with your employer&apos;s payslip. They are
-            planning aids, not payroll, tax, or legal advice.
+            Compare these estimates with your employer&apos;s payslip. They are planning aids, not
+            payroll, tax, or legal advice.
           </AlertDescription>
         </Alert>
       ) : null}

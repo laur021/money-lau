@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -121,7 +121,7 @@ export function CategoryForm({
           </NativeSelect>
         </Field>
         <input name="displayOrder" type="hidden" value={category?.display_order ?? 0} />
-        <Button className="w-fit" type="submit">
+        <Button size="sm" className="w-fit" type="submit">
           {category ? <Pencil data-icon="inline-start" /> : <Plus data-icon="inline-start" />}
           {category ? "Save category" : "Add category"}
         </Button>
@@ -140,7 +140,7 @@ export function CategoryEditDialog({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size="sm" variant="outline">
+        <Button size="sm"  variant="outline">
           <Pencil data-icon="inline-start" />
           Edit
         </Button>

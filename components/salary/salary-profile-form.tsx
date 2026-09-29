@@ -1,12 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { BriefcaseBusiness, Save } from "lucide-react";
-import { SalaryComponentEditor } from "@/components/salary/salary-component-editor";
 import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
+import { SalaryComponentEditor } from "@/components/salary/salary-component-editor";
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
@@ -23,6 +21,8 @@ import {
 } from "@/lib/calculations/ph-government-contributions";
 import { calculateSalary } from "@/lib/calculations/salary";
 import { formatMoney } from "@/lib/formatting/money";
+import { BriefcaseBusiness, Save } from "lucide-react";
+import { useMemo, useState } from "react";
 
 type AccountOption = {
   id: string;
@@ -52,38 +52,35 @@ export function SalaryProfileForm({
     accounts.find((account) => account.id === profile?.defaultAccountId) ??
     accounts.find((account) => account.currency === defaultCurrency) ??
     accounts[0];
-  const [currency, setCurrency] = useState(profile?.currency ?? initialAccount?.currency ?? defaultCurrency);
-  const [accountId, setAccountId] = useState(
-    profile?.defaultAccountId ?? initialAccount?.id ?? "",
+  const [currency, setCurrency] = useState(
+    profile?.currency ?? initialAccount?.currency ?? defaultCurrency
   );
+  const [accountId, setAccountId] = useState(profile?.defaultAccountId ?? initialAccount?.id ?? "");
   const [basePay, setBasePay] = useState(profile?.basePay ?? 0);
   const [payFrequency, setPayFrequency] = useState<SalaryPayFrequency>(
-    profile?.payFrequency ?? "monthly",
+    profile?.payFrequency ?? "monthly"
   );
   const initialMonthlyBasis =
     profile?.monthlyBasicSalary ??
     getMonthlySalaryBasis(profile?.basePay ?? 0, profile?.payFrequency ?? "monthly");
   const [monthlyBasicSalary, setMonthlyBasicSalary] = useState(initialMonthlyBasis);
   const [monthlyCompensation, setMonthlyCompensation] = useState(
-    profile?.monthlyCompensation ?? initialMonthlyBasis,
+    profile?.monthlyCompensation ?? initialMonthlyBasis
   );
-  const [governmentAllocation, setGovernmentAllocation] =
-    useState<SalaryContributionAllocation>(
-      profile?.governmentContributionAllocation ??
-        getDefaultGovernmentAllocation(profile?.payFrequency ?? "monthly"),
-    );
+  const [governmentAllocation, setGovernmentAllocation] = useState<SalaryContributionAllocation>(
+    profile?.governmentContributionAllocation ??
+      getDefaultGovernmentAllocation(profile?.payFrequency ?? "monthly")
+  );
   const [basicSalaryEdited, setBasicSalaryEdited] = useState(Boolean(profile));
   const [compensationEdited, setCompensationEdited] = useState(Boolean(profile));
-  const [components, setComponents] = useState<SalaryComponentInput[]>(
-    profile?.components ?? [],
-  );
+  const [components, setComponents] = useState<SalaryComponentInput[]>(profile?.components ?? []);
   const matchingAccounts = accounts.filter(
     (account) =>
       account.currency === currency &&
-      (!account.is_archived || account.id === profile?.defaultAccountId),
+      (!account.is_archived || account.id === profile?.defaultAccountId)
   );
   const hasGovernmentPresets = components.some(
-    (component) => component.calculationType === "government_preset",
+    (component) => component.calculationType === "government_preset"
   );
   const previewDate = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const governmentContext = useMemo(
@@ -94,13 +91,7 @@ export function SalaryProfileForm({
       monthlyCompensation,
       allocation: governmentAllocation,
     }),
-    [
-      currency,
-      governmentAllocation,
-      monthlyBasicSalary,
-      monthlyCompensation,
-      previewDate,
-    ],
+    [currency, governmentAllocation, monthlyBasicSalary, monthlyCompensation, previewDate]
   );
   const calculation = useMemo(() => {
     try {
@@ -108,24 +99,18 @@ export function SalaryProfileForm({
     } catch {
       return null;
     }
-  }, [
-    basePay,
-    components,
-    governmentContext,
-  ]);
+  }, [basePay, components, governmentContext]);
 
   const changeCurrency = (nextCurrency: string) => {
     setCurrency(nextCurrency);
     if (nextCurrency !== "PHP") {
       setComponents((current) =>
-        current.filter(
-          (component) => component.calculationType !== "government_preset",
-        ),
+        current.filter((component) => component.calculationType !== "government_preset")
       );
     }
     setAccountId(
-      accounts.find((account) => account.currency === nextCurrency && !account.is_archived)
-        ?.id ?? "",
+      accounts.find((account) => account.currency === nextCurrency && !account.is_archived)?.id ??
+        ""
     );
   };
 
@@ -154,16 +139,8 @@ export function SalaryProfileForm({
       <input name="components" type="hidden" value={JSON.stringify(components)} />
       {!hasGovernmentPresets ? (
         <>
-          <input
-            name="monthlyBasicSalary"
-            type="hidden"
-            value={monthlyBasicSalary}
-          />
-          <input
-            name="monthlyCompensation"
-            type="hidden"
-            value={monthlyCompensation}
-          />
+          <input name="monthlyBasicSalary" type="hidden" value={monthlyBasicSalary} />
+          <input name="monthlyCompensation" type="hidden" value={monthlyCompensation} />
           <input
             name="governmentContributionAllocation"
             type="hidden"
@@ -210,9 +187,7 @@ export function SalaryProfileForm({
             className="w-full"
             id={`profile-frequency-${profile?.id ?? "new"}`}
             name="payFrequency"
-            onChange={(event) =>
-              changePayFrequency(event.target.value as SalaryPayFrequency)
-            }
+            onChange={(event) => changePayFrequency(event.target.value as SalaryPayFrequency)}
             value={payFrequency}
           >
             <NativeSelectOption value="weekly">Weekly</NativeSelectOption>
@@ -238,14 +213,14 @@ export function SalaryProfileForm({
           </NativeSelect>
         </Field>
         <Field>
-          <FieldLabel htmlFor={`profile-base-${profile?.id ?? "new"}`}>Base pay per period</FieldLabel>
+          <FieldLabel htmlFor={`profile-base-${profile?.id ?? "new"}`}>
+            Base pay per period
+          </FieldLabel>
           <Input
             id={`profile-base-${profile?.id ?? "new"}`}
             min="0"
             name="basePay"
-            onChange={(event) =>
-              changeBasePay(Number(event.target.value) || 0)
-            }
+            onChange={(event) => changeBasePay(Number(event.target.value) || 0)}
             required
             step="0.01"
             type="number"
@@ -356,17 +331,13 @@ export function SalaryProfileForm({
                 id={`profile-allocation-${profile?.id ?? "new"}`}
                 name="governmentContributionAllocation"
                 onChange={(event) =>
-                  setGovernmentAllocation(
-                    event.target.value as SalaryContributionAllocation,
-                  )
+                  setGovernmentAllocation(event.target.value as SalaryContributionAllocation)
                 }
                 value={governmentAllocation}
               >
                 <NativeSelectOption value="full">Full monthly amount</NativeSelectOption>
                 <NativeSelectOption value="half">Half monthly amount</NativeSelectOption>
-                <NativeSelectOption value="quarter">
-                  Quarter monthly amount
-                </NativeSelectOption>
+                <NativeSelectOption value="quarter">Quarter monthly amount</NativeSelectOption>
               </NativeSelect>
             </Field>
           </FieldGroup>
@@ -399,7 +370,7 @@ export function SalaryProfileForm({
         </AlertDescription>
       </Alert>
 
-      <Button className="w-fit" disabled={!accountId || !categories.length} type="submit">
+      <Button size="sm" className="w-fit" disabled={!accountId || !categories.length} type="submit">
         <Save data-icon="inline-start" />
         {profile ? "Save profile" : "Create profile"}
       </Button>

@@ -62,11 +62,7 @@ export default async function LoginPage({
   }
 
   const errorMessage =
-    error && messages[error]
-      ? messages[error]
-      : !configured
-        ? messages.configuration
-        : null;
+    error && messages[error] ? messages[error] : !configured ? messages.configuration : null;
 
   return (
     <main className="min-h-svh bg-background lg:grid lg:grid-cols-[minmax(0,0.82fr)_minmax(36rem,1.18fr)]">
@@ -119,8 +115,8 @@ export default async function LoginPage({
               <div className="flex items-start gap-3 text-xs/relaxed text-muted-foreground">
                 <ShieldCheck aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
                 <p>
-                  Google handles authentication securely. Your Google password is never shared
-                  with MoneyLau.
+                  Google handles authentication securely. Your Google password is never shared with
+                  MoneyLau.
                 </p>
               </div>
             </div>
@@ -147,7 +143,10 @@ export default async function LoginPage({
         <footer className="flex items-center gap-3 text-xs text-muted-foreground">
           <span>MoneyLau</span>
           <span aria-hidden="true">|</span>
-          <Link className="underline-offset-4 hover:text-foreground hover:underline" href="/privacy">
+          <Link
+            className="underline-offset-4 hover:text-foreground hover:underline"
+            href="/privacy"
+          >
             Privacy
           </Link>
           <Link className="underline-offset-4 hover:text-foreground hover:underline" href="/terms">

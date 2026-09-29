@@ -1,9 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Check } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -18,6 +16,8 @@ import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { postBillPayment } from "@/features/bills/actions";
 import type { BillAccountOption, BillCategoryOption, BillItem } from "@/features/bills/types";
+import { Check } from "lucide-react";
+import { useMemo, useState } from "react";
 
 function today() {
   return new Date().toISOString().slice(0, 10);
@@ -35,14 +35,14 @@ export function BillPaymentDialog({
   const [accountId, setAccountId] = useState(item.accountId ?? "");
   const matchingAccounts = useMemo(
     () => accounts.filter((account) => account.currency === item.currency && !account.is_archived),
-    [accounts, item.currency],
+    [accounts, item.currency]
   );
   const activeCategories = categories.filter((category) => !category.is_archived);
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button aria-label={`Mark ${item.name} paid`} size="icon-sm" variant="ghost">
+        <Button  aria-label={`Mark ${item.name} paid`} size="icon-sm" variant="ghost">
           <Check />
         </Button>
       </DialogTrigger>
@@ -92,7 +92,9 @@ export function BillPaymentDialog({
                 required
                 value={accountId}
               >
-                <NativeSelectOption disabled value="">Select account</NativeSelectOption>
+                <NativeSelectOption disabled value="">
+                  Select account
+                </NativeSelectOption>
                 {matchingAccounts.map((account) => (
                   <NativeSelectOption key={account.id} value={account.id}>
                     {account.name}
@@ -109,7 +111,9 @@ export function BillPaymentDialog({
                 name="categoryId"
                 required
               >
-                <NativeSelectOption disabled value="">Select category</NativeSelectOption>
+                <NativeSelectOption disabled value="">
+                  Select category
+                </NativeSelectOption>
                 {activeCategories.map((category) => (
                   <NativeSelectOption key={category.id} value={category.id}>
                     {category.name}
@@ -119,7 +123,7 @@ export function BillPaymentDialog({
             </Field>
           </FieldGroup>
           <DialogFooter>
-            <Button type="submit">
+            <Button size="sm" type="submit">
               <Check data-icon="inline-start" />
               Post payment
             </Button>

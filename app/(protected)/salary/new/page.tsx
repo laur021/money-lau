@@ -1,29 +1,32 @@
-import { ArrowLeft, BriefcaseBusiness } from "lucide-react";
-import Link from "next/link";
 import { SalaryRunForm } from "@/components/salary/salary-run-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { getSalaryOptions, getSalaryProfiles } from "@/features/salary/data";
+import { ArrowLeft, BriefcaseBusiness } from "lucide-react";
+import Link from "next/link";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 function parameterValue(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] ?? "" : value ?? "";
+  return Array.isArray(value) ? (value[0] ?? "") : (value ?? "");
 }
 
 export default async function NewSalaryPage({ searchParams }: { searchParams: SearchParams }) {
   const parameters = await searchParams;
-  const [profiles, options] = await Promise.all([
-    getSalaryProfiles(),
-    getSalaryOptions(),
-  ]);
+  const [profiles, options] = await Promise.all([getSalaryProfiles(), getSalaryOptions()]);
   const profileId = parameterValue(parameters.profile);
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 sm:p-6">
       <div className="flex items-center gap-3">
-        <Button asChild aria-label="Back to salary" size="icon-sm" variant="ghost">
+        <Button size="sm" asChild aria-label="Back to salary" variant="ghost">
           <Link href="/salary">
             <ArrowLeft />
           </Link>
@@ -64,7 +67,7 @@ export default async function NewSalaryPage({ searchParams }: { searchParams: Se
                   A profile provides the employer, pay frequency, receiving account, and defaults.
                 </EmptyDescription>
               </EmptyHeader>
-              <Button asChild variant="outline">
+              <Button size="sm" asChild variant="outline">
                 <Link href="/salary">Return to Salary</Link>
               </Button>
             </Empty>

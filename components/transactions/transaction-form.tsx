@@ -1,16 +1,16 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import {
   ActionFeedbackForm,
   useActionFeedbackFormSubmitting,
 } from "@/components/ui/action-feedback-form";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
-import { createTransaction, updateTransaction } from "@/features/transactions/actions";
 import type { ReceiptDraft } from "@/features/receipts/types";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { createTransaction, updateTransaction } from "@/features/transactions/actions";
 import { Pencil, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -53,7 +53,13 @@ function TransactionSubmitButton({
   const isSubmitting = useActionFeedbackFormSubmitting();
 
   return (
-    <Button className="w-fit" disabled={!canSubmit || isSubmitting} type="submit">
+    <Button
+      size="sm"
+      className="w-fit"
+      disabled={!canSubmit || isSubmitting}
+      type="submit"
+
+    >
       {isEditing ? <Pencil data-icon="inline-start" /> : <Plus data-icon="inline-start" />}
       {isEditing ? "Save transaction" : "Add transaction"}
     </Button>
@@ -74,13 +80,13 @@ export function TransactionForm({
   receiptDraft?: ReceiptTransactionDraft;
 }) {
   const [transactionType, setTransactionType] = useState<"income" | "expense" | "transfer">(
-    initialValue?.transaction_type ?? "expense",
+    initialValue?.transaction_type ?? "expense"
   );
   const [accountId, setAccountId] = useState(
-    initialValue?.account_id ?? (receiptDraft ? "" : accounts[0]?.id ?? ""),
+    initialValue?.account_id ?? (receiptDraft ? "" : (accounts[0]?.id ?? ""))
   );
   const [currency, setCurrency] = useState(
-    initialValue?.currency ?? receiptDraft?.currency ?? accounts[0]?.currency ?? "",
+    initialValue?.currency ?? receiptDraft?.currency ?? accounts[0]?.currency ?? ""
   );
   const sourceAccount = useMemo(
     () => accounts.find((account) => account.id === accountId),
@@ -98,13 +104,15 @@ export function TransactionForm({
   );
   const needsCategory = transactionType !== "transfer";
   const [categoryId, setCategoryId] = useState(
-    initialValue?.category_id ?? (receiptDraft ? "" : matchingCategories[0]?.id ?? ""),
+    initialValue?.category_id ?? (receiptDraft ? "" : (matchingCategories[0]?.id ?? ""))
   );
   const currencyMatchesAccount = Boolean(
-    sourceAccount && currency.trim().toUpperCase() === sourceAccount.currency,
+    sourceAccount && currency.trim().toUpperCase() === sourceAccount.currency
   );
   const canSubmit = Boolean(
-    sourceAccount && currencyMatchesAccount && (!needsCategory || (matchingCategories.length && categoryId)),
+    sourceAccount &&
+    currencyMatchesAccount &&
+    (!needsCategory || (matchingCategories.length && categoryId))
   );
   const prefix = initialValue ? `transaction-${initialValue.id}` : "new-transaction";
 
@@ -119,7 +127,8 @@ export function TransactionForm({
         <Alert>
           <AlertTitle>Review the extracted details</AlertTitle>
           <AlertDescription>
-            Receipt details are a draft only. Confirm the account, category, amount, and date before saving.
+            Receipt details are a draft only. Confirm the account, category, amount, and date before
+            saving.
             {receiptDraft.tax !== null ? ` Detected tax: ${receiptDraft.tax.toFixed(2)}.` : ""}
           </AlertDescription>
         </Alert>
@@ -151,7 +160,9 @@ export function TransactionForm({
               const nextAccountId = event.target.value;
               setAccountId(nextAccountId);
               if (!receiptDraft) {
-                setCurrency(accounts.find((account) => account.id === nextAccountId)?.currency ?? "");
+                setCurrency(
+                  accounts.find((account) => account.id === nextAccountId)?.currency ?? ""
+                );
               }
             }}
             required
@@ -168,7 +179,9 @@ export function TransactionForm({
             )}
           </NativeSelect>
           {receiptDraft ? (
-            <FieldDescription>Select the account manually. It must match the final transaction currency.</FieldDescription>
+            <FieldDescription>
+              Select the account manually. It must match the final transaction currency.
+            </FieldDescription>
           ) : null}
         </Field>
         {transactionType === "transfer" ? (
@@ -209,12 +222,16 @@ export function TransactionForm({
             >
               {matchingCategories.length ? (
                 <>
-                  {receiptDraft ? <NativeSelectOption disabled value="">Select category</NativeSelectOption> : null}
+                  {receiptDraft ? (
+                    <NativeSelectOption disabled value="">
+                      Select category
+                    </NativeSelectOption>
+                  ) : null}
                   {matchingCategories.map((category) => (
-                  <NativeSelectOption key={category.id} value={category.id}>
-                    {category.name}
-                    {category.is_archived ? " - archived" : ""}
-                  </NativeSelectOption>
+                    <NativeSelectOption key={category.id} value={category.id}>
+                      {category.name}
+                      {category.is_archived ? " - archived" : ""}
+                    </NativeSelectOption>
                   ))}
                 </>
               ) : (
@@ -247,13 +264,19 @@ export function TransactionForm({
             value={currency}
           />
           {sourceAccount && !currencyMatchesAccount ? (
-            <FieldDescription>Use {sourceAccount.currency} for the selected account.</FieldDescription>
+            <FieldDescription>
+              Use {sourceAccount.currency} for the selected account.
+            </FieldDescription>
           ) : null}
         </Field>
         <Field>
           <FieldLabel htmlFor={`${prefix}-date`}>Transaction date</FieldLabel>
           <Input
-            defaultValue={initialValue?.transaction_date.slice(0, 10) ?? receiptDraft?.transactionDate ?? undefined}
+            defaultValue={
+              initialValue?.transaction_date.slice(0, 10) ??
+              receiptDraft?.transactionDate ??
+              undefined
+            }
             id={`${prefix}-date`}
             name="transactionDate"
             type="date"

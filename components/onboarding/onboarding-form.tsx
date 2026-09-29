@@ -1,8 +1,8 @@
 "use client";
 
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
@@ -235,7 +235,7 @@ export function OnboardingForm({
           )}
         </FieldGroup>
 
-        <Button className="w-fit" type="submit">
+        <Button size="sm" className="w-fit" type="submit">
           <CheckCircle2 data-icon="inline-start" />
           Finish setup and open dashboard
         </Button>

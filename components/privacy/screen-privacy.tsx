@@ -1,7 +1,5 @@
 "use client";
 
-import * as React from "react";
-import { Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,6 +11,8 @@ import {
 } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { Eye, EyeOff, ShieldCheck } from "lucide-react";
+import * as React from "react";
 
 type ScreenPrivacyContextValue = {
   isScreenPrivate: boolean;
@@ -73,6 +73,7 @@ export function ScreenPrivacyControl() {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
+
               aria-label="Show financial values"
               onClick={() => setIsRevealDialogOpen(true)}
               size="icon-sm"
@@ -84,10 +85,7 @@ export function ScreenPrivacyControl() {
           </TooltipTrigger>
           <TooltipContent>Show financial values</TooltipContent>
         </Tooltip>
-        <ScreenPrivacyRevealDialog
-          onOpenChange={setIsRevealDialogOpen}
-          open={isRevealDialogOpen}
-        />
+        <ScreenPrivacyRevealDialog onOpenChange={setIsRevealDialogOpen} open={isRevealDialogOpen} />
       </>
     );
   }
@@ -96,6 +94,7 @@ export function ScreenPrivacyControl() {
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
+        
           aria-label="Hide financial values"
           onClick={() => setScreenPrivate(true)}
           size="icon-sm"
@@ -128,20 +127,28 @@ function ScreenPrivacyRevealDialog({
             Show financial values?
           </DialogTitle>
           <DialogDescription>
-            Make sure nobody else can see your screen. This will reveal balances, income,
-            expenses, and salary-related figures in this browser tab.
+            Make sure nobody else can see your screen. This will reveal balances, income, expenses,
+            and salary-related figures in this browser tab.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button onClick={() => onOpenChange(false)} type="button" variant="outline">
+          <Button
+            size="sm"
+            onClick={() => onOpenChange(false)}
+            type="button"
+            variant="outline"
+
+          >
             Keep hidden
           </Button>
           <Button
+            size="sm"
             onClick={() => {
               setScreenPrivate(false);
               onOpenChange(false);
             }}
             type="button"
+
           >
             <ShieldCheck data-icon="inline-start" />
             Show values

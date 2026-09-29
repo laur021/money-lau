@@ -62,7 +62,7 @@ export default async function CategoriesPage() {
         actions={
           <Dialog>
             <DialogTrigger asChild>
-              <Button size="sm">
+              <Button size="sm" >
                 <Plus data-icon="inline-start" />
                 Add category
               </Button>
@@ -155,8 +155,9 @@ export default async function CategoriesPage() {
                             />
                             <input name="direction" type="hidden" value="up" />
                             <Button
+                              size="sm"
                               aria-label={`Move ${category.name} up`}
-                              size="icon-sm"
+
                               type="submit"
                               variant="ghost"
                             >
@@ -176,8 +177,9 @@ export default async function CategoriesPage() {
                             />
                             <input name="direction" type="hidden" value="down" />
                             <Button
+                              size="sm"
                               aria-label={`Move ${category.name} down`}
-                              size="icon-sm"
+
                               type="submit"
                               variant="ghost"
                             >
@@ -197,7 +199,7 @@ export default async function CategoriesPage() {
                               type="hidden"
                               value={String(!category.is_archived)}
                             />
-                            <Button size="sm" type="submit" variant="outline">
+                            <Button size="sm"  type="submit" variant="outline">
                               <ArchiveRestore data-icon="inline-start" />
                               {category.is_archived ? "Restore" : "Archive"}
                             </Button>

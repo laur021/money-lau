@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,7 +13,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { requestAccountDeletion } from "@/features/settings/actions";
@@ -22,7 +22,7 @@ export function DeleteAccountDialog() {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive">
+        <Button size="sm" variant="destructive">
           <Trash2 data-icon="inline-start" />
           Request account deletion
         </Button>

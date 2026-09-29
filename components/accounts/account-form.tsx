@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { InstitutionLogo, PHILIPPINE_INSTITUTIONS } from "@/components/accounts/institution-logo";
-import { Button } from "@/components/ui/button";
 import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -34,6 +33,7 @@ import {
 } from "@/components/ui/select";
 import { createAccount, updateAccount } from "@/features/accounts/actions";
 import { Pencil, Plus } from "lucide-react";
+import { useState } from "react";
 
 export type AccountRecord = {
   id: string;
@@ -77,13 +77,13 @@ export function AccountForm({ account }: { account?: AccountRecord }) {
   const action = account ? updateAccount : createAccount;
   const initialInstitution = account?.institution_name ?? "";
   const [selectedInstitutionName, setSelectedInstitutionName] = useState(() =>
-    institutionSelection(initialInstitution),
+    institutionSelection(initialInstitution)
   );
   const [customInstitutionName, setCustomInstitutionName] = useState(() =>
-    selectedInstitutionName === CUSTOM_INSTITUTION ? initialInstitution : "",
+    selectedInstitutionName === CUSTOM_INSTITUTION ? initialInstitution : ""
   );
   const selectedInstitution = PHILIPPINE_INSTITUTIONS.find(
-    ({ name }) => name === selectedInstitutionName,
+    ({ name }) => name === selectedInstitutionName
   );
   const institutionName =
     selectedInstitutionName === CUSTOM_INSTITUTION
@@ -91,7 +91,10 @@ export function AccountForm({ account }: { account?: AccountRecord }) {
       : selectedInstitutionName;
 
   return (
-    <ActionFeedbackForm action={action} successMessage={account ? "Account updated" : "Account added"}>
+    <ActionFeedbackForm
+      action={action}
+      successMessage={account ? "Account updated" : "Account added"}
+    >
       {account ? <input name="id" type="hidden" value={account.id} /> : null}
       <FieldGroup className="grid gap-4 md:grid-cols-2">
         <Field>
@@ -128,30 +131,34 @@ export function AccountForm({ account }: { account?: AccountRecord }) {
             <SelectContent>
               <SelectGroup>
                 <SelectLabel>Banks</SelectLabel>
-                {PHILIPPINE_INSTITUTIONS.filter(({ type }) => type === "bank").map((institution) => (
-                  <SelectItem key={institution.name} value={institution.name}>
-                    <InstitutionLogo
-                      accountType={institution.type}
-                      className="size-7 rounded-sm p-1"
-                      institutionName={institution.name}
-                    />
-                    <span>{institution.name}</span>
-                  </SelectItem>
-                ))}
+                {PHILIPPINE_INSTITUTIONS.filter(({ type }) => type === "bank").map(
+                  (institution) => (
+                    <SelectItem key={institution.name} value={institution.name}>
+                      <InstitutionLogo
+                        accountType={institution.type}
+                        className="size-7 rounded-sm p-1"
+                        institutionName={institution.name}
+                      />
+                      <span>{institution.name}</span>
+                    </SelectItem>
+                  )
+                )}
               </SelectGroup>
               <SelectSeparator />
               <SelectGroup>
                 <SelectLabel>E-wallets</SelectLabel>
-                {PHILIPPINE_INSTITUTIONS.filter(({ type }) => type === "e_wallet").map((institution) => (
-                  <SelectItem key={institution.name} value={institution.name}>
-                    <InstitutionLogo
-                      accountType={institution.type}
-                      className="size-7 rounded-sm p-1"
-                      institutionName={institution.name}
-                    />
-                    <span>{institution.name}</span>
-                  </SelectItem>
-                ))}
+                {PHILIPPINE_INSTITUTIONS.filter(({ type }) => type === "e_wallet").map(
+                  (institution) => (
+                    <SelectItem key={institution.name} value={institution.name}>
+                      <InstitutionLogo
+                        accountType={institution.type}
+                        className="size-7 rounded-sm p-1"
+                        institutionName={institution.name}
+                      />
+                      <span>{institution.name}</span>
+                    </SelectItem>
+                  )
+                )}
               </SelectGroup>
               <SelectSeparator />
               <SelectGroup>
@@ -159,7 +166,9 @@ export function AccountForm({ account }: { account?: AccountRecord }) {
               </SelectGroup>
             </SelectContent>
           </Select>
-          <FieldDescription>Choose from supported Philippine providers or enter another institution.</FieldDescription>
+          <FieldDescription>
+            Choose from supported Philippine providers or enter another institution.
+          </FieldDescription>
         </Field>
         {selectedInstitutionName === CUSTOM_INSTITUTION ? (
           <Field>
@@ -262,7 +271,7 @@ export function AccountForm({ account }: { account?: AccountRecord }) {
           </FieldContent>
         </Field>
         <input name="displayOrder" type="hidden" value={account?.display_order ?? 0} />
-        <Button className="w-fit" type="submit">
+        <Button size="sm" className="w-fit" type="submit">
           {account ? <Pencil data-icon="inline-start" /> : <Plus data-icon="inline-start" />}
           {account ? "Save account" : "Add account"}
         </Button>

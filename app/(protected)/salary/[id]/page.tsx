@@ -1,3 +1,37 @@
+import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
+import { SalaryRunForm } from "@/components/salary/salary-run-form";
+import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { deleteSalaryDraft, postSalaryRun, unpostSalaryRun } from "@/features/salary/actions";
+import { getSalaryOptions, getSalaryProfiles, getSalaryRun } from "@/features/salary/data";
+import {
+  PHILIPPINE_CONTRIBUTION_SOURCES,
+  SALARY_ALLOCATION_FRACTIONS,
+} from "@/lib/calculations/ph-government-contributions";
+import { formatMoney } from "@/lib/formatting/money";
 import { format } from "date-fns";
 import {
   ArrowLeft,
@@ -10,41 +44,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { SalaryRunForm } from "@/components/salary/salary-run-form";
-import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
-import { PrivateFinancialValue } from "@/components/privacy/screen-privacy";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import {
-  deleteSalaryDraft,
-  postSalaryRun,
-  unpostSalaryRun,
-} from "@/features/salary/actions";
-import {
-  getSalaryOptions,
-  getSalaryProfiles,
-  getSalaryRun,
-} from "@/features/salary/data";
-import {
-  PHILIPPINE_CONTRIBUTION_SOURCES,
-  SALARY_ALLOCATION_FRACTIONS,
-} from "@/lib/calculations/ph-government-contributions";
-import { formatMoney } from "@/lib/formatting/money";
 
 type PageParams = Promise<{ id: string }>;
 
@@ -61,7 +60,7 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
   const account = options.accounts.find((item) => item.id === run.accountId);
   const category = options.categories.find((item) => item.id === run.incomeCategoryId);
   const hasGovernmentPresets = run.components.some(
-    (component) => component.calculationType === "government_preset",
+    (component) => component.calculationType === "government_preset"
   );
 
   return (
@@ -90,7 +89,7 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
           {posted ? (
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="outline">
+                <Button size="sm" variant="outline">
                   <RotateCcw data-icon="inline-start" />
                   Unpost salary
                 </Button>
@@ -99,13 +98,17 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
                 <AlertDialogHeader>
                   <AlertDialogTitle>Unpost this salary?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    The linked net-income transaction will be removed and this record will return
-                    to an editable draft.
+                    The linked net-income transaction will be removed and this record will return to
+                    an editable draft.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <ActionFeedbackForm action={unpostSalaryRun} pendingMessage="Unposting salary…" successMessage="Salary unposted">
+                  <ActionFeedbackForm
+                    action={unpostSalaryRun}
+                    pendingMessage="Unposting salary…"
+                    successMessage="Salary unposted"
+                  >
                     <input name="id" type="hidden" value={run.id} />
                     <AlertDialogAction type="submit">Unpost salary</AlertDialogAction>
                   </ActionFeedbackForm>
@@ -116,7 +119,7 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
             <>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="outline">
+                  <Button size="sm" variant="outline">
                     <Trash2 data-icon="inline-start" />
                     Delete draft
                   </Button>
@@ -125,13 +128,17 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
                   <AlertDialogHeader>
                     <AlertDialogTitle>Delete this salary draft?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This permanently removes the saved calculation. No ledger transaction has
-                      been created yet.
+                      This permanently removes the saved calculation. No ledger transaction has been
+                      created yet.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <ActionFeedbackForm action={deleteSalaryDraft} pendingMessage="Deleting draft…" successMessage="Salary draft deleted">
+                    <ActionFeedbackForm
+                      action={deleteSalaryDraft}
+                      pendingMessage="Deleting draft…"
+                      successMessage="Salary draft deleted"
+                    >
                       <input name="id" type="hidden" value={run.id} />
                       <AlertDialogAction type="submit" variant="destructive">
                         Delete draft
@@ -142,7 +149,7 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
               </AlertDialog>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button disabled={run.netPay <= 0}>
+                  <Button size="sm" disabled={run.netPay <= 0}>
                     <Send data-icon="inline-start" />
                     Post net pay
                   </Button>
@@ -155,13 +162,17 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
                       <PrivateFinancialValue>
                         {formatMoney(run.netPay, run.currency)}
                       </PrivateFinancialValue>{" "}
-                      in {account?.name ?? "the selected account"}.
-                      Gross pay and deductions remain only in this salary record.
+                      in {account?.name ?? "the selected account"}. Gross pay and deductions remain
+                      only in this salary record.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <ActionFeedbackForm action={postSalaryRun} pendingMessage="Posting salary…" successMessage="Salary posted to the ledger">
+                    <ActionFeedbackForm
+                      action={postSalaryRun}
+                      pendingMessage="Posting salary…"
+                      successMessage="Salary posted to the ledger"
+                    >
                       <input name="id" type="hidden" value={run.id} />
                       <AlertDialogAction type="submit">Post salary</AlertDialogAction>
                     </ActionFeedbackForm>
@@ -181,7 +192,9 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
                 <CardDescription>Gross pay</CardDescription>
               </CardHeader>
               <CardContent className="text-xl font-semibold tabular-nums">
-                <PrivateFinancialValue>{formatMoney(run.grossPay, run.currency)}</PrivateFinancialValue>
+                <PrivateFinancialValue>
+                  {formatMoney(run.grossPay, run.currency)}
+                </PrivateFinancialValue>
               </CardContent>
             </Card>
             <Card>
@@ -199,7 +212,9 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
                 <CardDescription>Net received</CardDescription>
               </CardHeader>
               <CardContent className="text-xl font-semibold tabular-nums">
-                <PrivateFinancialValue>{formatMoney(run.netPay, run.currency)}</PrivateFinancialValue>
+                <PrivateFinancialValue>
+                  {formatMoney(run.netPay, run.currency)}
+                </PrivateFinancialValue>
               </CardContent>
             </Card>
           </div>
@@ -264,8 +279,8 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
                   <Landmark />
                   <AlertTitle>Estimated government contributions</AlertTitle>
                   <AlertDescription>
-                    These saved amounts are planning estimates. Compare them with
-                    the employer&apos;s payslip.
+                    These saved amounts are planning estimates. Compare them with the
+                    employer&apos;s payslip.
                   </AlertDescription>
                 </Alert>
               ) : null}
@@ -299,9 +314,8 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
                             <a
                               className="inline-flex items-center gap-1 underline-offset-4 hover:underline"
                               href={
-                                PHILIPPINE_CONTRIBUTION_SOURCES[
-                                  component.governmentPresetCode
-                                ].sourceUrl
+                                PHILIPPINE_CONTRIBUTION_SOURCES[component.governmentPresetCode]
+                                  .sourceUrl
                               }
                               rel="noreferrer"
                               target="_blank"
@@ -311,10 +325,7 @@ export default async function SalaryRunPage({ params }: { params: PageParams }) 
                             </a>
                             <span className="text-xs text-muted-foreground">
                               <PrivateFinancialValue>
-                                {formatMoney(
-                                  component.governmentMonthlyAmount ?? 0,
-                                  "PHP",
-                                )}
+                                {formatMoney(component.governmentMonthlyAmount ?? 0, "PHP")}
                               </PrivateFinancialValue>{" "}
                               monthly at{" "}
                               {SALARY_ALLOCATION_FRACTIONS[

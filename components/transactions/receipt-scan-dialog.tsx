@@ -181,7 +181,7 @@ export function ReceiptScanDialog({
 
   return (
     <>
-      <Button onClick={openScanner} type="button" variant="outline" size="sm">
+      <Button size="sm" onClick={openScanner} type="button" variant="outline" >
         <Camera data-icon="inline-start" />
         Scan receipt
       </Button>
@@ -293,18 +293,22 @@ export function ReceiptScanDialog({
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Button
+                    size="sm"
                     onClick={() => uploadInputRef.current?.click()}
                     type="button"
                     variant="outline"
+
                   >
                     <Upload data-icon="inline-start" />
                     Upload image
                   </Button>
                   <Button
+                    size="sm"
                     className="sm:hidden"
                     onClick={() => cameraInputRef.current?.click()}
                     type="button"
                     variant="outline"
+
                   >
                     <Camera data-icon="inline-start" />
                     Take photo
@@ -322,7 +326,13 @@ export function ReceiptScanDialog({
                 </Alert>
               ) : null}
               <DialogFooter>
-                <Button disabled={!file || isScanning} onClick={scanReceipt} type="button">
+                <Button
+                  size="sm"
+                  disabled={!file || isScanning}
+                  onClick={scanReceipt}
+                  type="button"
+
+                >
                   {isScanning ? (
                     <LoaderCircle className="animate-spin" data-icon="inline-start" />
                   ) : (
@@ -347,10 +357,10 @@ export function ReceiptScanDialog({
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button onClick={() => setConsentOpen(false)} type="button" variant="outline">
+            <Button size="sm" onClick={() => setConsentOpen(false)} type="button" variant="outline">
               Not now
             </Button>
-            <Button disabled={isConsenting} onClick={saveConsent} type="button">
+            <Button size="sm" disabled={isConsenting} onClick={saveConsent} type="button">
               <ShieldCheck data-icon="inline-start" />
               Allow scanning
             </Button>

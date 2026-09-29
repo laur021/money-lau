@@ -1,7 +1,7 @@
-import { ArrowLeft, FileQuestion } from "lucide-react";
-import Link from "next/link";
 import { AppLogo } from "@/components/layout/app-logo";
 import { Button } from "@/components/ui/button";
+import { ArrowLeft, FileQuestion } from "lucide-react";
+import Link from "next/link";
 
 export default function NotFound() {
   return (
@@ -20,7 +20,7 @@ export default function NotFound() {
               The MoneyLau page you requested does not exist or may have moved.
             </p>
           </div>
-          <Button asChild>
+          <Button size="sm" asChild>
             <Link href="/dashboard">
               <ArrowLeft data-icon="inline-start" />
               Return to overview

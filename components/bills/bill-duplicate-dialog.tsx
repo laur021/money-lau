@@ -1,8 +1,7 @@
 "use client";
 
-import { Copy } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { duplicateBillItem } from "@/features/bills/actions";
 import type { BillItem } from "@/features/bills/types";
 import { addMonths } from "@/lib/calculations/bills";
+import { Copy } from "lucide-react";
 
 export function BillDuplicateDialog({ item }: { item: BillItem }) {
   return (
@@ -30,7 +30,8 @@ export function BillDuplicateDialog({ item }: { item: BillItem }) {
         <DialogHeader>
           <DialogTitle>Duplicate bill</DialogTitle>
           <DialogDescription>
-            The copy starts unpaid and keeps this bill&apos;s category, account, amount, note, and relative coverage month.
+            The copy starts unpaid and keeps this bill&apos;s category, account, amount, note, and
+            relative coverage month.
           </DialogDescription>
         </DialogHeader>
         <ActionFeedbackForm
@@ -42,7 +43,12 @@ export function BillDuplicateDialog({ item }: { item: BillItem }) {
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor={`bill-duplicate-name-${item.id}`}>Bill name</FieldLabel>
-              <Input defaultValue={item.name} id={`bill-duplicate-name-${item.id}`} name="name" required />
+              <Input
+                defaultValue={item.name}
+                id={`bill-duplicate-name-${item.id}`}
+                name="name"
+                required
+              />
             </Field>
             <Field>
               <FieldLabel htmlFor={`bill-duplicate-month-${item.id}`}>Planner month</FieldLabel>
@@ -56,7 +62,7 @@ export function BillDuplicateDialog({ item }: { item: BillItem }) {
             </Field>
           </FieldGroup>
           <DialogFooter>
-            <Button type="submit">
+            <Button size="sm" type="submit">
               <Copy data-icon="inline-start" />
               Duplicate bill
             </Button>

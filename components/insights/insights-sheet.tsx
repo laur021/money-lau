@@ -1,7 +1,6 @@
 "use client";
 
-import * as React from "react";
-import { EyeOff, LoaderCircle, RotateCcw, SendHorizontal, ShieldCheck, Sparkles } from "lucide-react";
+import { useScreenPrivacy } from "@/components/privacy/screen-privacy";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,9 +25,17 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { InsightMessage } from "@/features/insights/types";
-import { PERIOD_LABELS, REPORTING_PERIODS, type ReportingPeriod } from "@/lib/calculations/periods";
-import { useScreenPrivacy } from "@/components/privacy/screen-privacy";
 import { updateInsightsConsent } from "@/features/settings/actions";
+import { PERIOD_LABELS, REPORTING_PERIODS, type ReportingPeriod } from "@/lib/calculations/periods";
+import {
+  EyeOff,
+  LoaderCircle,
+  RotateCcw,
+  SendHorizontal,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
+import * as React from "react";
 import { toast } from "sonner";
 
 const suggestedQuestions = [
@@ -84,7 +91,11 @@ export function InsightsSheet({
             period,
           }),
         });
-        const payload = (await response.json()) as { answer?: string; code?: string; error?: string };
+        const payload = (await response.json()) as {
+          answer?: string;
+          code?: string;
+          error?: string;
+        };
         if (!response.ok) {
           if (payload.code === "CONSENT_REQUIRED") setConsentDialogOpen(true);
           throw new Error(payload.error ?? "MoneyLau could not prepare an insight.");
@@ -101,7 +112,11 @@ export function InsightsSheet({
         });
         setMessage("");
       } catch (requestError) {
-        setError(requestError instanceof Error ? requestError.message : "MoneyLau could not prepare an insight.");
+        setError(
+          requestError instanceof Error
+            ? requestError.message
+            : "MoneyLau could not prepare an insight."
+        );
       }
     });
   }
@@ -130,14 +145,23 @@ export function InsightsSheet({
           <TooltipTrigger asChild>
             <span>
               <SheetTrigger asChild>
-                <Button aria-label="Ask MoneyLau" disabled={isScreenPrivate} size="sm" type="button" variant="outline">
+                <Button
+                  size="sm"
+                  aria-label="Ask MoneyLau"
+                  disabled={isScreenPrivate}
+
+                  type="button"
+                  variant="outline"
+                >
                   <Sparkles data-icon="inline-start" className="text-primary" />
                   Ask MoneyLau
                 </Button>
               </SheetTrigger>
             </span>
           </TooltipTrigger>
-          {isScreenPrivate ? <TooltipContent>Reveal financial values to use MoneyLau Insights</TooltipContent> : null}
+          {isScreenPrivate ? (
+            <TooltipContent>Reveal financial values to use MoneyLau Insights</TooltipContent>
+          ) : null}
         </Tooltip>
         <SheetContent className="w-full sm:max-w-md">
           <SheetHeader>
@@ -192,26 +216,39 @@ export function InsightsSheet({
 
               <div className="flex flex-wrap gap-2">
                 {suggestedQuestions.map((question) => (
-                  <Button key={question} onClick={() => sendInsight(question)} size="sm" type="button" variant="secondary">
+                  <Button
+                    size="sm"
+                    key={question}
+                    onClick={() => sendInsight(question)}
+
+                    type="button"
+                    variant="secondary"
+                  >
                     {question}
                   </Button>
                 ))}
               </div>
 
               <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
-                {history.length ? history.map((entry, index) => (
-                  <div className="flex flex-col gap-1" key={`${entry.role}-${index}`}>
-                    <Badge className="w-fit" variant={entry.role === "assistant" ? "secondary" : "outline"}>
-                      {entry.role === "assistant" ? "MoneyLau" : "You"}
-                    </Badge>
-                    <p className="whitespace-pre-wrap text-sm leading-6">{entry.content}</p>
-                  </div>
-                )) : (
+                {history.length ? (
+                  history.map((entry, index) => (
+                    <div className="flex flex-col gap-1" key={`${entry.role}-${index}`}>
+                      <Badge
+                        className="w-fit"
+                        variant={entry.role === "assistant" ? "secondary" : "outline"}
+                      >
+                        {entry.role === "assistant" ? "MoneyLau" : "You"}
+                      </Badge>
+                      <p className="whitespace-pre-wrap text-sm leading-6">{entry.content}</p>
+                    </div>
+                  ))
+                ) : (
                   <Alert>
                     <ShieldCheck />
                     <AlertTitle>Private by default</AlertTitle>
                     <AlertDescription>
-                      Your chat is kept only in this browser session. MoneyLau sends an aggregated summary, not your raw transaction details.
+                      Your chat is kept only in this browser session. MoneyLau sends an aggregated
+                      summary, not your raw transaction details.
                     </AlertDescription>
                   </Alert>
                 )}
@@ -221,7 +258,12 @@ export function InsightsSheet({
                     Preparing an insight...
                   </div>
                 ) : null}
-                {error ? <Alert variant="destructive"><AlertTitle>Insight unavailable</AlertTitle><AlertDescription>{error}</AlertDescription></Alert> : null}
+                {error ? (
+                  <Alert variant="destructive">
+                    <AlertTitle>Insight unavailable</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                ) : null}
               </div>
 
               <Field>
@@ -235,16 +277,31 @@ export function InsightsSheet({
                 />
               </Field>
               <div className="flex items-center justify-between gap-2">
-                <Button disabled={isPending || history.length === 0} onClick={clearChat} size="sm" type="button" variant="ghost">
+                <Button
+                  size="sm"
+                  disabled={isPending || history.length === 0}
+                  onClick={clearChat}
+
+                  type="button"
+                  variant="ghost"
+                >
                   <RotateCcw data-icon="inline-start" />
                   New chat
                 </Button>
-                <Button disabled={isPending || !message.trim()} onClick={() => sendInsight()} size="sm" type="button">
+                <Button
+                  size="sm"
+                  disabled={isPending || !message.trim()}
+                  onClick={() => sendInsight()}
+                
+                  type="button"
+                >
                   <SendHorizontal data-icon="inline-start" />
                   Send
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">General budgeting guidance only, not financial, tax, legal, or investment advice.</p>
+              <p className="text-xs text-muted-foreground">
+                General budgeting guidance only, not financial, tax, legal, or investment advice.
+              </p>
             </div>
           )}
         </SheetContent>
@@ -255,12 +312,23 @@ export function InsightsSheet({
           <DialogHeader>
             <DialogTitle>Allow DeepSeek financial summaries?</DialogTitle>
             <DialogDescription>
-              MoneyLau will send a selected, aggregated summary of your balances, completed totals, category spending, Bills, and salary income to DeepSeek for budgeting guidance. It does not send account IDs, transaction descriptions, notes, or merchant names. Current-session follow-ups are sent to DeepSeek, but chats are never saved in MoneyLau.
+              MoneyLau will send a selected, aggregated summary of your balances, completed totals,
+              category spending, Bills, and salary income to DeepSeek for budgeting guidance. It
+              does not send account IDs, transaction descriptions, notes, or merchant names.
+              Current-session follow-ups are sent to DeepSeek, but chats are never saved in
+              MoneyLau.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button onClick={() => setConsentDialogOpen(false)} type="button" variant="outline">Not now</Button>
-            <Button disabled={isConsenting} onClick={grantConsent} type="button">
+            <Button
+              size="sm"
+              onClick={() => setConsentDialogOpen(false)}
+              type="button"
+              variant="outline"
+            >
+              Not now
+            </Button>
+            <Button size="sm" disabled={isConsenting} onClick={grantConsent} type="button">
               <ShieldCheck data-icon="inline-start" />
               Allow Insights
             </Button>

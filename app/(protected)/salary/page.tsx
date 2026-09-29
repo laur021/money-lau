@@ -104,7 +104,7 @@ export default async function SalaryPage() {
           <>
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button size="sm" variant="outline" >
                   <BriefcaseBusiness data-icon="inline-start" />
                   New profile
                 </Button>
@@ -123,7 +123,7 @@ export default async function SalaryPage() {
                 />
               </DialogContent>
             </Dialog>
-            <Button asChild disabled={!activeProfiles.length} size="sm">
+            <Button size="sm" asChild disabled={!activeProfiles.length} >
               <Link
                 aria-disabled={!activeProfiles.length}
                 href={activeProfiles.length ? "/salary/new" : "/salary"}
@@ -224,7 +224,7 @@ export default async function SalaryPage() {
                           </PrivateFinancialValue>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button asChild size="sm" variant="outline">
+                          <Button size="sm" asChild variant="outline">
                             <Link href={`/salary/${run.id}`}>Review</Link>
                           </Button>
                         </TableCell>
@@ -302,7 +302,7 @@ export default async function SalaryPage() {
                           <Badge>Posted</Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button asChild size="sm" variant="outline">
+                          <Button size="sm" asChild variant="outline">
                             <Link href={`/salary/${run.id}`}>Open</Link>
                           </Button>
                         </TableCell>
@@ -378,6 +378,7 @@ export default async function SalaryPage() {
                               <Dialog>
                                 <DialogTrigger asChild>
                                   <Button
+
                                     aria-label={`Edit ${profile.name}`}
                                     size="icon-sm"
                                     variant="ghost"
@@ -416,6 +417,7 @@ export default async function SalaryPage() {
                                 value={profile.isArchived ? "false" : "true"}
                               />
                               <Button
+                                
                                 aria-label={
                                   profile.isArchived
                                     ? `Restore ${profile.name}`

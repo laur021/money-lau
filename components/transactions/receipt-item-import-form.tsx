@@ -8,9 +8,16 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { createReceiptLineItems } from "@/features/transactions/actions";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import type { ReceiptDraft } from "@/features/receipts/types";
+import { createReceiptLineItems } from "@/features/transactions/actions";
 import { formatAmount, formatMoney } from "@/lib/formatting/money";
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -23,11 +30,17 @@ type Category = {
   is_archived?: boolean;
 };
 
-function ReceiptItemsSubmitButton({ canSubmit, itemCount }: { canSubmit: boolean; itemCount: number }) {
+function ReceiptItemsSubmitButton({
+  canSubmit,
+  itemCount,
+}: {
+  canSubmit: boolean;
+  itemCount: number;
+}) {
   const isSubmitting = useActionFeedbackFormSubmitting();
 
   return (
-    <Button className="mt-5" disabled={!canSubmit || isSubmitting} type="submit">
+    <Button size="sm" className="mt-5" disabled={!canSubmit || isSubmitting} type="submit">
       <Plus data-icon="inline-start" />
       Save {itemCount} item{itemCount === 1 ? "" : "s"}
     </Button>
@@ -49,17 +62,17 @@ export function ReceiptItemImportForm({
 }) {
   const availableAccounts = accounts.filter((account) => !account.is_archived);
   const availableCategories = categories.filter(
-    (category) => category.transaction_type === "expense" && !category.is_archived,
+    (category) => category.transaction_type === "expense" && !category.is_archived
   );
   const [accountId, setAccountId] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [currency, setCurrency] = useState(receipt.currency ?? "");
   const [items, setItems] = useState(() =>
-    receipt.items.map((item, index) => ({ id: index, item })),
+    receipt.items.map((item, index) => ({ id: index, item }))
   );
   const selectedAccount = availableAccounts.find((account) => account.id === accountId);
   const currencyMatchesAccount = Boolean(
-    selectedAccount && currency.trim().toUpperCase() === selectedAccount.currency,
+    selectedAccount && currency.trim().toUpperCase() === selectedAccount.currency
   );
   const canSubmit = Boolean(accountId && categoryId && currencyMatchesAccount && items.length);
 
@@ -72,7 +85,13 @@ export function ReceiptItemImportForm({
   }
 
   return (
-    <ActionFeedbackForm action={createReceiptLineItems} onSuccess={onSaved} pendingMessage="Saving receipt items…" successMessage={`${items.length} receipt items saved`} className="flex flex-col gap-4">
+    <ActionFeedbackForm
+      action={createReceiptLineItems}
+      onSuccess={onSaved}
+      pendingMessage="Saving receipt items…"
+      successMessage={`${items.length} receipt items saved`}
+      className="flex flex-col gap-4"
+    >
       <FieldGroup className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <Field>
           <FieldLabel htmlFor="receipt-items-account">Source account</FieldLabel>
@@ -84,9 +103,13 @@ export function ReceiptItemImportForm({
             required
             value={accountId}
           >
-            <NativeSelectOption disabled value="">Select account</NativeSelectOption>
+            <NativeSelectOption disabled value="">
+              Select account
+            </NativeSelectOption>
             {availableAccounts.map((account) => (
-              <NativeSelectOption key={account.id} value={account.id}>{account.name} ({account.currency})</NativeSelectOption>
+              <NativeSelectOption key={account.id} value={account.id}>
+                {account.name} ({account.currency})
+              </NativeSelectOption>
             ))}
           </NativeSelect>
           <FieldDescription>
@@ -103,20 +126,37 @@ export function ReceiptItemImportForm({
             required
             value={categoryId}
           >
-            <NativeSelectOption disabled value="">Select category</NativeSelectOption>
+            <NativeSelectOption disabled value="">
+              Select category
+            </NativeSelectOption>
             {availableCategories.map((category) => (
-              <NativeSelectOption key={category.id} value={category.id}>{category.name}</NativeSelectOption>
+              <NativeSelectOption key={category.id} value={category.id}>
+                {category.name}
+              </NativeSelectOption>
             ))}
           </NativeSelect>
-          <FieldDescription className="text-xs">The selected expense category applies to every item; you can edit individual entries later.</FieldDescription>
+          <FieldDescription className="text-xs">
+            The selected expense category applies to every item; you can edit individual entries
+            later.
+          </FieldDescription>
         </Field>
         <Field>
           <FieldLabel htmlFor="receipt-items-date">Transaction date</FieldLabel>
-          <Input defaultValue={receipt.transactionDate ?? undefined} id="receipt-items-date" name="transactionDate" type="date" />
+          <Input
+            defaultValue={receipt.transactionDate ?? undefined}
+            id="receipt-items-date"
+            name="transactionDate"
+            type="date"
+          />
         </Field>
         <Field>
           <FieldLabel htmlFor="receipt-items-status">Status</FieldLabel>
-          <NativeSelect className="w-full" defaultValue="completed" id="receipt-items-status" name="status">
+          <NativeSelect
+            className="w-full"
+            defaultValue="completed"
+            id="receipt-items-status"
+            name="status"
+          >
             <NativeSelectOption value="completed">Completed</NativeSelectOption>
             <NativeSelectOption value="pending">Pending</NativeSelectOption>
             <NativeSelectOption value="cancelled">Cancelled</NativeSelectOption>
@@ -124,7 +164,12 @@ export function ReceiptItemImportForm({
         </Field>
         <Field>
           <FieldLabel htmlFor="receipt-items-merchant">Merchant</FieldLabel>
-          <Input defaultValue={receipt.merchant ?? ""} id="receipt-items-merchant" name="merchant" placeholder="Optional" />
+          <Input
+            defaultValue={receipt.merchant ?? ""}
+            id="receipt-items-merchant"
+            name="merchant"
+            placeholder="Optional"
+          />
         </Field>
         <Field>
           <FieldLabel htmlFor="receipt-items-currency">Currency</FieldLabel>
@@ -144,10 +189,18 @@ export function ReceiptItemImportForm({
           ) : null}
         </Field>
       </FieldGroup>
-      <section aria-labelledby="receipt-items-heading" className="mt-5 grid gap-3 rounded-lg border p-4">
+      <section
+        aria-labelledby="receipt-items-heading"
+        className="mt-5 grid gap-3 rounded-lg border p-4"
+      >
         <div>
-          <h3 className="font-medium" id="receipt-items-heading">Receipt items</h3>
-          <p className="text-sm text-muted-foreground">Correct an item description or amount, or remove an incorrectly captured item before saving.</p>
+          <h3 className="font-medium" id="receipt-items-heading">
+            Receipt items
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Correct an item description or amount, or remove an incorrectly captured item before
+            saving.
+          </p>
         </div>
         <Table>
           <TableHeader>
@@ -156,16 +209,35 @@ export function ReceiptItemImportForm({
               <TableHead className="text-right">Qty</TableHead>
               <TableHead className="text-right">Unit price</TableHead>
               <TableHead className="text-right">Amount to save</TableHead>
-              <TableHead><span className="sr-only">Actions</span></TableHead>
+              <TableHead>
+                <span className="sr-only">Actions</span>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {items.map(({ id, item }) => (
               <TableRow key={id}>
-                <TableCell className="min-w-44"><Input defaultValue={item.description} name="itemDescription" required /></TableCell>
-                <TableCell className="text-right">{item.quantity === null ? "—" : formatAmount(item.quantity)}</TableCell>
-                <TableCell className="text-right">{item.unitPrice === null ? "—" : formatMoney(item.unitPrice, item.currency ?? receipt.currency ?? "PHP")}</TableCell>
-                <TableCell className="min-w-30"><Input defaultValue={item.totalPrice ?? undefined} min="0.01" name="itemAmount" required step="0.01" type="number" /></TableCell>
+                <TableCell className="min-w-44">
+                  <Input defaultValue={item.description} name="itemDescription" required />
+                </TableCell>
+                <TableCell className="text-right">
+                  {item.quantity === null ? "—" : formatAmount(item.quantity)}
+                </TableCell>
+                <TableCell className="text-right">
+                  {item.unitPrice === null
+                    ? "—"
+                    : formatMoney(item.unitPrice, item.currency ?? receipt.currency ?? "PHP")}
+                </TableCell>
+                <TableCell className="min-w-30">
+                  <Input
+                    defaultValue={item.totalPrice ?? undefined}
+                    min="0.01"
+                    name="itemAmount"
+                    required
+                    step="0.01"
+                    type="number"
+                  />
+                </TableCell>
                 <TableCell>
                   <Button
                     aria-label={`Remove ${item.description || "receipt item"}`}

@@ -190,8 +190,8 @@ function BillGroup({
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button
+                              size="sm"
                               aria-label={`Unpay ${item.name}`}
-                              size="icon-sm"
                               variant="ghost"
                             >
                               <RotateCcw />
@@ -228,8 +228,9 @@ function BillGroup({
                           <Dialog>
                             <DialogTrigger asChild>
                               <Button
+                                size="sm"
                                 aria-label={`Edit ${item.name}`}
-                                size="icon-sm"
+
                                 variant="ghost"
                               >
                                 <Pencil />
@@ -254,8 +255,9 @@ function BillGroup({
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button
+                                size="sm"
                                 aria-label={`Delete ${item.name}`}
-                                size="icon-sm"
+
                                 variant="ghost"
                               >
                                 <Trash2 />
@@ -324,7 +326,7 @@ export default async function BillsPage({ searchParams }: { searchParams: Search
           <>
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button size="sm" variant="outline" >
                   <FilePlus2 data-icon="inline-start" />
                   New template
                 </Button>
@@ -345,7 +347,7 @@ export default async function BillsPage({ searchParams }: { searchParams: Search
             </Dialog>
             <Dialog>
               <DialogTrigger asChild>
-                <Button size="sm">
+                <Button size="sm" >
                   <Plus data-icon="inline-start" />
                   Add bill
                 </Button>
@@ -371,13 +373,13 @@ export default async function BillsPage({ searchParams }: { searchParams: Search
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-1">
-          <Button asChild aria-label="Previous month" size="icon-sm" variant="ghost">
+          <Button size="sm" asChild aria-label="Previous month" variant="ghost">
             <Link href={`/bills?month=${addMonths(plannerMonth, -1)}`}>
               <ArrowLeft />
             </Link>
           </Button>
           <div className="min-w-44 text-center text-sm font-medium">{monthLabel(plannerMonth)}</div>
-          <Button asChild aria-label="Next month" size="icon-sm" variant="ghost">
+          <Button size="sm" asChild aria-label="Next month"  variant="ghost">
             <Link href={`/bills?month=${addMonths(plannerMonth, 1)}`}>
               <ArrowRight />
             </Link>
@@ -389,7 +391,13 @@ export default async function BillsPage({ searchParams }: { searchParams: Search
           successMessage="Recurring bills added"
         >
           <input name="plannerMonth" type="hidden" value={plannerMonth} />
-          <Button disabled={!activeTemplates.length} type="submit" variant="outline" size="sm">
+          <Button
+            size="sm"
+            disabled={!activeTemplates.length}
+            type="submit"
+            variant="outline"
+
+          >
             <CalendarDays data-icon="inline-start" />
             Add recurring bills
           </Button>
@@ -512,8 +520,9 @@ export default async function BillsPage({ searchParams }: { searchParams: Search
                               <Dialog>
                                 <DialogTrigger asChild>
                                   <Button
+                                    size="sm"
                                     aria-label={`Edit ${template.name}`}
-                                    size="icon-sm"
+
                                     variant="ghost"
                                   >
                                     <Pencil />
@@ -550,12 +559,13 @@ export default async function BillsPage({ searchParams }: { searchParams: Search
                                 value={template.isArchived ? "false" : "true"}
                               />
                               <Button
+                                size="sm"
                                 aria-label={
                                   template.isArchived
                                     ? `Restore ${template.name}`
                                     : `Archive ${template.name}`
                                 }
-                                size="icon-sm"
+                           
                                 type="submit"
                                 variant="ghost"
                               >

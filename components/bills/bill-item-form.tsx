@@ -1,9 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Pencil, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { ActionFeedbackForm } from "@/components/ui/action-feedback-form";
+import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
@@ -11,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { saveBillItem } from "@/features/bills/actions";
 import type { BillAccountOption, BillCategoryOption, BillItem } from "@/features/bills/types";
 import { dueDateForMonth } from "@/lib/calculations/bills";
+import { Pencil, Plus } from "lucide-react";
+import { useMemo, useState } from "react";
 
 export function BillItemForm({
   accounts,
@@ -31,9 +31,9 @@ export function BillItemForm({
     () =>
       accounts.filter(
         (account) =>
-          account.currency === currency && (!account.is_archived || account.id === item?.accountId),
+          account.currency === currency && (!account.is_archived || account.id === item?.accountId)
       ),
-    [accounts, currency, item?.accountId],
+    [accounts, currency, item?.accountId]
   );
 
   return (
@@ -105,7 +105,7 @@ export function BillItemForm({
                 <NativeSelectOption key={value} value={value}>
                   {value}
                 </NativeSelectOption>
-              ),
+              )
             )}
           </NativeSelect>
         </Field>
@@ -121,13 +121,16 @@ export function BillItemForm({
             <NativeSelectOption value="">Choose when paid</NativeSelectOption>
             {matchingAccounts.map((account) => (
               <NativeSelectOption key={account.id} value={account.id}>
-                {account.name}{account.is_archived ? " - archived" : ""}
+                {account.name}
+                {account.is_archived ? " - archived" : ""}
               </NativeSelectOption>
             ))}
           </NativeSelect>
         </Field>
         <Field>
-          <FieldLabel htmlFor={`bill-item-category-${item?.id ?? "new"}`}>Expense category</FieldLabel>
+          <FieldLabel htmlFor={`bill-item-category-${item?.id ?? "new"}`}>
+            Expense category
+          </FieldLabel>
           <NativeSelect
             className="w-full"
             defaultValue={item?.categoryId ?? ""}
@@ -138,9 +141,10 @@ export function BillItemForm({
             {categories
               .filter((category) => !category.is_archived || category.id === item?.categoryId)
               .map((category) => (
-              <NativeSelectOption key={category.id} value={category.id}>
-                {category.name}{category.is_archived ? " - archived" : ""}
-              </NativeSelectOption>
+                <NativeSelectOption key={category.id} value={category.id}>
+                  {category.name}
+                  {category.is_archived ? " - archived" : ""}
+                </NativeSelectOption>
               ))}
           </NativeSelect>
         </Field>
@@ -154,7 +158,7 @@ export function BillItemForm({
           />
         </Field>
       </FieldGroup>
-      <Button className="w-fit" type="submit">
+      <Button size="sm" className="w-fit" type="submit">
         {item ? <Pencil data-icon="inline-start" /> : <Plus data-icon="inline-start" />}
         {item ? "Save bill" : "Add bill"}
       </Button>

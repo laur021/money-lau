@@ -208,7 +208,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
           <>
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button size="sm" variant="outline" >
                   <Tags data-icon="inline-start" />
                   Manage tags
                 </Button>
@@ -231,7 +231,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
                     placeholder="reimbursable"
                     required
                   />
-                  <Button type="submit">
+                  <Button size="sm" type="submit">
                     <Plus data-icon="inline-start" />
                     Add
                   </Button>
@@ -245,7 +245,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
                       successMessage="Tag deleted"
                     >
                       <input name="id" type="hidden" value={tag.id} />
-                      <Button size="sm" type="submit" variant="outline">
+                      <Button size="sm"  type="submit" variant="outline">
                         {tag.name}
                         <Trash2 data-icon="inline-end" />
                       </Button>
@@ -268,7 +268,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
             />
             <Dialog>
               <DialogTrigger asChild>
-                <Button size="sm">
+                <Button size="sm" >
                   <Plus data-icon="inline-start" />
                   Add transaction
                 </Button>
@@ -409,7 +409,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
                 <FieldLabel htmlFor="filter-to">To</FieldLabel>
                 <Input defaultValue={to} id="filter-to" name="to" type="date" />
               </Field>
-              <Button className="w-fit mt-auto" type="submit" size="sm">
+              <Button size="sm" className="w-fit mt-auto" type="submit">
                 <Search data-icon="inline-start" />
                 Apply filters
               </Button>
@@ -512,7 +512,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
                       <TableCell>
                         {salaryRunId ? (
                           <div className="flex justify-end">
-                            <Button asChild size="sm" variant="ghost">
+                            <Button size="sm" asChild  variant="ghost">
                               <Link href={`/salary/${salaryRunId}`}>
                                 <BadgeDollarSign data-icon="inline-start" />
                                 Open salary
@@ -521,7 +521,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
                           </div>
                         ) : billItemId ? (
                           <div className="flex justify-end">
-                            <Button asChild size="sm" variant="ghost">
+                            <Button size="sm" asChild  variant="ghost">
                               <Link href="/bills">
                                 <CalendarCheck2 data-icon="inline-start" />
                                 Open bill
@@ -533,9 +533,10 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
                             <Dialog>
                               <DialogTrigger asChild>
                                 <Button
+
                                   aria-label="Edit transaction"
                                   size="icon-sm"
-                                  variant="ghost"
+                                  variant="secondary"
                                 >
                                   <Pencil />
                                 </Button>
@@ -565,9 +566,10 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button
+                                  
                                   aria-label="Delete transaction"
                                   size="icon-sm"
-                                  variant="ghost"
+                                  variant="destructive"
                                 >
                                   <Trash2 />
                                 </Button>

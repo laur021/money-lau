@@ -153,11 +153,11 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
                   </NativeSelectOption>
                 ))}
               </NativeSelect>
-              <Button className="sm:w-auto" size="sm" type="submit" variant="outline">
+              <Button size="sm" className="sm:w-auto"  type="submit" variant="outline">
                 Apply
               </Button>
             </form>
-            <Button asChild className="w-full sm:w-auto" size="sm">
+            <Button size="sm" asChild className="w-full sm:w-auto" >
               <Link href="/transactions">Add transaction</Link>
             </Button>
           </>
@@ -242,7 +242,7 @@ function AccountRail({
           {accounts.length} active account{accounts.length === 1 ? "" : "s"} in {currency}
         </CardDescription>
         <CardAction>
-          <Button asChild size="sm" variant="ghost">
+          <Button size="sm" asChild variant="ghost">
             <Link href="/accounts">Manage accounts</Link>
           </Button>
         </CardAction>
@@ -256,7 +256,7 @@ function AccountRail({
                 Balances and bill affordability start here.
               </p>
             </div>
-            <Button asChild size="sm">
+            <Button size="sm" asChild >
               <Link href="/accounts">
                 <Plus data-icon="inline-start" /> Add account
               </Link>
@@ -318,7 +318,7 @@ function BillsOutlook({
         <CardTitle>Bills outlook</CardTitle>
         <CardDescription>{monthLabel(month)} planned payments</CardDescription>
         <CardAction>
-          <Button asChild size="sm" variant={overdueCount > 0 ? "warning" : "secondary"}>
+          <Button size="sm" asChild variant={overdueCount > 0 ? "warning" : "secondary"}>
             <Link href={`/bills?month=${month}`}>Open Bills</Link>
           </Button>
         </CardAction>

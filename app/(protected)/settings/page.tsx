@@ -201,7 +201,7 @@ export default async function SettingsPage() {
                   </FieldDescription>
                 </FieldContent>
               </Field>
-              <Button className="w-fit" type="submit" size="sm">
+              <Button size="sm" className="w-fit" type="submit" >
                 Save preferences
               </Button>
             </FieldGroup>

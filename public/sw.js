@@ -1,5 +1,6 @@
 const CACHE_NAME = "moneylau-public-assets-v1";
 const PRECACHE_URLS = ["/offline.html", "/icon.svg", "/apple-icon.png"];
+const IS_LOCAL_DEVELOPMENT = ["localhost", "127.0.0.1", "::1"].includes(self.location.hostname);
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS)));
@@ -16,6 +17,10 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
+  // Never intercept local development requests. Turbopack can update a chunk
+  // without changing its URL, which makes a cache-first response stale.
+  if (IS_LOCAL_DEVELOPMENT) return;
+
   const { request } = event;
   if (request.method !== "GET") return;
 

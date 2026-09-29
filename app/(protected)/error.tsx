@@ -1,16 +1,10 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
 export default function ProtectedError({
   error,
@@ -32,16 +26,15 @@ export default function ProtectedError({
           </span>
           <CardTitle>We could not load this page</CardTitle>
           <CardDescription>
-            Your data was not changed. Check your connection and try the request
-            again.
+            Your data was not changed. Check your connection and try the request again.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex gap-2">
-          <Button onClick={reset} type="button">
+          <Button size="sm" onClick={reset} type="button">
             <RefreshCw data-icon="inline-start" />
             Try again
           </Button>
-          <Button asChild variant="outline">
+          <Button size="sm" asChild variant="outline">
             <Link href="/dashboard">Return to overview</Link>
           </Button>
         </CardContent>
